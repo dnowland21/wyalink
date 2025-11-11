@@ -746,3 +746,5 @@ Both applications include health check endpoints at `/health` that return `200 O
 ---
 
 © 2025 WyaLink. All rights reserved. Proprietary and confidential.
+
+**Designed & Maintained by WyaCore, LLC for WyaLink with support from Claude**
