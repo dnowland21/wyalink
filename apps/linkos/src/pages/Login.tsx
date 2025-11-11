@@ -18,14 +18,8 @@ export default function Login() {
           {/* Logo */}
           <img src="/logos/linkos-logo-alt.svg" alt="LinkOS" className="h-10 w-auto mb-16" />
 
-          {/* Main Message */}
+          {/* System Status / Alerts Area */}
           <div className="max-w-md">
-            <h1 className="text-4xl font-bold text-white mb-6">Welcome to LinkOS</h1>
-            <p className="text-xl text-gray-100 mb-12 leading-relaxed">
-              Your end-to-end business management solution for WyaLink operations.
-            </p>
-
-            {/* System Status / Alerts Area */}
             <div className="space-y-4">
               {/* Coming Soon Alert */}
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
@@ -90,9 +84,8 @@ export default function Login() {
         </div>
 
         {/* Footer */}
-        <div className="text-gray-300 text-sm">
+        <div className="text-gray-300 text-sm mt-8">
           <p>© 2025 WyaLink. All rights reserved.</p>
-          <p className="mt-2">Designed & Maintained by WyaCore, LLC</p>
         </div>
       </div>
 

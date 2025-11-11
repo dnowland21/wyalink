@@ -1,11 +1,9 @@
-import { Button } from '@wyalink/ui'
-
 export default function ComingSoon() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-secondary-700 flex items-center justify-center px-4">
       <div className="max-w-4xl mx-auto text-center">
         {/* Logo */}
-        <div className="mb-8">
+        <div className="mb-8 mt-8">
           <img src="/logos/wyalink-logo-alt.svg" alt="WyaLink" className="h-16 w-auto mx-auto mb-6" />
         </div>
 
@@ -69,32 +67,6 @@ export default function ComingSoon() {
               <p className="text-gray-200 text-sm">Real people, local expertise, always here to help</p>
             </div>
           </div>
-
-          {/* Notify Me Form */}
-          <div className="max-w-md mx-auto">
-            <p className="text-gray-100 font-medium mb-4">Get notified when we launch</p>
-            <div className="flex gap-3">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-secondary-400 focus:border-transparent backdrop-blur-sm"
-              />
-              <Button variant="accent" size="lg">
-                Notify Me
-              </Button>
-            </div>
-            <p className="text-sm text-gray-300 mt-3">We'll never share your email. Unsubscribe anytime.</p>
-          </div>
-        </div>
-
-        {/* Footer Info */}
-        <div className="mt-8 text-gray-200">
-          <p className="text-sm">
-            Questions? Email us at{' '}
-            <a href="mailto:info@wyalink.com" className="text-secondary-300 hover:text-secondary-200 underline">
-              info@wyalink.com
-            </a>
-          </p>
         </div>
       </div>
     </div>
