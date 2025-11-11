@@ -1,0 +1,9 @@
+{
+  "name": "@wyalink/config",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tailwind": "./tailwind.config.js"
+  }
+}
