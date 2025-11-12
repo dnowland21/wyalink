@@ -4,14 +4,14 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files from services/email-api directory
+COPY services/email-api/package*.json ./
 
 # Install production dependencies only
 RUN npm ci --only=production
 
-# Copy application source
-COPY . .
+# Copy application source from services/email-api directory
+COPY services/email-api/ ./
 
 # Expose port
 EXPOSE 3001
