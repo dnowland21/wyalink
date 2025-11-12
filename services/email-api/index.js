@@ -65,9 +65,10 @@ async function createTransporter() {
       user: settings['email.smtp.username'],
       pass: settings['email.smtp.password'],
     },
+    requireTLS: true, // Office 365 requires TLS
     tls: {
-      ciphers: 'SSLv3',
-      rejectUnauthorized: false,
+      ciphers: 'HIGH:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!SRP:!CAMELLIA',
+      minVersion: 'TLSv1.2', // Use modern TLS
     },
   }
 
