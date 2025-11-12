@@ -36,7 +36,7 @@ Edit `.env`:
 ```env
 PORT=3001
 VITE_SUPABASE_URL=https://data.wyalink.com
-VITE_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
 ## Development
@@ -69,7 +69,7 @@ Or use Docker:
 docker build -t wyalink-email-api .
 docker run -p 3001:3001 \
   -e VITE_SUPABASE_URL=https://data.wyalink.com \
-  -e VITE_SUPABASE_ANON_KEY=your-key \
+  -e SUPABASE_SERVICE_ROLE_KEY=your-service-role-key \
   wyalink-email-api
 ```
 
@@ -197,7 +197,7 @@ docker run -d -p 3001:3001 \
   --name email-api \
   -e PORT=3001 \
   -e VITE_SUPABASE_URL=https://data.wyalink.com \
-  -e VITE_SUPABASE_ANON_KEY=your-key \
+  -e SUPABASE_SERVICE_ROLE_KEY=your-service-role-key \
   --restart unless-stopped \
   wyalink-email-api
 ```

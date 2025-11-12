@@ -53,7 +53,7 @@ Add the following environment variables in Coolify:
 |--------------|-------|-------------|
 | `PORT` | `3001` | Port the service runs on |
 | `VITE_SUPABASE_URL` | `https://data.wyalink.com` | Your Supabase URL |
-| `VITE_SUPABASE_ANON_KEY` | `your-anon-key` | Your Supabase anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | `your-service-role-key` | Service role key (bypasses RLS) |
 | `NODE_ENV` | `production` | Node environment |
 
 ### 5. Configure Domain (Optional)
