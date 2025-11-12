@@ -53,10 +53,6 @@ async function getEmailSettings() {
 async function createTransporter() {
   const settings = await getEmailSettings()
 
-  console.log('Email settings:', JSON.stringify(settings, null, 2))
-  console.log('email.enabled value:', settings['email.enabled'])
-  console.log('email.enabled type:', typeof settings['email.enabled'])
-
   if (!settings['email.enabled']) {
     throw new Error('Email sending is disabled in settings')
   }
