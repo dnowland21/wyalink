@@ -7,9 +7,11 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm-run-all --parallel dev:*",
+    "dev": "npm-run-all --parallel dev:website dev:linkos",
+    "dev:all": "npm-run-all --parallel dev:website dev:linkos email-api",
     "dev:website": "npm run dev --workspace=@wyalink/website",
     "dev:linkos": "npm run dev --workspace=@wyalink/linkos",
+    "email-api": "cd services/email-api && node index.js",
     "build": "npm-run-all build:*",
     "build:website": "npm run build --workspace=@wyalink/website",
     "build:linkos": "npm run build --workspace=@wyalink/linkos",

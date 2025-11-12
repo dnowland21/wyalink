@@ -1,11 +1,19 @@
-import React, { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth, useIsAdmin } from '@wyalink/supabase-client'
 
 interface LayoutProps {
   children: React.ReactNode
 }
 
-const navItems = [
+interface NavItem {
+  name: string
+  path: string
+  icon: React.ReactNode
+  adminOnly?: boolean
+}
+
+const navItems: NavItem[] = [
   {
     name: 'Dashboard',
     path: '/dashboard',
@@ -27,6 +35,14 @@ const navItems = [
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
     ),
   },
+  {
+    name: 'Settings',
+    path: '/settings',
+    adminOnly: true,
+    icon: (
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+    ),
+  },
 ]
 
 export default function Layout({ children }: LayoutProps) {
@@ -34,6 +50,22 @@ export default function Layout({ children }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, profile, signOut, refreshProfile } = useAuth()
+  const isAdmin = useIsAdmin()
+
+  // Filter nav items based on admin status
+  const visibleNavItems = navItems.filter((item) => !item.adminOnly || isAdmin)
+
+  // Refresh profile data when component mounts
+  useEffect(() => {
+    refreshProfile()
+  }, [])
+
+  const handleSignOut = async () => {
+    await signOut()
+    navigate('/login')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -105,7 +137,7 @@ export default function Layout({ children }: LayoutProps) {
 
           {/* Navigation */}
           <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
-            {navItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const isActive = location.pathname === item.path
               return (
                 <Link
@@ -201,11 +233,15 @@ export default function Layout({ children }: LayoutProps) {
                 >
                   <div className="flex items-center gap-3">
                     <div className="hidden sm:block text-right">
-                      <p className="text-sm font-semibold text-gray-900">User Account</p>
-                      <p className="text-xs text-gray-500">Admin</p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {profile?.first_name && profile?.last_name
+                          ? `${profile.first_name} ${profile.last_name}`
+                          : 'User Account'}
+                      </p>
+                      <p className="text-xs text-gray-500 capitalize">{profile?.role || 'User'}</p>
                     </div>
                     <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center text-white font-semibold text-sm shadow-sm">
-                      U
+                      {profile?.first_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
                     </div>
                   </div>
                   <svg
@@ -224,15 +260,20 @@ export default function Layout({ children }: LayoutProps) {
                     <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)}></div>
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                       <div className="px-4 py-3 border-b border-gray-100">
-                        <p className="text-sm font-semibold text-gray-900">User Account</p>
-                        <p className="text-xs text-gray-500 mt-0.5">user@wyalink.com</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {profile?.first_name && profile?.last_name
+                            ? `${profile.first_name} ${profile.last_name}`
+                            : 'User Account'}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">{user?.email || 'user@wyalink.com'}</p>
                       </div>
-                      <a
-                        href="#"
+                      <Link
+                        to="/profile"
+                        onClick={() => setUserMenuOpen(false)}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                       >
                         Profile Settings
-                      </a>
+                      </Link>
                       <a
                         href="#"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
@@ -240,12 +281,12 @@ export default function Layout({ children }: LayoutProps) {
                         Preferences
                       </a>
                       <div className="border-t border-gray-100 mt-1 pt-1">
-                        <a
-                          href="#"
-                          className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        <button
+                          onClick={handleSignOut}
+                          className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                         >
                           Sign Out
-                        </a>
+                        </button>
                       </div>
                     </div>
                   </>

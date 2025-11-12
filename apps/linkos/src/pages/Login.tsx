@@ -1,13 +1,29 @@
 import { useState } from 'react'
+import { useAuth } from '@wyalink/supabase-client'
+import { useNavigate } from 'react-router-dom'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { signIn } = useAuth()
+  const navigate = useNavigate()
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement authentication
-    console.log('Login attempt:', { email, password })
+    setError(null)
+    setLoading(true)
+
+    const { error } = await signIn({ email, password })
+
+    if (error) {
+      setError(error.message)
+      setLoading(false)
+    } else {
+      navigate('/dashboard')
+    }
   }
 
   return (
@@ -21,7 +37,7 @@ export default function Login() {
           {/* System Status / Alerts Area */}
           <div className="max-w-md">
             <div className="space-y-4">
-              {/* Coming Soon Alert */}
+              {/* Welcome Message */}
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 bg-secondary-400 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -30,14 +46,14 @@ export default function Login() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0121 12a11.955 11.955 0 01-1.382 5.618m-13.236 0A11.955 11.955 0 015 12c0-1.657.337-3.235.944-4.668m0 9.336A11.954 11.954 0 0112 21a11.954 11.954 0 016.056-1.732m0-13.536A11.954 11.954 0 0112 3a11.954 11.954 0 00-6.056 1.732"
                       />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-1">System Coming Soon</h3>
+                    <h3 className="text-lg font-semibold text-white mb-1">Secure Access</h3>
                     <p className="text-gray-200 text-sm leading-relaxed">
-                      Authentication is currently being developed. Full access will be available soon.
+                      Sign in with your WyaLink admin credentials to access the operations dashboard.
                     </p>
                   </div>
                 </div>
@@ -104,23 +120,25 @@ export default function Login() {
               <p className="text-gray-600">Access your LinkOS dashboard</p>
             </div>
 
-            {/* Coming Soon Notice - Mobile */}
-            <div className="lg:hidden mb-6 bg-secondary-50 border border-secondary-200 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-secondary-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <div>
-                  <p className="text-sm font-medium text-secondary-900">System Coming Soon</p>
-                  <p className="text-xs text-secondary-700 mt-1">Authentication is currently being developed.</p>
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-medium text-red-900">Authentication Error</p>
+                    <p className="text-xs text-red-700 mt-1">{error}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email Field */}
@@ -134,7 +152,8 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@wyalink.com"
-                  disabled
+                  required
+                  disabled={loading}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
@@ -155,31 +174,19 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  disabled
+                  required
+                  disabled={loading}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
-              </div>
-
-              {/* Remember Me */}
-              <div className="flex items-center">
-                <input
-                  id="remember"
-                  type="checkbox"
-                  disabled
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded disabled:cursor-not-allowed"
-                />
-                <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
-                  Remember me for 30 days
-                </label>
               </div>
 
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled
+                disabled={loading}
                 className="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
-                Sign In
+                {loading ? 'Signing In...' : 'Sign In'}
               </button>
             </form>
 

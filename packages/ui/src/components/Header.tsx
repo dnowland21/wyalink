@@ -13,6 +13,7 @@ interface HeaderProps {
   showCTA?: boolean
   ctaText?: string
   ctaLink?: string
+  authButton?: React.ReactNode
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -22,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   showCTA = false,
   ctaText = 'Get Started',
   ctaLink = '/plans',
+  authButton,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -82,6 +84,7 @@ export const Header: React.FC<HeaderProps> = ({
                 {ctaText}
               </Link>
             )}
+            {authButton && <div className="ml-4">{authButton}</div>}
           </div>
 
           <div className="md:hidden">
