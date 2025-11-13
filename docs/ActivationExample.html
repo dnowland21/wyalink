@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WyaLink – New Line Experience (Concept)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --wy-navy: #00254a;
+      --wy-teal: #36b1b3;
+      --wy-bg: #edf2f5;
+      --wy-card: #ffffff;
+      --radius-lg: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #ffffff 0%, #edf2f5 45%, #dbe4ea 100%);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      color: #0f172a;
+    }
+    .app {
+      width: min(1150px, 100%);
+      background: #fff;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(0,0,0,.08);
+      border: 1px solid rgba(0,0,0,.02);
+    }
+    header {
+      background: linear-gradient(135deg, var(--wy-navy) 0%, #01415e 40%, var(--wy-teal) 120%);
+      color: #fff;
+      padding: 16px 22px 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+    }
+    .brand-title small {
+      display: block;
+      opacity: .65;
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+    .brand-title h1 {
+      margin: 3px 0 0;
+      font-size: 1.25rem;
+    }
+    .app-badge {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 999px;
+      padding: 4px 12px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: .72rem;
+    }
+    .steps {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .step {
+      background: rgba(0,0,0,.08);
+      border-radius: 999px;
+      padding: 4px 10px 5px;
+      font-size: .62rem;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .step.active {
+      background: #fff;
+      color: var(--wy-navy);
+      font-weight: 600;
+    }
+    .step-num {
+      width: 18px;
+      height: 18px;
+      background: rgba(255,255,255,.2);
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      font-size: .55rem;
+    }
+    .content {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+      padding: 18px 18px 16px;
+    }
+    @media (max-width: 930px) {
+      .content { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--wy-card);
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,.025);
+      box-shadow: 0 6px 24px rgba(0,0,0,.018);
+      padding: 14px 14px 10px;
+    }
+    h2.label {
+      margin-top: 0;
+      font-size: .92rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .sub {
+      font-size: .7rem;
+      opacity: .6;
+    }
+    .field { margin-bottom: 10px; }
+    .field label {
+      display: block;
+      font-size: .72rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #00254a;
+    }
+    .field input,
+    .field select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(0,37,74,.14);
+      background: #fff;
+      padding: 7px 10px;
+      font-size: .8rem;
+    }
+    .choice-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .choice {
+      flex: 1;
+      border: 1px solid rgba(0,37,74,.08);
+      border-radius: 12px;
+      padding: 8px 8px;
+      font-size: .73rem;
+      display: flex;
+      gap: 8px;
+      cursor: pointer;
+      background: #f8fafb;
+      transition: .12s ease;
+    }
+    .choice:hover {
+      border-color: rgba(54,177,179,.8);
+    }
+    .choice.active {
+      background: rgba(54,177,179,.12);
+      border-color: rgba(54,177,179,.7);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+    }
+    .choice-icon {
+      width: 26px;
+      height: 26px;
+      background: rgba(0,37,74,.06);
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: .6rem;
+      color: #00254a;
+    }
+    .number-tray {
+      background: #f1f6f7;
+      border: 1px dashed rgba(54,177,179,.5);
+      border-radius: 14px;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+    .btn-sm {
+      background: #00254a;
+      border: none;
+      color: #fff;
+      border-radius: 9px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: .7rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .num-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .num-pill {
+      background: #fff;
+      border: 1px solid rgba(0,37,74,.12);
+      border-radius: 10px;
+      padding: 5px 8px;
+      font-size: .7rem;
+      cursor: pointer;
+    }
+    .num-pill.active {
+      background: rgba(0,37,74,.1);
+      border-color: #00254a;
+      font-weight: 600;
+    }
+    .port-card {
+      background: linear-gradient(140deg, rgba(0,37,74,.05), rgba(54,177,179,.08));
+      border-radius: 14px;
+      border: 1px solid rgba(0,37,74,.1);
+      padding: 8px 10px 8px;
+    }
+    .row-2 {
+      display: flex;
+      gap: 8px;
+    }
+    .row-2 .field { flex: 1; }
+    .sim-switch {
+      display: flex;
+      gap: 8px;
+    }
+    .sim-btn {
+      flex: 1;
+      background: #edf2f5;
+      border: none;
+      border-radius: 10px;
+      padding: 6px 8px;
+      font-size: .72rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      align-items: center;
+      color: #00254a;
+    }
+    .sim-btn.active {
+      background: rgba(54,177,179,.16);
+      border: 1px solid rgba(54,177,179,.4);
+      font-weight: 600;
+    }
+    .right-panel .status-pill {
+      background: rgba(0,37,74,.05);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: .65rem;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .summary-list {
+      font-size: .7rem;
+      background: #f4f7f9;
+      border-radius: 10px;
+      padding: 10px;
+      border: 1px solid rgba(0,0,0,.025);
+    }
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      gap: 12px;
+    }
+    .summary-item span:first-child {
+      opacity: .55;
+    }
+    .json-box {
+      background: #0f172a;
+      color: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .65rem;
+      border-radius: 10px;
+      padding: 8px 9px;
+      margin-top: 10px;
+      max-height: 180px;
+      overflow: auto;
+    }
+    footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 10px 18px 16px;
+      background: #fff;
+      border-top: 1px solid rgba(0,0,0,.03);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #36b1b3 0%, #1e98c0 100%);
+      border: none;
+      color: #fff;
+      border-radius: 11px;
+      padding: 7px 15px 8px;
+      font-weight: 600;
+      font-size: .78rem;
+      cursor: pointer;
+    }
+    .btn-ghost {
+      background: rgba(0,37,74,.03);
+      color: #00254a;
+      border: none;
+      border-radius: 11px;
+      padding: 7px 12px 8px;
+      font-weight: 500;
+      font-size: .78rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <div class="brand-title">
+          <small>WyaLink / Internal Ops</small>
+          <h1>Activate New Line</h1>
+        </div>
+        <div class="steps">
+          <div class="step active">
+            <div class="step-num">1</div>
+            Line Source
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            Plan & Device
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            Confirm
+          </div>
+        </div>
+      </div>
+      <div class="app-badge" id="app-badge">App # —</div>
+    </header>
+
+    <div class="content">
+      <!-- LEFT SIDE -->
+      <div class="panel">
+        <h2 class="label">
+          Line Source
+          <span class="sub">Pick how this line is created</span>
+        </h2>
+
+        <div class="choice-row">
+          <div class="choice active" id="choice-generate">
+            <div class="choice-icon">GN</div>
+            <div>
+              <div style="font-weight:600;">Generate new number</div>
+              <div style="font-size:.63rem; opacity:.7;">Pull from local pool</div>
+            </div>
+          </div>
+          <div class="choice" id="choice-port">
+            <div class="choice-icon">PT</div>
+            <div>
+              <div style="font-weight:600;">Port in existing</div>
+              <div style="font-size:.63rem; opacity:.7;">From Verizon, AT&T, etc.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Generate numbers area -->
+        <div id="gen-area" class="number-tray">
+          <p style="font-size:.68rem; margin:0 0 6px;">Enter ZIP to localize the number:</p>
+          <div class="field" style="margin-bottom:6px;">
+            <label for="zip" style="font-size:.63rem;">ZIP Code</label>
+            <input id="zip" type="text" placeholder="e.g. 18853" maxlength="5" />
+          </div>
+          <button class="btn-sm" id="btn-gen">
+            <span id="btn-gen-text">Generate numbers</span>
+            <span id="btn-gen-spin" class="spinner" style="display:none;"></span>
+          </button>
+          <div style="font-size:.58rem; opacity:.6; margin-top:3px;" id="zip-note">
+            No ZIP? We'll try 570 by default.
+          </div>
+          <div class="num-pills" id="num-pills" style="display:none; margin-top:6px;"></div>
+        </div>
+
+        <!-- Port card -->
+        <div id="port-area" class="port-card" style="display:none;">
+          <p style="font-size:.7rem; font-weight:600; margin-bottom:6px; color:#00254a;">Porting Details</p>
+          <div class="field">
+            <label for="port-num">Phone number to port</label>
+            <input id="port-num" type="tel" placeholder="(570) 555-4921" />
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label for="acct">Account #</label>
+              <input id="acct" type="text" placeholder="From losing carrier" />
+            </div>
+            <div class="field">
+              <label for="pin">Transfer PIN</label>
+              <input id="pin" type="text" placeholder="4-6 digits / carrier code" />
+            </div>
+          </div>
+          <p style="font-size:.6rem; opacity:.75; margin-top:4px;">We recommend verifying name, ZIP and billing password before submitting.</p>
+        </div>
+
+        <hr style="margin:14px 0 10px; border:none; border-bottom:1px solid rgba(0,0,0,.04);">
+
+        <h2 class="label">
+          Plan & Device
+          <span class="sub">Choose plan and SIM type</span>
+        </h2>
+
+        <div class="field">
+          <label for="plan">Plan</label>
+          <select id="plan">
+            <option value="">— Select a WyaLink plan —</option>
+            <option value="Breeze">$25 — Breeze (5GB)</option>
+            <option value="Stream">$35 — Stream (15GB)</option>
+            <option value="Ridge">$45 — Ridge (30GB)</option>
+            <option value="Liberty">$60 — Liberty (50GB)</option>
+          </select>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="imei">IMEI</label>
+            <input id="imei" type="text" placeholder="15-17 digits" />
+          </div>
+          <div class="field">
+            <label for="iccid">ICCID</label>
+            <input id="iccid" type="text" placeholder="SIM / eSIM identifier" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>SIM Type</label>
+          <div class="sim-switch">
+            <button class="sim-btn active" id="sim-esim">eSIM</button>
+            <button class="sim-btn" id="sim-psim">pSIM</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT SIDE -->
+      <div class="panel right-panel">
+        <h2 class="label">
+          Activation Ledger
+          <span class="sub">Values that will be posted</span>
+        </h2>
+        <div class="status-pill" id="status-pill">
+          ● Draft
+        </div>
+
+        <div class="summary-list">
+          <div class="summary-item">
+            <span>Application #</span>
+            <strong id="sum-app">—</strong>
+          </div>
+          <div class="summary-item">
+            <span>Mode</span>
+            <strong id="sum-mode">Generate</strong>
+          </div>
+          <div class="summary-item">
+            <span>Number</span>
+            <strong id="sum-num">—</strong>
+          </div>
+          <div class="summary-item">
+            <span>Plan</span>
+            <strong id="sum-plan">—</strong>
+          </div>
+          <div class="summary-item">
+            <span>SIM</span>
+            <strong id="sum-sim">eSIM</strong>
+          </div>
+          <div class="summary-item">
+            <span>IMEI</span>
+            <strong id="sum-imei">—</strong>
+          </div>
+          <div class="summary-item">
+            <span>ICCID</span>
+            <strong id="sum-iccid">—</strong>
+          </div>
+          <div class="summary-item">
+            <span>ZIP Source</span>
+            <strong id="sum-zip">—</strong>
+          </div>
+        </div>
+
+        <div class="json-box" id="json-box">{
+  "applicationId": "",
+  "mode": "generate",
+  "number": null,
+  "plan": null,
+  "imei": null,
+  "iccid": null,
+  "simType": "eSIM",
+  "zip": null,
+  "portInfo": null
+}</div>
+      </div>
+    </div>
+
+    <footer>
+      <button class="btn-ghost" onclick="alert('Would return to customer dashboard');">Back</button>
+      <button class="btn-primary" onclick="goNext()">Continue to Confirm</button>
+    </footer>
+  </div>
+
+  <script>
+    // ---- App ID ----
+    function createAppId() {
+      const d = Date.now().toString().slice(-5);
+      const r = Math.floor(Math.random()*900+100);
+      return "WY-" + d + "-" + r;
+    }
+    const appId = createAppId();
+    document.getElementById("app-badge").textContent = "App # " + appId;
+    document.getElementById("sum-app").textContent = appId;
+
+    // ---- Elements ----
+    const choiceGenerate = document.getElementById("choice-generate");
+    const choicePort = document.getElementById("choice-port");
+    const genArea = document.getElementById("gen-area");
+    const portArea = document.getElementById("port-area");
+    const numPills = document.getElementById("num-pills");
+    const btnGen = document.getElementById("btn-gen");
+    const btnGenText = document.getElementById("btn-gen-text");
+    const btnGenSpin = document.getElementById("btn-gen-spin");
+    const zipInput = document.getElementById("zip");
+    const zipNote = document.getElementById("zip-note");
+
+    const planSel = document.getElementById("plan");
+    const imei = document.getElementById("imei");
+    const iccid = document.getElementById("iccid");
+
+    const simEsim = document.getElementById("sim-esim");
+    const simPsim = document.getElementById("sim-psim");
+
+    const sumMode = document.getElementById("sum-mode");
+    const sumNum = document.getElementById("sum-num");
+    const sumPlan = document.getElementById("sum-plan");
+    const sumSim = document.getElementById("sum-sim");
+    const sumImei = document.getElementById("sum-imei");
+    const sumIccid = document.getElementById("sum-iccid");
+    const sumZip = document.getElementById("sum-zip");
+    const jsonBox = document.getElementById("json-box");
+
+    const portNum = document.getElementById("port-num");
+    const portAcct = document.getElementById("acct");
+    const portPin = document.getElementById("pin");
+
+    let selectedNumber = null;
+    let mode = "generate";
+    let simType = "eSIM";
+    let currentZip = null;
+    let currentAreaCode = "570"; // default for your area
+
+    // maps for demo
+    function areaCodeFromZip(zip) {
+      // real world: call NPA/NXX or your inventory service
+      if (zip === "18853") return "570";      // Wyalusing-ish
+      if (zip === "18848") return "570";      // Towanda
+      if (zip === "18850") return "570";
+      // fallback to 570
+      return "570";
+    }
+
+    function renderJSON() {
+      const payload = {
+        applicationId: appId,
+        mode,
+        number: (mode === "generate") ? selectedNumber : (portNum.value || null),
+        plan: planSel.value || null,
+        imei: imei.value || null,
+        iccid: iccid.value || null,
+        simType,
+        zip: currentZip,
+        portInfo: (mode === "port") ? {
+          accountNumber: portAcct.value || null,
+          transferPin: portPin.value || null,
+        } : null
+      };
+      jsonBox.textContent = JSON.stringify(payload, null, 2);
+    }
+
+    // switch to generate
+    choiceGenerate.addEventListener("click", () => {
+      choiceGenerate.classList.add("active");
+      choicePort.classList.remove("active");
+      genArea.style.display = "block";
+      portArea.style.display = "none";
+      mode = "generate";
+      sumMode.textContent = "Generate";
+      sumNum.textContent = selectedNumber || "—";
+      renderJSON();
+    });
+
+    // switch to port
+    choicePort.addEventListener("click", () => {
+      choicePort.classList.add("active");
+      choiceGenerate.classList.remove("active");
+      genArea.style.display = "none";
+      portArea.style.display = "block";
+      mode = "port";
+      sumMode.textContent = "Port";
+      sumNum.textContent = portNum.value || "—";
+      renderJSON();
+    });
+
+    // generate numbers
+    btnGen.addEventListener("click", () => {
+      btnGenSpin.style.display = "inline-block";
+      btnGenText.textContent = "Generating…";
+
+      // read zip
+      const z = zipInput.value.trim();
+      currentZip = z || null;
+      currentAreaCode = areaCodeFromZip(z);
+
+      // update in summary
+      sumZip.textContent = currentZip ? currentZip + " → " + currentAreaCode : "—";
+
+      // show what we picked in note
+      if (currentZip) {
+        zipNote.textContent = "Using area code " + currentAreaCode + " for ZIP " + currentZip;
+      } else {
+        zipNote.textContent = "No ZIP, using default area code " + currentAreaCode;
+      }
+
+      // simulate async
+      setTimeout(() => {
+        btnGenSpin.style.display = "none";
+        btnGenText.textContent = "Generate again";
+        numPills.style.display = "flex";
+        numPills.innerHTML = "";
+
+        // make fake numbers for that area code
+        const pool = [
+          `+1 (${currentAreaCode}) 555-${Math.floor(Math.random()*9000 + 1000)}`,
+          `+1 (${currentAreaCode}) 555-${Math.floor(Math.random()*9000 + 1000)}`,
+          `+1 (${currentAreaCode}) 555-${Math.floor(Math.random()*9000 + 1000)}`,
+          `+1 (${currentAreaCode}) 555-${Math.floor(Math.random()*9000 + 1000)}`
+        ];
+
+        pool.forEach(num => {
+          const el = document.createElement("div");
+          el.className = "num-pill" + (selectedNumber === num ? " active" : "");
+          el.textContent = num;
+          el.addEventListener("click", () => {
+            selectedNumber = num;
+            sumNum.textContent = num;
+            Array.from(numPills.children).forEach(c => c.classList.remove("active"));
+            el.classList.add("active");
+            renderJSON();
+          });
+          numPills.appendChild(el);
+        });
+
+        if (!selectedNumber) {
+          selectedNumber = pool[0];
+          sumNum.textContent = pool[0];
+          numPills.children[0].classList.add("active");
+        }
+
+        renderJSON();
+      }, 750);
+    });
+
+    // port fields update
+    portNum.addEventListener("input", () => {
+      if (mode === "port") {
+        sumNum.textContent = portNum.value || "—";
+        renderJSON();
+      }
+    });
+    portAcct.addEventListener("input", renderJSON);
+    portPin.addEventListener("input", renderJSON);
+
+    // plan/device updates
+    planSel.addEventListener("change", () => {
+      sumPlan.textContent = planSel.value || "—";
+      renderJSON();
+    });
+    imei.addEventListener("input", () => {
+      sumImei.textContent = imei.value || "—";
+      renderJSON();
+    });
+    iccid.addEventListener("input", () => {
+      sumIccid.textContent = iccid.value || "—";
+      renderJSON();
+    });
+
+    // sim toggle
+    simEsim.addEventListener("click", () => {
+      simEsim.classList.add("active");
+      simPsim.classList.remove("active");
+      simType = "eSIM";
+      sumSim.textContent = "eSIM";
+      renderJSON();
+    });
+    simPsim.addEventListener("click", () => {
+      simPsim.classList.add("active");
+      simEsim.classList.remove("active");
+      simType = "pSIM";
+      sumSim.textContent = "pSIM";
+      renderJSON();
+    });
+
+    function goNext() {
+      alert("This would move to the Confirmation screen.\n\n" + jsonBox.textContent);
+    }
+    window.goNext = goNext;
+
+    // initial
+    renderJSON();
+  </script>
+</body>
+</html>

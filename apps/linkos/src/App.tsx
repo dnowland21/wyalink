@@ -26,6 +26,14 @@ import Login from './pages/Login'
 import ProfileSettings from './pages/ProfileSettings'
 import Settings from './pages/Settings'
 import Insight from './pages/Insight'
+import Orders from './pages/Orders'
+import Queue from './pages/Queue'
+import POS from './pages/POS'
+import Tickets from './pages/Tickets'
+import Investigations from './pages/Investigations'
+import Incidents from './pages/Incidents'
+import Invoices from './pages/Invoices'
+import Payments from './pages/Payments'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth()
@@ -84,6 +92,14 @@ function App() {
                   <Route path="/profile" element={<ProfileSettings />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/insight" element={<Insight />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/queue" element={<Queue />} />
+                  <Route path="/pos" element={<POS />} />
+                  <Route path="/tickets" element={<Tickets />} />
+                  <Route path="/investigations" element={<Investigations />} />
+                  <Route path="/incidents" element={<Incidents />} />
+                  <Route path="/invoices" element={<Invoices />} />
+                  <Route path="/payments" element={<Payments />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>

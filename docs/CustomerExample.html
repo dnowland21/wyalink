@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WyaLink – Customer Lines Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --wy-dark: #00254a;
+      --wy-accent: #36b1b3;
+      --wy-bg: #f3f6f8;
+      --wy-border: rgba(0,0,0,.05);
+      --radius-lg: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--wy-bg);
+      display: flex;
+      justify-content: center;
+      padding: 30px 14px 80px;
+      color: #0f172a;
+    }
+    .app-frame {
+      width: min(1100px, 100%);
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 20px 45px rgba(0,0,0,.08);
+      overflow: hidden;
+      border: 1px solid rgba(0,37,74,.05);
+    }
+    .topbar {
+      background: radial-gradient(600px 200px at 10% 0%, #36b1b3, #00254a 60%);
+      color: #fff;
+      padding: 16px 22px 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .topbar-sub {
+      font-size: 13px;
+      opacity: .78;
+      margin-top: 2px;
+    }
+    .topbar-right {
+      display: flex;
+      gap: 8px;
+    }
+    .btn {
+      border: none;
+      background: rgba(255,255,255,.2);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .main {
+      padding: 18px 0 4px;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 0;
+    }
+    /* left panel / customer meta */
+    .sidebar {
+      border-right: 1px solid rgba(0,0,0,.04);
+      padding: 0 18px 12px;
+    }
+    .cust-card {
+      background: linear-gradient(140deg, #e5f6f7, #fff);
+      border: 1px solid rgba(54,177,179,.22);
+      padding: 14px 14px 10px;
+      border-radius: 16px;
+      margin-bottom: 10px;
+    }
+    .cust-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: #072f54;
+    }
+    .cust-id {
+      font-size: 12px;
+      opacity: .65;
+      margin-top: 2px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(0,37,74,.06);
+      border-radius: 999px;
+      padding: 4px 9px 3px;
+      font-size: 11px;
+      margin-top: 7px;
+    }
+    .section-title {
+      font-size: 12px;
+      margin-top: 16px;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: rgba(0,0,0,.6);
+      font-weight: 600;
+    }
+    .sidebar small {
+      display: block;
+      font-size: 12px;
+      color: rgba(0,0,0,.5);
+    }
+
+    /* lines list */
+    .lines-panel {
+      padding: 0 18px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .line-item {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,.05);
+      overflow: hidden;
+      transition: box-shadow .18s ease;
+    }
+    .line-item.open {
+      box-shadow: 0 15px 30px rgba(0,37,74,.08);
+      border-color: rgba(0,37,74,.09);
+    }
+    .line-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px 12px 16px;
+      cursor: pointer;
+    }
+    .line-number-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .line-pill {
+      width: 32px;
+      height: 32px;
+      border-radius: 14px;
+      background: rgba(0,37,74,.07);
+      border: 1px solid rgba(0,37,74,.089);
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      color: #00254a;
+      flex: 0 0 auto;
+    }
+    .line-number {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      color: #0f172a;
+      word-break: break-word;
+    }
+    .line-status {
+      font-size: 11px;
+      background: #eaf7f7;
+      color: #165b5b;
+      padding: 3px 9px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .line-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .exp-btn {
+      width: 32px;
+      height: 32px;
+      background: #00254a;
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 21px;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      transition: transform .15s ease;
+    }
+    .line-item.open .exp-btn {
+      transform: rotate(45deg);
+      background: #94c5c6;
+      color: #00254a;
+    }
+    .line-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .23s ease;
+      background: #f8fafc;
+      border-top: 1px solid rgba(0,0,0,.03);
+    }
+    .line-item.open .line-body {
+      max-height: 320px; /* enough for demo */
+    }
+    .line-inner {
+      padding: 14px 16px 16px;
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 16px;
+    }
+    .device-pic {
+      background: #fff;
+      border: 1px dashed rgba(0,37,74,.2);
+      border-radius: 12px;
+      min-height: 130px;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      color: rgba(0,37,74,.55);
+    }
+    .device-meta h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #00254a;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .plan-pill {
+      display: inline-block;
+      background: #00254a;
+      color: #fff;
+      font-size: 11px;
+      border-radius: 999px;
+      padding: 3px 8px 2px;
+      margin-left: 2px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .kv {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 3px 6px;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    .kv label {
+      font-weight: 600;
+      color: rgba(0,0,0,.6);
+    }
+    .actions-row {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .chip-action {
+      border: none;
+      border-radius: 999px;
+      padding: 5px 12px 4px;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+      font-weight: 500;
+    }
+    .chip-esim { background: #f3e7ff; color: #402160; }
+    .chip-psim { background: #e6f7ff; color: #074b6d; }
+    .chip-change { background: #fff4db; color: #735515; }
+    .chip-upgrade { background: #ffe5e5; color: #6f1a1a; }
+    .chip-update { background: #e2f9f0; color: #107151; }
+
+    /* responsive */
+    @media (max-width: 880px) {
+      .main {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        border-right: none;
+        border-bottom: 1px solid rgba(0,0,0,.05);
+        margin-bottom: 10px;
+      }
+      .line-inner {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-frame">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">WyaLink • Customer Account</div>
+        <div class="topbar-sub">Showing lines on account #8675309123</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn">+ Add Line</button>
+        <button class="btn">Account Actions</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- LEFT: CUSTOMER META -->
+      <div class="sidebar">
+        <div class="cust-card">
+          <div class="cust-name">John Doe</div>
+          <div class="cust-id">Primary • since 03/05/2022</div>
+          <div class="badge">2 active lines</div>
+        </div>
+        <div class="section-title">Account Notes</div>
+        <small>• Breezy plan on line 1<br>• Wants to upgrade device in October<br>• ESIM capable</small>
+        <div class="section-title">Billing</div>
+        <small>Current balance: $135.42<br>Autopay: Enabled (WyaPay)</small>
+      </div>
+
+      <!-- RIGHT: LINES -->
+      <div class="lines-panel" id="linesPanel">
+        <!-- LINE 1 -->
+        <div class="line-item" data-lineid="5707212446">
+          <div class="line-header">
+            <div class="line-number-wrap">
+              <div class="line-pill">1</div>
+              <div>
+                <div class="line-number">570 721 2446 <span class="plan-pill">Breeze</span></div>
+                <div class="line-status">Active</div>
+              </div>
+            </div>
+            <div class="line-actions">
+              <button class="exp-btn" aria-label="Expand line">+</button>
+            </div>
+          </div>
+          <div class="line-body">
+            <div class="line-inner">
+              <div class="device-pic">
+                Photo of Phone
+              </div>
+              <div class="device-meta">
+                <h3>iPhone 17 Pro Max </h3>
+                <div class="kv">
+                  <label>IMEI:</label><span>359897652210698</span>
+                  <label>ICCID:</label><span>89012004377353915552</span>
+                  <label>Line Type:</label><span>ESIM</span>
+                  <label>Last Change:</label><span>2025-10-12 14:31</span>
+                </div>
+                <div class="actions-row">
+                  <button class="chip-action chip-change">Change Device</button>
+                  <button class="chip-action chip-upgrade">Upgrade</button>
+                  <button class="chip-action chip-update">Update</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LINE 2 -->
+        <div class="line-item" data-lineid="5704977880">
+          <div class="line-header">
+            <div class="line-number-wrap">
+              <div class="line-pill">2</div>
+              <div>
+                <div class="line-number">570 497 7880 <span class="plan-pill" style="background:#36b1b3">Stream</span></div>
+                <div class="line-status">Active</div>
+              </div>
+            </div>
+            <div class="line-actions">
+              <button class="exp-btn" aria-label="Expand line">+</button>
+            </div>
+          </div>
+          <div class="line-body">
+            <div class="line-inner">
+              <div class="device-pic" style="border-style:solid">
+                Photo of Tablet
+              </div>
+              <div class="device-meta">
+                <h3>iPad Air (Cellular)</h3>
+                <div class="kv">
+                  <label>IMEI:</label><span>351992883445778</span>
+                  <label>ICCID:</label><span>89012300777112233559</span>
+                  <label>Line Type:</label><span>pSIM</span>
+                  <label>Last Change:</label><span>2025-09-01 09:15</span>
+                </div>
+                <div class="actions-row">
+                  <button class="chip-action chip-change">Change Device</button>
+                  <button class="chip-action chip-upgrade">Upgrade</button>
+                  <button class="chip-action chip-update">Update</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LINE 3 (example inactive) -->
+        <div class="line-item" data-lineid="5705551889">
+          <div class="line-header">
+            <div class="line-number-wrap">
+              <div class="line-pill">3</div>
+              <div>
+                <div class="line-number">570 555 1889</div>
+                <div class="line-status" style="background:#fbe9ee;color:#7e1130;">Suspended</div>
+              </div>
+            </div>
+            <div class="line-actions">
+              <button class="exp-btn" aria-label="Expand line">+</button>
+            </div>
+          </div>
+          <div class="line-body">
+            <div class="line-inner">
+              <div class="device-pic">
+                No Device
+              </div>
+              <div class="device-meta">
+                <h3>Line Suspended</h3>
+                <p style="font-size:12px;margin-top:4px;max-width:420px;">
+                  This line is currently suspended. Clear billing or override to reactivate.
+                </p>
+                <div class="actions-row">
+                  <button class="chip-action chip-update">Reactivate</button>
+                  <button class="chip-action chip-change">Assign Device</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // basic accordion logic
+    document.querySelectorAll(".line-header").forEach(header => {
+      header.addEventListener("click", () => {
+        const parent = header.closest(".line-item");
+        parent.classList.toggle("open");
+      });
+    });
+
+    // OPTIONAL: if you want "only one open at a time", uncomment this:
+    /*
+    document.querySelectorAll(".line-header").forEach(header => {
+      header.addEventListener("click", () => {
+        const parent = header.closest(".line-item");
+        const openItem = document.querySelector(".line-item.open");
+        if (openItem && openItem !== parent) {
+          openItem.classList.remove("open");
+        }
+        parent.classList.toggle("open");
+      });
+    });
+    */
+  </script>
+</body>
+</html>
