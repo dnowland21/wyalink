@@ -2,12 +2,28 @@
 
 ## Lead to Customer Conversion Error
 
-**Issue**: Converting a lead to a customer fails with error: "null value in column 'billing_address_line1' of relation 'customers' violates not-null constraint"
+**Issue**: Converting a lead to a customer fails with error:
 
-**Root Cause**: The database function `convert_lead_to_customer` attempts to create a customer record using lead information, but leads don't have billing address fields. The `customers` table requires `billing_address_line1` (and other address fields) as NOT NULL, but these fields don't exist in the `leads` table.
+- "null value in column 'billing_address_line1' of relation 'customers' violates not-null constraint"
+- "null value in column 'account_number' of relation 'customers' violates not-null constraint"
+- "value too long for type character varying(2)" (billing_country or shipping_country with 'USA' instead of 'US')
 
-**Permanent Fix**:
-Update the `convert_lead_to_customer` database function in Supabase to handle missing billing address fields. The function should either:
+**Root Cause**: The database function `convert_lead_to_customer` has multiple issues:
+
+1. Tries to copy billing/shipping country codes from leads table that may contain 'USA' (3 chars) instead of 'US' (2 chars)
+2. May not set the required account_number field
+3. Doesn't handle missing billing address fields properly
+
+**IMMEDIATE FIX REQUIRED:**
+🚨 **You must run the SQL script below in Supabase Dashboard to fix the database function:**
+
+1. Go to Supabase Dashboard → SQL Editor
+2. Copy and paste the entire SQL script from Option 1 below
+3. Click "Run" to replace the broken function
+4. Test the lead conversion again
+
+**Permanent Fix Options:**
+Update the `convert_lead_to_customer` database function in Supabase. The function should either:
 
 1. **Use placeholder values** for required address fields:
 
