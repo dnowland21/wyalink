@@ -31,6 +31,7 @@ export default function InventoryModal({ isOpen, onClose, inventory }: Inventory
   const [storage, setStorage] = useState('')
   const [color, setColor] = useState('')
   const [quantityOnHand, setQuantityOnHand] = useState('0')
+  const [trackSerialNumbers, setTrackSerialNumbers] = useState(false)
 
   useEffect(() => {
     if (inventory) {
@@ -46,6 +47,7 @@ export default function InventoryModal({ isOpen, onClose, inventory }: Inventory
       setStorage(inventory.storage || '')
       setColor(inventory.color || '')
       setQuantityOnHand(inventory.quantity_on_hand.toString())
+      setTrackSerialNumbers(inventory.track_serial_numbers || false)
     } else {
       resetForm()
     }
@@ -64,6 +66,7 @@ export default function InventoryModal({ isOpen, onClose, inventory }: Inventory
     setStorage('')
     setColor('')
     setQuantityOnHand('0')
+    setTrackSerialNumbers(false)
     setError(null)
   }
 
@@ -86,6 +89,7 @@ export default function InventoryModal({ isOpen, onClose, inventory }: Inventory
         storage: storage || undefined,
         color: color || undefined,
         quantity_on_hand: parseInt(quantityOnHand) || 0,
+        track_serial_numbers: trackSerialNumbers,
       }
 
       let result
@@ -267,7 +271,7 @@ export default function InventoryModal({ isOpen, onClose, inventory }: Inventory
 
             {/* Pricing and Quantity */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Pricing & Quantity</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-4">Pricing, Quantity & Tracking</h3>
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Retail Price ($)</label>
@@ -303,6 +307,20 @@ export default function InventoryModal({ isOpen, onClose, inventory }: Inventory
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
+              </div>
+              <div className="mt-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={trackSerialNumbers}
+                    onChange={(e) => setTrackSerialNumbers(e.target.checked)}
+                    className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500 border-gray-300"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Track individual serial numbers</span>
+                </label>
+                <p className="text-xs text-gray-500 ml-6 mt-1">
+                  Enable this to track each unit individually by serial number and IMEI (for phones/devices)
+                </p>
               </div>
             </div>
           </div>

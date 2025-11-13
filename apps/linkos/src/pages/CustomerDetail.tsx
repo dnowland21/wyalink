@@ -11,6 +11,7 @@ import {
   type LineStatus,
 } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
+import CustomerModal from '../components/CustomerModal'
 
 const typeColors: Record<LeadType, string> = {
   business: 'bg-purple-100 text-purple-800',
@@ -37,6 +38,7 @@ export default function CustomerDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'lines' | 'subscriptions' | 'billing'>('overview')
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   useEffect(() => {
     if (!id) {
@@ -46,6 +48,13 @@ export default function CustomerDetail() {
 
     fetchCustomerData()
   }, [id])
+
+  const handleEditModalClose = (shouldRefresh?: boolean) => {
+    setIsEditModalOpen(false)
+    if (shouldRefresh) {
+      fetchCustomerData()
+    }
+  }
 
   const fetchCustomerData = async () => {
     if (!id) return
@@ -138,7 +147,10 @@ export default function CustomerDetail() {
               </div>
             </div>
           </div>
-          <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+          <button
+            onClick={() => setIsEditModalOpen(true)}
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          >
             Edit Customer
           </button>
         </div>
@@ -453,6 +465,13 @@ export default function CustomerDetail() {
           <div className="text-center py-8 text-gray-600">Billing management coming soon...</div>
         </Card>
       )}
+
+      {/* Edit Customer Modal */}
+      <CustomerModal
+        isOpen={isEditModalOpen}
+        onClose={handleEditModalClose}
+        customer={customer}
+      />
     </div>
   )
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getQuotes, type Quote, type QuoteStatus } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
+import QuoteModal from '../components/QuoteModal'
 
 const statusColors: Record<QuoteStatus, string> = {
   draft: 'bg-gray-100 text-gray-800',
@@ -17,6 +18,7 @@ export default function Quotes() {
   const [filteredQuotes, setFilteredQuotes] = useState<Quote[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false)
 
   // Filters
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -69,6 +71,13 @@ export default function Quotes() {
   useEffect(() => {
     fetchQuotes()
   }, [])
+
+  const handleQuoteModalClose = (shouldRefresh?: boolean) => {
+    setIsQuoteModalOpen(false)
+    if (shouldRefresh) {
+      fetchQuotes()
+    }
+  }
 
   // Apply filters
   useEffect(() => {
@@ -184,7 +193,10 @@ export default function Quotes() {
               <option value="expired">Expired</option>
               <option value="converted">Converted</option>
             </select>
-            <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+            <button
+              onClick={() => setIsQuoteModalOpen(true)}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+            >
               + Create Quote
             </button>
           </div>
@@ -342,6 +354,9 @@ export default function Quotes() {
           </div>
         </Card>
       </div>
+
+      {/* Quote Modal */}
+      <QuoteModal isOpen={isQuoteModalOpen} onClose={handleQuoteModalClose} />
     </div>
   )
 }

@@ -8,6 +8,7 @@ import Customers from './pages/Customers'
 import CustomerDetail from './pages/CustomerDetail'
 import Plans from './pages/Plans'
 import Inventory from './pages/Inventory'
+import InventoryDetail from './pages/InventoryDetail'
 import SimCards from './pages/SimCards'
 import Lines from './pages/Lines'
 import Quotes from './pages/Quotes'
@@ -59,6 +60,7 @@ function App() {
                   <Route path="/customers/:id" element={<CustomerDetail />} />
                   <Route path="/plans" element={<Plans />} />
                   <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/inventory/:id" element={<InventoryDetail />} />
                   <Route path="/sim-cards" element={<SimCards />} />
                   <Route path="/lines" element={<Lines />} />
                   <Route path="/quotes" element={<Quotes />} />

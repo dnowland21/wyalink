@@ -288,10 +288,16 @@ export interface Inventory {
   upc: string | null
   retail_price: number | null
   cost: number | null
+  cost_per_unit: number
   brand: string | null
+  model: string | null
+  sku: string | null
   storage: string | null
   color: string | null
   quantity_on_hand: number
+  reorder_point: number | null
+  reorder_quantity: number | null
+  track_serial_numbers: boolean
   created_at: string
   updated_at: string
 }
@@ -684,9 +690,14 @@ export interface CreateInventoryForm {
   retail_price?: number
   cost?: number
   brand?: string
+  model?: string
+  sku?: string
   storage?: string
   color?: string
   quantity_on_hand?: number
+  reorder_point?: number
+  reorder_quantity?: number
+  track_serial_numbers?: boolean
 }
 
 export interface UpdateInventoryForm {
@@ -699,9 +710,14 @@ export interface UpdateInventoryForm {
   retail_price?: number
   cost?: number
   brand?: string
+  model?: string
+  sku?: string
   storage?: string
   color?: string
   quantity_on_hand?: number
+  reorder_point?: number
+  reorder_quantity?: number
+  track_serial_numbers?: boolean
 }
 
 export interface CreateSimCardForm {
@@ -798,7 +814,7 @@ export interface CreateQuoteForm {
   expires_at: string
   notes?: string
   terms?: string
-  items: CreateQuoteItemForm[]
+  items?: CreateQuoteItemForm[]
   promotion_ids?: string[]
 }
 
