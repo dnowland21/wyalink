@@ -1,31 +1,51 @@
 # Known Issues
 
+## CRITICAL: Incomplete Database Schema
+
+**Issue**: The MVNO database schema ([docs/mvno_complete_schema.sql](docs/mvno_complete_schema.sql)) is incomplete. Line 786-787 states "Similar policies for other tables... (Abbreviated for brevity)" which means RLS is enabled on 14 tables but INSERT/UPDATE/DELETE policies were only created for the `customers` table.
+
+**Impact**: All CRUD operations fail with "new row violates row-level security policy" errors for:
+- vendors
+- plans
+- inventory
+- inventory_serials
+- inventory_vendors
+- sim_cards
+- lines
+- user_plans
+- subscriptions
+- promotions
+- quotes
+- quote_items
+- quote_promotions
+
+**IMMEDIATE FIX REQUIRED:**
+🚨 **Run this SQL script in Supabase Dashboard → SQL Editor:**
+
+See [docs/FIX_ALL_RLS_POLICIES.sql](docs/FIX_ALL_RLS_POLICIES.sql) - this adds all 39 missing RLS policies (INSERT/UPDATE/DELETE for 13 tables).
+
+**Date Identified**: 2025-11-12
+
+---
+
 ## Lead to Customer Conversion Error
 
-**Issue**: Converting a lead to a customer fails with error:
+**Issue**: Converting a lead to a customer fails with multiple errors:
 
 - "null value in column 'billing_address_line1' of relation 'customers' violates not-null constraint"
 - "null value in column 'account_number' of relation 'customers' violates not-null constraint"
 - "value too long for type character varying(2)" (billing_country or shipping_country with 'USA' instead of 'US')
+- "insert or update on table 'leads' violates foreign key constraint 'leads_converted_to_user_id_fkey'"
 
 **Root Cause**: The database function `convert_lead_to_customer` has multiple issues:
 
 1. Tries to copy billing/shipping country codes from leads table that may contain 'USA' (3 chars) instead of 'US' (2 chars)
 2. May not set the required account_number field
 3. Doesn't handle missing billing address fields properly
+4. Tries to set `converted_to_user_id` (FK to auth.users) instead of `customer_id` (FK to customers)
 
 **IMMEDIATE FIX REQUIRED:**
-🚨 **You must run the SQL script below in Supabase Dashboard to fix the database function:**
-
-1. Go to Supabase Dashboard → SQL Editor
-2. Copy and paste the entire SQL script from Option 1 below
-3. Click "Run" to replace the broken function
-4. Test the lead conversion again
-
-**Permanent Fix Options:**
-Update the `convert_lead_to_customer` database function in Supabase. The function should either:
-
-1. **Use placeholder values** for required address fields:
+🚨 **Run this SQL script in Supabase Dashboard → SQL Editor:**
 
 ```sql
 CREATE OR REPLACE FUNCTION convert_lead_to_customer(lead_uuid UUID)
@@ -104,7 +124,8 @@ END;
 $$ LANGUAGE plpgsql;
 ```
 
-2. **OR make billing address fields nullable** in the customers table:
+**Alternative Fix**:
+Make billing address fields nullable in the customers table:
 
 ```sql
 ALTER TABLE customers ALTER COLUMN billing_address_line1 DROP NOT NULL;
@@ -113,110 +134,80 @@ ALTER TABLE customers ALTER COLUMN billing_state DROP NOT NULL;
 ALTER TABLE customers ALTER COLUMN billing_zip DROP NOT NULL;
 ```
 
-**Temporary Workaround**:
-Leads with incomplete address information cannot be converted until the database function is updated. Users should manually create customer records with full billing addresses.
+**Date Identified**: 2025-11-12
+
+---
+
+## Invalid Lead-to-Plans Relationship
+
+**Issue**: Lead queries fail with error: "Could not find a relationship between 'leads' and 'plans' in the schema cache"
+
+**Root Cause**: All lead query functions were trying to join with `plans` table using `interested_plan:plans(*)` but this foreign key relationship doesn't exist in the database schema.
+
+**Status**: ✅ **FIXED** in application code
+
+**Fix Applied**: Removed invalid `.select('*, interested_plan:plans(*)')` from all lead functions in [packages/supabase-client/src/leads.ts](packages/supabase-client/src/leads.ts)
 
 **Date Identified**: 2025-11-12
 
-## Vendor RLS Policy Error
+---
 
-**Issue**: Creating or updating vendor records fails with error: "new row violates row-level security policy for table 'vendors'"
+## VARCHAR(2) Constraint Violations in Forms
 
-**Root Cause**: Row-Level Security (RLS) is enabled on the `vendors` table in Supabase, but the current policy does not allow authenticated users to insert or update records.
+**Issue**: Creating or updating customers/vendors fails with error: "value too long for type character varying(2)"
 
-**Temporary Workaround**:
-The RLS policy on the `vendors` table needs to be updated in Supabase to allow authenticated users to perform INSERT and UPDATE operations.
+**Root Cause**: Database schema uses `VARCHAR(2)` for state and country codes (expecting 'CA', 'US') but forms had:
+- Text inputs allowing users to type full names ('California', 'USA')
+- Default values of 'USA' (3 chars) instead of 'US' (2 chars)
 
-**Permanent Fix**:
-Update the RLS policy in Supabase Dashboard:
+**Status**: ✅ **FIXED** in application code
 
-1. Go to Supabase Dashboard → Authentication → Policies
-2. Select the `vendors` table
-3. Add or modify the policy to allow INSERT/UPDATE for authenticated users:
+**Fixes Applied**:
+1. [apps/linkos/src/components/CustomerModal.tsx](apps/linkos/src/components/CustomerModal.tsx):
+   - Changed default country from 'USA' to 'US'
+   - Replaced billing state text input with dropdown (all 50 states + DC, 2-letter codes)
 
-```sql
--- Policy for INSERT
-CREATE POLICY "Allow authenticated users to insert vendors"
-ON vendors
-FOR INSERT
-TO authenticated
-WITH CHECK (true);
+2. [apps/linkos/src/components/VendorModal.tsx](apps/linkos/src/components/VendorModal.tsx):
+   - Changed default countries from 'USA' to 'US' (6 locations)
+   - Replaced both billing and shipping state text inputs with dropdowns (2-letter codes)
 
--- Policy for UPDATE
-CREATE POLICY "Allow authenticated users to update vendors"
-ON vendors
-FOR UPDATE
-TO authenticated
-USING (true)
-WITH CHECK (true);
-
--- Policy for DELETE
-CREATE POLICY "Allow authenticated users to delete vendors"
-ON vendors
-FOR DELETE
-TO authenticated
-USING (true);
-
--- Policy for SELECT (if not already exists)
-CREATE POLICY "Allow authenticated users to view vendors"
-ON vendors
-FOR SELECT
-TO authenticated
-USING (true);
-```
-
-Alternatively, if this is a development/testing environment and security is not a concern, RLS can be temporarily disabled:
-
-```sql
-ALTER TABLE vendors DISABLE ROW LEVEL SECURITY;
-```
+**Database Schema Affected**:
+- billing_state: VARCHAR(2)
+- shipping_state: VARCHAR(2)
+- billing_country: VARCHAR(2)
+- shipping_country: VARCHAR(2)
 
 **Date Identified**: 2025-11-12
 
-## Inventory RLS Policy Error
+---
 
-**Issue**: Creating or updating inventory items fails with error: "new row violates row-level security policy for table 'inventory'"
+## Summary: What's Fixed vs What Needs Database Admin
 
-**Root Cause**: Row-Level Security (RLS) is enabled on the `inventory` table in Supabase, but the current policy does not allow authenticated users to insert or update records.
+### ✅ Fixed in Application Code (No DB Changes Needed):
+1. Invalid lead-to-plans relationship joins removed
+2. Customer form VARCHAR(2) constraints (state/country dropdowns)
+3. Vendor form VARCHAR(2) constraints (state/country dropdowns)
 
-**Temporary Workaround**:
-The RLS policy on the `inventory` table needs to be updated in Supabase to allow authenticated users to perform INSERT and UPDATE operations.
+### ⚠️ Requires Running SQL in Supabase:
+1. **FIX_ALL_RLS_POLICIES.sql** - Adds 39 missing RLS policies for 13 tables
+2. **convert_lead_to_customer function** - Fix lead conversion with proper validation
 
-**Permanent Fix**:
-Update the RLS policy in Supabase Dashboard:
+### 📊 Tables with RLS Enabled (14 total):
+| Table | SELECT Policy | INSERT/UPDATE/DELETE Policies |
+|-------|--------------|-------------------------------|
+| customers | ✅ | ✅ (complete) |
+| vendors | ✅ | ❌ **MISSING** |
+| plans | ✅ | ❌ **MISSING** |
+| inventory | ✅ | ❌ **MISSING** |
+| inventory_serials | ✅ | ❌ **MISSING** |
+| inventory_vendors | ✅ | ❌ **MISSING** |
+| sim_cards | ✅ | ❌ **MISSING** |
+| lines | ✅ | ❌ **MISSING** |
+| user_plans | ✅ | ❌ **MISSING** |
+| subscriptions | ✅ | ❌ **MISSING** |
+| promotions | ✅ | ❌ **MISSING** |
+| quotes | ✅ | ❌ **MISSING** |
+| quote_items | ✅ | ❌ **MISSING** |
+| quote_promotions | ✅ | ❌ **MISSING** |
 
-1. Go to Supabase Dashboard → Authentication → Policies
-2. Select the `inventory` table
-3. Add or modify the policy to allow INSERT/UPDATE for authenticated users:
-
-```sql
--- Policy for INSERT
-CREATE POLICY "Allow authenticated users to insert inventory"
-ON inventory
-FOR INSERT
-TO authenticated
-WITH CHECK (true);
-
--- Policy for UPDATE
-CREATE POLICY "Allow authenticated users to update inventory"
-ON inventory
-FOR UPDATE
-TO authenticated
-USING (true)
-WITH CHECK (true);
-
--- Policy for SELECT (if not already exists)
-CREATE POLICY "Allow authenticated users to view inventory"
-ON inventory
-FOR SELECT
-TO authenticated
-USING (true);
-```
-
-Alternatively, if this is a development/testing environment and security is not a concern, RLS can be temporarily disabled:
-
-```sql
-ALTER TABLE inventory DISABLE ROW LEVEL SECURITY;
-```
-
-**Date Identified**: 2025-11-12
+**Total Missing Policies**: 39 (3 policies × 13 tables)
