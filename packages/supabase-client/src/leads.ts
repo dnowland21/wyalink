@@ -12,7 +12,7 @@ export async function getLeads(filters?: {
   try {
     let query = supabase
       .from('leads')
-      .select('*, interested_plan:plans(*)')
+      .select('*')
       .order('created_at', { ascending: false })
 
     if (filters?.status) {
@@ -45,7 +45,7 @@ export async function getLead(id: string) {
   try {
     const { data, error } = await supabase
       .from('leads')
-      .select('*, interested_plan:plans(*)')
+      .select('*')
       .eq('id', id)
       .single()
 
@@ -65,7 +65,7 @@ export async function createLead(leadData: CreateLeadForm) {
       .from('leads')
       // @ts-ignore - Supabase typing issue with Database schema
       .insert(leadData)
-      .select('*, interested_plan:plans(*)')
+      .select('*')
       .single()
 
     if (error) throw error
@@ -85,7 +85,7 @@ export async function updateLead(id: string, leadData: UpdateLeadForm) {
       // @ts-ignore - Supabase typing issue with Database schema
       .update(leadData)
       .eq('id', id)
-      .select('*, interested_plan:plans(*)')
+      .select('*')
       .single()
 
     if (error) throw error
@@ -123,7 +123,7 @@ export async function convertLead(id: string, userId: string) {
         converted_at: new Date().toISOString(),
       })
       .eq('id', id)
-      .select('*, interested_plan:plans(*)')
+      .select('*')
       .single()
 
     if (error) throw error
