@@ -16,7 +16,15 @@ CREATE OR REPLACE FUNCTION convert_lead_to_customer(lead_uuid UUID)
 RETURNS UUID AS $$
 DECLARE
   new_customer_id UUID;
+  lead_record RECORD;
 BEGIN
+  -- Get lead data
+  SELECT * INTO lead_record FROM leads WHERE id = lead_uuid;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Lead not found';
+  END IF;
+
   -- Create customer with placeholder billing address
   INSERT INTO customers (
     type,
@@ -30,22 +38,19 @@ BEGIN
     billing_state,
     billing_zip,
     billing_country
-  )
-  SELECT
-    COALESCE(type, 'consumer'),
-    first_name,
-    last_name,
-    email,
-    phone,
-    company,
-    'Pending', -- Placeholder for required field
-    'Pending', -- Placeholder for required field
-    'CA',      -- Placeholder for required field
-    '00000',   -- Placeholder for required field
-    'USA'
-  FROM leads
-  WHERE id = lead_uuid
-  RETURNING id INTO new_customer_id;
+  ) VALUES (
+    COALESCE(lead_record.type, 'consumer'), -- Uses 'consumer', 'business', or 'internal'
+    COALESCE(lead_record.first_name, 'Unknown'),
+    COALESCE(lead_record.last_name, 'Unknown'),
+    lead_record.email,
+    COALESCE(lead_record.phone, 'N/A'),
+    lead_record.company,
+    'Pending', -- Placeholder billing address - customer should update
+    'Pending', -- Placeholder billing city - customer should update
+    'CA',      -- Placeholder billing state - customer should update
+    '00000',   -- Placeholder billing zip - customer should update
+    'US'       -- Must be 2-letter country code per VARCHAR(2) constraint
+  ) RETURNING id INTO new_customer_id;
 
   -- Update the lead to mark as converted
   UPDATE leads
