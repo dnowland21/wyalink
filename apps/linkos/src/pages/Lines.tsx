@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getLines, type Line, type LineType, type LineStatus } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
+import LineModal from '../components/LineModal'
 
 const typeColors: Record<LineType, string> = {
   mobility: 'bg-blue-100 text-blue-800',
@@ -40,6 +41,10 @@ export default function Lines() {
     m2m: 0,
   })
 
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedLine, setSelectedLine] = useState<Line | null>(null)
+
   // Fetch lines
   const fetchLines = async () => {
     setLoading(true)
@@ -74,6 +79,25 @@ export default function Lines() {
   useEffect(() => {
     fetchLines()
   }, [])
+
+  // Modal handlers
+  const handleOpenCreateModal = () => {
+    setSelectedLine(null)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenEditModal = (line: Line) => {
+    setSelectedLine(line)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = (shouldRefresh?: boolean) => {
+    setIsModalOpen(false)
+    setSelectedLine(null)
+    if (shouldRefresh) {
+      fetchLines()
+    }
+  }
 
   // Apply filters
   useEffect(() => {
@@ -207,7 +231,10 @@ export default function Lines() {
               <option value="deactivated">Deactivated</option>
               <option value="terminated">Terminated</option>
             </select>
-            <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+            <button
+              onClick={handleOpenCreateModal}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+            >
               + Add Line
             </button>
           </div>
@@ -292,9 +319,15 @@ export default function Lines() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleOpenEditModal(line)}
+                          className="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                        >
+                          Edit
+                        </button>
                         <Link
                           to={`/lines/${line.id}`}
-                          className="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                          className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                         >
                           View
                         </Link>
@@ -307,6 +340,9 @@ export default function Lines() {
           </div>
         )}
       </Card>
+
+      {/* Line Modal */}
+      <LineModal isOpen={isModalOpen} onClose={handleCloseModal} line={selectedLine} />
     </div>
   )
 }

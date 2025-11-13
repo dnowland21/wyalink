@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getSubscriptions, activateSubscription, pauseSubscription, cancelSubscription } from '@wyalink/supabase-client'
+import { getSubscriptions, activateSubscription, pauseSubscription, cancelSubscription, type Subscription } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
+import SubscriptionModal from '../components/SubscriptionModal'
 
 export default function Subscriptions() {
   const [subscriptions, setSubscriptions] = useState<any[]>([])
@@ -21,6 +22,10 @@ export default function Subscriptions() {
     paused: 0,
     cancelled: 0,
   })
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null)
 
   // Fetch subscriptions
   const fetchSubscriptions = async () => {
@@ -53,6 +58,25 @@ export default function Subscriptions() {
   useEffect(() => {
     fetchSubscriptions()
   }, [])
+
+  // Modal handlers
+  const handleOpenCreateModal = () => {
+    setSelectedSubscription(null)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenEditModal = (subscription: Subscription) => {
+    setSelectedSubscription(subscription)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = (shouldRefresh?: boolean) => {
+    setIsModalOpen(false)
+    setSelectedSubscription(null)
+    if (shouldRefresh) {
+      fetchSubscriptions()
+    }
+  }
 
   // Apply filters
   useEffect(() => {
@@ -223,7 +247,10 @@ export default function Subscriptions() {
               <option value="paused">Paused</option>
               <option value="cancelled">Cancelled</option>
             </select>
-            <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+            <button
+              onClick={handleOpenCreateModal}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+            >
               + Create Subscription
             </button>
           </div>
@@ -382,6 +409,20 @@ export default function Subscriptions() {
                               </svg>
                             </button>
                           )}
+                          <button
+                            onClick={() => handleOpenEditModal(sub)}
+                            className="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                            title="Edit subscription"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                          </button>
                           <Link
                             to={`/subscriptions/${sub.id}`}
                             className="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
@@ -470,6 +511,9 @@ export default function Subscriptions() {
           </div>
         </Card>
       </div>
+
+      {/* Subscription Modal */}
+      <SubscriptionModal isOpen={isModalOpen} onClose={handleCloseModal} subscription={selectedSubscription} />
     </div>
   )
 }

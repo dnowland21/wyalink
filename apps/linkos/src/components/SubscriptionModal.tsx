@@ -2,11 +2,15 @@ import { useState, useEffect } from 'react'
 import {
   createSubscription,
   updateSubscription,
+  getMVNOPlans,
+  getCustomers,
   type Subscription,
   type SubscriptionStartType,
   type SubscriptionEndType,
   type SubscriptionRenewalType,
   type SubscriptionActivationType,
+  type MVNOPlan,
+  type Customer,
 } from '@wyalink/supabase-client'
 
 interface SubscriptionModalProps {
@@ -18,6 +22,11 @@ interface SubscriptionModalProps {
 export default function SubscriptionModal({ isOpen, onClose, subscription }: SubscriptionModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Data loading
+  const [plans, setPlans] = useState<MVNOPlan[]>([])
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [dataLoading, setDataLoading] = useState(true)
 
   // Form state
   const [planId, setPlanId] = useState('')
@@ -31,6 +40,30 @@ export default function SubscriptionModal({ isOpen, onClose, subscription }: Sub
   const [renewalIntervalDays, setRenewalIntervalDays] = useState('30')
   const [gracePeriodDays, setGracePeriodDays] = useState('7')
   const [activationType, setActivationType] = useState<SubscriptionActivationType>('pre_active')
+
+  // Fetch plans and customers on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      setDataLoading(true)
+      try {
+        const [plansResult, customersResult] = await Promise.all([
+          getMVNOPlans(),
+          getCustomers(),
+        ])
+
+        if (plansResult.data) setPlans(plansResult.data)
+        if (customersResult.data) setCustomers(customersResult.data)
+      } catch (err) {
+        console.error('Failed to load data:', err)
+      } finally {
+        setDataLoading(false)
+      }
+    }
+
+    if (isOpen) {
+      fetchData()
+    }
+  }, [isOpen])
 
   useEffect(() => {
     if (subscription) {
@@ -141,29 +174,51 @@ export default function SubscriptionModal({ isOpen, onClose, subscription }: Sub
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Plan ID <span className="text-red-500">*</span>
+                      Plan <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
-                      required
-                      value={planId}
-                      onChange={(e) => setPlanId(e.target.value)}
-                      placeholder="Plan identifier"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
+                    {dataLoading ? (
+                      <div className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+                        Loading plans...
+                      </div>
+                    ) : (
+                      <select
+                        required
+                        value={planId}
+                        onChange={(e) => setPlanId(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      >
+                        <option value="">Select a plan</option>
+                        {plans.map((plan) => (
+                          <option key={plan.id} value={plan.id}>
+                            {plan.plan_name} {plan.description ? `- ${plan.description}` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Customer ID <span className="text-red-500">*</span>
+                      Customer <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
-                      required
-                      value={customerId}
-                      onChange={(e) => setCustomerId(e.target.value)}
-                      placeholder="Customer identifier"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
+                    {dataLoading ? (
+                      <div className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+                        Loading customers...
+                      </div>
+                    ) : (
+                      <select
+                        required
+                        value={customerId}
+                        onChange={(e) => setCustomerId(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      >
+                        <option value="">Select a customer</option>
+                        {customers.map((customer) => (
+                          <option key={customer.id} value={customer.id}>
+                            {customer.first_name} {customer.last_name} ({customer.account_number})
+                          </option>
+                        ))}
+                      </select>
+                    )}
                   </div>
                 </div>
                 <div>

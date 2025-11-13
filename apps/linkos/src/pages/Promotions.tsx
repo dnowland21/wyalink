@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { getPromotions, updatePromotion, approvePromotion, type Promotion, type PromotionStatus } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
 import { useAuth } from '@wyalink/supabase-client'
+import PromotionModal from '../components/PromotionModal'
 
 const statusColors: Record<PromotionStatus, string> = {
   draft: 'bg-gray-100 text-gray-800',
@@ -32,6 +33,10 @@ export default function Promotions() {
     inactive: 0,
     expired: 0,
   })
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(null)
 
   // Fetch promotions
   const fetchPromotions = async () => {
@@ -66,6 +71,25 @@ export default function Promotions() {
   useEffect(() => {
     fetchPromotions()
   }, [])
+
+  // Modal handlers
+  const handleOpenCreateModal = () => {
+    setSelectedPromotion(null)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenEditModal = (promotion: Promotion) => {
+    setSelectedPromotion(promotion)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = (shouldRefresh?: boolean) => {
+    setIsModalOpen(false)
+    setSelectedPromotion(null)
+    if (shouldRefresh) {
+      fetchPromotions()
+    }
+  }
 
   // Apply filters
   useEffect(() => {
@@ -249,7 +273,10 @@ export default function Promotions() {
               <option value="cancelled">Cancelled</option>
               <option value="expired">Expired</option>
             </select>
-            <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+            <button
+              onClick={handleOpenCreateModal}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+            >
               + Create Promotion
             </button>
           </div>
@@ -392,6 +419,7 @@ export default function Promotions() {
                           </button>
                         )}
                         <button
+                          onClick={() => handleOpenEditModal(promo)}
                           className="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                           title="Edit promotion"
                         >
@@ -471,6 +499,9 @@ export default function Promotions() {
           </div>
         </Card>
       </div>
+
+      {/* Promotion Modal */}
+      <PromotionModal isOpen={isModalOpen} onClose={handleCloseModal} promotion={selectedPromotion} />
     </div>
   )
 }

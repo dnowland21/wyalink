@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getSimCards, type SimCard, type SimType, type SimStatus } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
+import SimCardModal from '../components/SimCardModal'
 
 const typeColors: Record<SimType, string> = {
   esim: 'bg-purple-100 text-purple-800',
@@ -47,6 +48,10 @@ export default function SimCards() {
     psim: 0,
   })
 
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedSimCard, setSelectedSimCard] = useState<SimCard | null>(null)
+
   // Fetch SIM cards
   const fetchSimCards = async () => {
     setLoading(true)
@@ -80,6 +85,25 @@ export default function SimCards() {
   useEffect(() => {
     fetchSimCards()
   }, [])
+
+  // Modal handlers
+  const handleOpenCreateModal = () => {
+    setSelectedSimCard(null)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenEditModal = (simCard: SimCard) => {
+    setSelectedSimCard(simCard)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = (shouldRefresh?: boolean) => {
+    setIsModalOpen(false)
+    setSelectedSimCard(null)
+    if (shouldRefresh) {
+      fetchSimCards()
+    }
+  }
 
   // Apply filters
   useEffect(() => {
@@ -208,7 +232,10 @@ export default function SimCards() {
               <option value="swapped">Swapped</option>
               <option value="deleted">Deleted</option>
             </select>
-            <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+            <button
+              onClick={handleOpenCreateModal}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+            >
               + Add SIM
             </button>
           </div>
@@ -304,9 +331,15 @@ export default function SimCards() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleOpenEditModal(sim)}
+                          className="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                        >
+                          Edit
+                        </button>
                         <Link
                           to={`/sim-cards/${sim.id}`}
-                          className="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                          className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                         >
                           View
                         </Link>
@@ -347,6 +380,9 @@ export default function SimCards() {
           </div>
         </div>
       </Card>
+
+      {/* SIM Card Modal */}
+      <SimCardModal isOpen={isModalOpen} onClose={handleCloseModal} simCard={selectedSimCard} />
     </div>
   )
 }
