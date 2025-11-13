@@ -16,14 +16,35 @@ CREATE OR REPLACE FUNCTION convert_lead_to_customer(lead_uuid UUID)
 RETURNS UUID AS $$
 DECLARE
   new_customer_id UUID;
-  lead_record RECORD;
+  v_account_number VARCHAR(10);
+  v_first_name TEXT;
+  v_last_name TEXT;
+  v_email TEXT;
+  v_phone TEXT;
+  v_company TEXT;
 BEGIN
-  -- Get lead data
-  SELECT * INTO lead_record FROM leads WHERE id = lead_uuid;
+  -- Get lead data (only fields that exist in base leads table)
+  SELECT
+    COALESCE(first_name, 'Unknown'),
+    COALESCE(last_name, 'Unknown'),
+    email,
+    COALESCE(phone, 'N/A'),
+    company
+  INTO
+    v_first_name,
+    v_last_name,
+    v_email,
+    v_phone,
+    v_company
+  FROM leads
+  WHERE id = lead_uuid;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Lead not found';
   END IF;
+
+  -- Generate account number
+  v_account_number := generate_account_number();
 
   -- Create customer with placeholder billing address
   INSERT INTO customers (
@@ -40,18 +61,18 @@ BEGIN
     billing_zip,
     billing_country
   ) VALUES (
-    generate_account_number(), -- Generates unique 10-digit account number
-    COALESCE(lead_record.type, 'consumer'), -- Uses 'consumer', 'business', or 'internal'
-    COALESCE(lead_record.first_name, 'Unknown'),
-    COALESCE(lead_record.last_name, 'Unknown'),
-    lead_record.email,
-    COALESCE(lead_record.phone, 'N/A'),
-    lead_record.company,
+    v_account_number,
+    'consumer'::lead_type, -- Default to consumer type, cast to enum
+    v_first_name,
+    v_last_name,
+    v_email,
+    v_phone,
+    v_company,
     'Pending', -- Placeholder billing address - customer should update
     'Pending', -- Placeholder billing city - customer should update
-    'CA',      -- Placeholder billing state - customer should update
-    '00000',   -- Placeholder billing zip - customer should update
-    'US'       -- Must be 2-letter country code per VARCHAR(2) constraint
+    'CA',      -- Placeholder billing state (2-char state code)
+    '00000',   -- Placeholder billing zip
+    'US'       -- 2-letter country code (NOT 'USA')
   ) RETURNING id INTO new_customer_id;
 
   -- Update the lead to mark as converted
