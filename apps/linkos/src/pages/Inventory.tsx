@@ -117,8 +117,8 @@ export default function InventoryPage() {
     setFilteredInventory(filtered)
   }, [inventory, typeFilter, statusFilter, searchQuery])
 
-  const formatPrice = (price: number | null) => {
-    if (price === null) return 'N/A'
+  const formatPrice = (price: number | null | undefined) => {
+    if (price === null || price === undefined) return 'N/A'
     return `$${price.toFixed(2)}`
   }
 

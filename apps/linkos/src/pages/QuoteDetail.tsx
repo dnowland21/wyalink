@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { getQuote, updateQuote, sendQuote, acceptQuote, declineQuote, type Quote, type QuoteStatus, type QuoteItem, type Customer, type Lead } from '@wyalink/supabase-client'
+import { getQuote, updateQuote, sendQuote, acceptQuote, declineQuote, removeQuoteItem, recalculateQuoteTotals, type Quote, type QuoteStatus, type QuoteItem, type Customer, type Lead } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
 import { useAuth } from '@wyalink/supabase-client'
+import QuoteItemModal from '../components/QuoteItemModal'
 
 // Extended Quote type with relations
 interface QuoteWithRelations extends Quote {
@@ -32,6 +33,7 @@ export default function QuoteDetail() {
   const [actionLoading, setActionLoading] = useState(false)
   const [showDeclineModal, setShowDeclineModal] = useState(false)
   const [declineReason, setDeclineReason] = useState('')
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false)
 
   useEffect(() => {
     if (id) {
@@ -56,6 +58,31 @@ export default function QuoteDetail() {
       console.error(err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleItemModalClose = async (shouldRefresh?: boolean) => {
+    setIsItemModalOpen(false)
+    if (shouldRefresh && id) {
+      // Recalculate totals after adding item
+      await recalculateQuoteTotals(id)
+      await fetchQuote()
+    }
+  }
+
+  const handleRemoveItem = async (itemId: string) => {
+    if (!id || !window.confirm('Remove this item from the quote?')) return
+
+    try {
+      const result = await removeQuoteItem(itemId)
+      if (result.error) throw result.error
+
+      // Recalculate totals after removing item
+      await recalculateQuoteTotals(id)
+      await fetchQuote()
+    } catch (err: any) {
+      alert('Failed to remove item')
+      console.error(err)
     }
   }
 
@@ -278,9 +305,14 @@ export default function QuoteDetail() {
           <Card>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Quote Items</h3>
-              <button className="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                + Add Item
-              </button>
+              {quote.status === 'draft' && (
+                <button
+                  onClick={() => setIsItemModalOpen(true)}
+                  className="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  + Add Item
+                </button>
+              )}
             </div>
 
             {quote.quote_items && quote.quote_items.length > 0 ? (
@@ -324,19 +356,22 @@ export default function QuoteDetail() {
                           {formatPrice(item.subtotal)}
                         </td>
                         <td className="py-4 px-4 text-center">
-                          <button
-                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Remove item"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                              />
-                            </svg>
-                          </button>
+                          {quote.status === 'draft' && (
+                            <button
+                              onClick={() => handleRemoveItem(item.id)}
+                              className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Remove item"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -541,6 +576,11 @@ export default function QuoteDetail() {
           </Card>
         </div>
       </div>
+
+      {/* Quote Item Modal */}
+      {id && (
+        <QuoteItemModal isOpen={isItemModalOpen} onClose={handleItemModalClose} quoteId={id} />
+      )}
 
       {/* Decline Modal */}
       {showDeclineModal && (
