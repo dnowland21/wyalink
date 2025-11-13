@@ -7,6 +7,7 @@ import LeadProfile from './pages/LeadProfile'
 import Customers from './pages/Customers'
 import CustomerDetail from './pages/CustomerDetail'
 import Plans from './pages/Plans'
+import PlanDetail from './pages/PlanDetail'
 import Inventory from './pages/Inventory'
 import InventoryDetail from './pages/InventoryDetail'
 import SimCards from './pages/SimCards'
@@ -59,6 +60,7 @@ function App() {
                   <Route path="/customers" element={<Customers />} />
                   <Route path="/customers/:id" element={<CustomerDetail />} />
                   <Route path="/plans" element={<Plans />} />
+                  <Route path="/plans/:id" element={<PlanDetail />} />
                   <Route path="/inventory" element={<Inventory />} />
                   <Route path="/inventory/:id" element={<InventoryDetail />} />
                   <Route path="/sim-cards" element={<SimCards />} />

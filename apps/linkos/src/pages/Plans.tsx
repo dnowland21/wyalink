@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getMVNOPlans, type MVNOPlan, type PlanStatus } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
+import PlanModal from '../components/PlanModal'
 
 const statusColors: Record<PlanStatus, string> = {
   active: 'bg-green-100 text-green-800',
@@ -14,6 +15,10 @@ export default function Plans() {
   const [filteredPlans, setFilteredPlans] = useState<MVNOPlan[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Modal state
+  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState<MVNOPlan | null>(null)
 
   // Filters
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -82,6 +87,24 @@ export default function Plans() {
 
     setFilteredPlans(filtered)
   }, [plans, statusFilter, searchQuery])
+
+  const handleOpenCreateModal = () => {
+    setSelectedPlan(null)
+    setIsPlanModalOpen(true)
+  }
+
+  const handleOpenEditModal = (plan: MVNOPlan) => {
+    setSelectedPlan(plan)
+    setIsPlanModalOpen(true)
+  }
+
+  const handleClosePlanModal = (shouldRefresh?: boolean) => {
+    setIsPlanModalOpen(false)
+    setSelectedPlan(null)
+    if (shouldRefresh) {
+      fetchPlans()
+    }
+  }
 
   const formatDataAmount = (mb: number | null) => {
     if (mb === null) return 'Unlimited'
@@ -175,7 +198,10 @@ export default function Plans() {
               <option value="inactive">Inactive</option>
               <option value="archived">Archived</option>
             </select>
-            <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+            <button
+              onClick={handleOpenCreateModal}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+            >
               + Add Plan
             </button>
           </div>
@@ -260,6 +286,12 @@ export default function Plans() {
                         >
                           View
                         </Link>
+                        <button
+                          onClick={() => handleOpenEditModal(plan)}
+                          className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          Edit
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -269,6 +301,9 @@ export default function Plans() {
           </div>
         )}
       </Card>
+
+      {/* Plan Modal */}
+      <PlanModal isOpen={isPlanModalOpen} onClose={handleClosePlanModal} plan={selectedPlan} />
     </div>
   )
 }
