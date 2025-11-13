@@ -95,7 +95,7 @@ BEGIN
   UPDATE leads
   SET
     status = 'converted',
-    converted_to_user_id = new_customer_id,
+    customer_id = new_customer_id, -- Link to customers table, not auth.users
     converted_at = NOW()
   WHERE id = lead_uuid;
 
