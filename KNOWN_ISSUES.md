@@ -27,6 +27,7 @@ BEGIN
 
   -- Create customer with placeholder billing address
   INSERT INTO customers (
+    account_number,
     type,
     first_name,
     last_name,
@@ -39,6 +40,7 @@ BEGIN
     billing_zip,
     billing_country
   ) VALUES (
+    generate_account_number(), -- Generates unique 10-digit account number
     COALESCE(lead_record.type, 'consumer'), -- Uses 'consumer', 'business', or 'internal'
     COALESCE(lead_record.first_name, 'Unknown'),
     COALESCE(lead_record.last_name, 'Unknown'),
