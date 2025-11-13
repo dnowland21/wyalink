@@ -89,12 +89,37 @@ export default function QuoteItemModal({ isOpen, onClose, quoteId }: QuoteItemMo
     setLoading(true)
 
     try {
+      // Get item name and description based on item type
+      let itemName = ''
+      let itemDescription = ''
+
+      if (itemType === 'inventory' && inventoryId) {
+        const item = inventoryItems.find((i) => i.id === inventoryId)
+        if (item) {
+          itemName = item.item_name
+          itemDescription = item.item_description || ''
+        }
+      } else if (itemType === 'plan' && planId) {
+        const plan = plans.find((p) => p.id === planId)
+        if (plan) {
+          itemName = plan.plan_name
+          itemDescription = plan.description || ''
+        }
+      }
+
+      const qty = parseInt(quantity)
+      const price = parseFloat(unitPrice)
+      const subtotal = qty * price
+
       const itemData = {
         item_type: itemType,
         inventory_id: itemType === 'inventory' ? inventoryId : undefined,
         plan_id: itemType === 'plan' ? planId : undefined,
-        quantity: parseInt(quantity),
-        unit_price: parseFloat(unitPrice),
+        item_name: itemName,
+        item_description: itemDescription,
+        quantity: qty,
+        unit_price: price,
+        subtotal: subtotal,
       }
 
       const result = await addQuoteItem(quoteId, itemData)

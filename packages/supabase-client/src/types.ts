@@ -822,8 +822,11 @@ export interface CreateQuoteItemForm {
   item_type: 'inventory' | 'plan'
   inventory_id?: string
   plan_id?: string
+  item_name: string
+  item_description?: string
   quantity: number
   unit_price: number
+  subtotal: number
 }
 
 export interface UpdateQuoteForm {
