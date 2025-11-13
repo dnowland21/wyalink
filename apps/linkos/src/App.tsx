@@ -5,6 +5,16 @@ import Dashboard from './pages/Dashboard'
 import Leads from './pages/Leads'
 import LeadProfile from './pages/LeadProfile'
 import Customers from './pages/Customers'
+import CustomerDetail from './pages/CustomerDetail'
+import Plans from './pages/Plans'
+import Inventory from './pages/Inventory'
+import SimCards from './pages/SimCards'
+import Lines from './pages/Lines'
+import Quotes from './pages/Quotes'
+import QuoteDetail from './pages/QuoteDetail'
+import Subscriptions from './pages/Subscriptions'
+import Promotions from './pages/Promotions'
+import Vendors from './pages/Vendors'
 import Login from './pages/Login'
 import ProfileSettings from './pages/ProfileSettings'
 import Settings from './pages/Settings'
@@ -46,6 +56,16 @@ function App() {
                   <Route path="/leads" element={<Leads />} />
                   <Route path="/leads/:id" element={<LeadProfile />} />
                   <Route path="/customers" element={<Customers />} />
+                  <Route path="/customers/:id" element={<CustomerDetail />} />
+                  <Route path="/plans" element={<Plans />} />
+                  <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/sim-cards" element={<SimCards />} />
+                  <Route path="/lines" element={<Lines />} />
+                  <Route path="/quotes" element={<Quotes />} />
+                  <Route path="/quotes/:id" element={<QuoteDetail />} />
+                  <Route path="/subscriptions" element={<Subscriptions />} />
+                  <Route path="/promotions" element={<Promotions />} />
+                  <Route path="/vendors" element={<Vendors />} />
                   <Route path="/profile" element={<ProfileSettings />} />
                   <Route path="/settings" element={<Settings />} />
                 </Routes>

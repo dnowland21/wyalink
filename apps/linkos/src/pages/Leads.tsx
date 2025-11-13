@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { getLeads, getLeadStats, type Lead, type LeadStatus } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
 import LeadModal from '../components/LeadModal'
+import ConvertLeadModal from '../components/ConvertLeadModal'
 
 const statusColors: Record<LeadStatus, string> = {
   new: 'bg-blue-100 text-blue-800',
@@ -32,8 +33,9 @@ export default function Leads() {
     lost: 0,
   })
 
-  // Modal
+  // Modals
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isConvertModalOpen, setIsConvertModalOpen] = useState(false)
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
 
   // Fetch leads and stats
@@ -99,6 +101,19 @@ export default function Leads() {
     setIsModalOpen(false)
     setSelectedLead(null)
     if (shouldRefresh) {
+      fetchData()
+    }
+  }
+
+  const handleConvertLead = (lead: Lead) => {
+    setSelectedLead(lead)
+    setIsConvertModalOpen(true)
+  }
+
+  const handleConvertModalClose = (converted?: boolean) => {
+    setIsConvertModalOpen(false)
+    setSelectedLead(null)
+    if (converted) {
       fetchData()
     }
   }
@@ -290,6 +305,22 @@ export default function Leads() {
                             />
                           </svg>
                         </button>
+                        {lead.status !== 'converted' && (
+                          <button
+                            onClick={() => handleConvertLead(lead)}
+                            className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            title="Convert to Customer"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -302,6 +333,9 @@ export default function Leads() {
 
       {/* Lead Modal */}
       <LeadModal isOpen={isModalOpen} onClose={handleModalClose} lead={selectedLead} />
+
+      {/* Convert Lead Modal */}
+      <ConvertLeadModal isOpen={isConvertModalOpen} onClose={handleConvertModalClose} lead={selectedLead} />
     </div>
   )
 }
