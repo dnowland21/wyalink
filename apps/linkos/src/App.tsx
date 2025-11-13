@@ -25,6 +25,7 @@ import VendorDetail from './pages/VendorDetail'
 import Login from './pages/Login'
 import ProfileSettings from './pages/ProfileSettings'
 import Settings from './pages/Settings'
+import Insight from './pages/Insight'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth()
@@ -82,6 +83,7 @@ function App() {
                   <Route path="/vendors/:id" element={<VendorDetail />} />
                   <Route path="/profile" element={<ProfileSettings />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/insight" element={<Insight />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>
