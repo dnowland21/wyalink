@@ -11,12 +11,17 @@ import PlanDetail from './pages/PlanDetail'
 import Inventory from './pages/Inventory'
 import InventoryDetail from './pages/InventoryDetail'
 import SimCards from './pages/SimCards'
+import SimCardDetail from './pages/SimCardDetail'
 import Lines from './pages/Lines'
+import LineDetail from './pages/LineDetail'
 import Quotes from './pages/Quotes'
 import QuoteDetail from './pages/QuoteDetail'
 import Subscriptions from './pages/Subscriptions'
+import SubscriptionDetail from './pages/SubscriptionDetail'
 import Promotions from './pages/Promotions'
+import PromotionDetail from './pages/PromotionDetail'
 import Vendors from './pages/Vendors'
+import VendorDetail from './pages/VendorDetail'
 import Login from './pages/Login'
 import ProfileSettings from './pages/ProfileSettings'
 import Settings from './pages/Settings'
@@ -64,12 +69,17 @@ function App() {
                   <Route path="/inventory" element={<Inventory />} />
                   <Route path="/inventory/:id" element={<InventoryDetail />} />
                   <Route path="/sim-cards" element={<SimCards />} />
+                  <Route path="/sim-cards/:id" element={<SimCardDetail />} />
                   <Route path="/lines" element={<Lines />} />
+                  <Route path="/lines/:id" element={<LineDetail />} />
                   <Route path="/quotes" element={<Quotes />} />
                   <Route path="/quotes/:id" element={<QuoteDetail />} />
                   <Route path="/subscriptions" element={<Subscriptions />} />
+                  <Route path="/subscriptions/:id" element={<SubscriptionDetail />} />
                   <Route path="/promotions" element={<Promotions />} />
+                  <Route path="/promotions/:id" element={<PromotionDetail />} />
                   <Route path="/vendors" element={<Vendors />} />
+                  <Route path="/vendors/:id" element={<VendorDetail />} />
                   <Route path="/profile" element={<ProfileSettings />} />
                   <Route path="/settings" element={<Settings />} />
                 </Routes>
