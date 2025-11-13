@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getVendors, deleteVendor, type Vendor } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
+import VendorModal from '../components/VendorModal'
 
 export default function Vendors() {
   const [vendors, setVendors] = useState<Vendor[]>([])
@@ -8,6 +9,10 @@ export default function Vendors() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null)
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -109,6 +114,24 @@ export default function Vendors() {
     return parts.join(', ')
   }
 
+  const handleOpenCreateModal = () => {
+    setSelectedVendor(null)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenEditModal = (vendor: Vendor) => {
+    setSelectedVendor(vendor)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = (shouldRefresh?: boolean) => {
+    setIsModalOpen(false)
+    setSelectedVendor(null)
+    if (shouldRefresh) {
+      fetchVendors()
+    }
+  }
+
   return (
     <div>
       {/* Header */}
@@ -172,7 +195,10 @@ export default function Vendors() {
                 className="block w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
-            <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+            <button
+              onClick={handleOpenCreateModal}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+            >
               + Add Vendor
             </button>
           </div>
@@ -269,6 +295,7 @@ export default function Vendors() {
                           </svg>
                         </button>
                         <button
+                          onClick={() => handleOpenEditModal(vendor)}
                           className="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                           title="Edit vendor"
                         >
@@ -363,6 +390,13 @@ export default function Vendors() {
           </div>
         </Card>
       </div>
+
+      {/* Vendor Modal */}
+      <VendorModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        vendor={selectedVendor}
+      />
     </div>
   )
 }

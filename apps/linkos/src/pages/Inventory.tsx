@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getInventory, type Inventory, type InventoryType, type InventoryStatus } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
+import InventoryModal from '../components/InventoryModal'
 
 const typeColors: Record<InventoryType, string> = {
   phone: 'bg-blue-100 text-blue-800',
@@ -26,6 +27,10 @@ export default function InventoryPage() {
   const [filteredInventory, setFilteredInventory] = useState<Inventory[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedInventory, setSelectedInventory] = useState<Inventory | null>(null)
 
   // Filters
   const [typeFilter, setTypeFilter] = useState<string>('all')
@@ -117,6 +122,24 @@ export default function InventoryPage() {
     return `$${price.toFixed(2)}`
   }
 
+  const handleOpenCreateModal = () => {
+    setSelectedInventory(null)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenEditModal = (item: Inventory) => {
+    setSelectedInventory(item)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = (shouldRefresh?: boolean) => {
+    setIsModalOpen(false)
+    setSelectedInventory(null)
+    if (shouldRefresh) {
+      fetchInventory()
+    }
+  }
+
   return (
     <div>
       {/* Header */}
@@ -206,7 +229,10 @@ export default function InventoryPage() {
               <option value="damaged">Damaged</option>
               <option value="obsolete">Obsolete</option>
             </select>
-            <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+            <button
+              onClick={handleOpenCreateModal}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+            >
               + Add Item
             </button>
           </div>
@@ -295,6 +321,12 @@ export default function InventoryPage() {
                         >
                           View
                         </Link>
+                        <button
+                          onClick={() => handleOpenEditModal(item)}
+                          className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          Edit
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -304,6 +336,13 @@ export default function InventoryPage() {
           </div>
         )}
       </Card>
+
+      {/* Inventory Modal */}
+      <InventoryModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        inventory={selectedInventory}
+      />
     </div>
   )
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { getCustomers, getCustomerStats, type Customer, type LeadType } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
+import CustomerModal from '../components/CustomerModal'
 
 const typeColors: Record<LeadType, string> = {
   business: 'bg-purple-100 text-purple-800',
@@ -15,6 +16,10 @@ export default function Customers() {
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
 
   // Filters
   const [typeFilter, setTypeFilter] = useState<string>('all')
@@ -86,6 +91,24 @@ export default function Customers() {
     })
   }
 
+  const handleOpenCreateModal = () => {
+    setSelectedCustomer(null)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenEditModal = (customer: Customer) => {
+    setSelectedCustomer(customer)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = (shouldRefresh?: boolean) => {
+    setIsModalOpen(false)
+    setSelectedCustomer(null)
+    if (shouldRefresh) {
+      fetchData()
+    }
+  }
+
   return (
     <div>
       {/* Header */}
@@ -155,6 +178,12 @@ export default function Customers() {
               <option value="consumer">Consumer</option>
               <option value="internal">Internal</option>
             </select>
+            <button
+              onClick={handleOpenCreateModal}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+            >
+              + New Customer
+            </button>
           </div>
         </div>
 
@@ -232,6 +261,12 @@ export default function Customers() {
                         >
                           View
                         </Link>
+                        <button
+                          onClick={() => handleOpenEditModal(customer)}
+                          className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          Edit
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -241,6 +276,13 @@ export default function Customers() {
           </div>
         )}
       </Card>
+
+      {/* Customer Modal */}
+      <CustomerModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        customer={selectedCustomer}
+      />
     </div>
   )
 }
