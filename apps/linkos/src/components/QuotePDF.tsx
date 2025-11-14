@@ -266,11 +266,15 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
               </Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-              <Image
-                src="/logos/wyalink-full-logo.svg"
-                style={styles.logo}
-              />
-              <Text style={[styles.companyInfo, { marginTop: 5 }]}>Your Wireless Provider</Text>
+              <Text style={{
+                fontSize: 28,
+                fontWeight: 'bold',
+                color: COLORS.primary,
+                marginBottom: 3,
+              }}>
+                WyaLink
+              </Text>
+              <Text style={[styles.companyInfo, { marginTop: 2 }]}>Your Wireless Provider</Text>
               <Text style={styles.companyInfo}>support@wyalink.com</Text>
             </View>
           </View>
