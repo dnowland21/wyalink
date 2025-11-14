@@ -123,7 +123,7 @@ CREATE TABLE public.store_queue (
     -- Queue management
     status queue_status DEFAULT 'waiting' NOT NULL,
     checked_in_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-    assisted_by UUID REFERENCES auth.users(id),
+    assisted_by UUID REFERENCES public.profiles(id),
     assistance_started_at TIMESTAMPTZ,
     completed_at TIMESTAMPTZ,
     removed_at TIMESTAMPTZ,
