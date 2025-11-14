@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { getQuote, updateQuote, sendQuote, acceptQuote, declineQuote, removeQuoteItem, recalculateQuoteTotals, type Quote, type QuoteStatus, type QuoteItem, type Customer, type Lead } from '@wyalink/supabase-client'
+import { getQuote, updateQuote, acceptQuote, declineQuote, removeQuoteItem, recalculateQuoteTotals, type Quote, type QuoteStatus, type QuoteItem, type Customer, type Lead } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
 import { useAuth } from '@wyalink/supabase-client'
 import QuoteItemModal from '../components/QuoteItemModal'

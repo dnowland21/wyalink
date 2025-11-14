@@ -98,7 +98,6 @@ Website: www.wyalink.com`
       const { updateQuote } = await import('@wyalink/supabase-client')
       const updateResult = await updateQuote(quote.id, {
         status: 'sent',
-        sent_at: new Date().toISOString(),
       })
 
       if (updateResult.error) {

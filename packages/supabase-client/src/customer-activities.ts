@@ -73,7 +73,7 @@ export async function getCustomerActivities(customerId: string) {
 /**
  * Create a note activity for a customer
  */
-export async function createCustomerNote(customerId: string, note: string) {
+export async function createCustomerNote(_customerId: string, _note: string) {
   // TODO: Implement customer notes table and functionality
   // For now, this is a placeholder
   return { data: null, error: new Error('Not implemented yet') }

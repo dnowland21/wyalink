@@ -1,5 +1,5 @@
 import React from 'react'
-import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer'
 import type { Quote, QuoteItem, Customer, Lead } from '@wyalink/supabase-client'
 
 // Register Nunito font
@@ -348,7 +348,7 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
             {quote.quote_items.map((item: any, index: number) => (
               <View
                 key={item.id}
-                style={[styles.tableRow, index % 2 === 1 && styles.tableRowAlt]}
+                style={[styles.tableRow, index % 2 === 1 ? styles.tableRowAlt : undefined]}
               >
                 <View style={styles.colItem}>
                   <Text style={{ fontWeight: 'bold', marginBottom: 3 }}>{item.item_name}</Text>
