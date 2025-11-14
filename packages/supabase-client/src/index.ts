@@ -28,3 +28,9 @@ export * from './user-plans'
 export * from './subscriptions'
 export * from './promotions'
 export * from './quotes'
+
+// Export Insight API functions
+export * from './carriers'
+
+// Export Queue API functions
+export * from './queue'

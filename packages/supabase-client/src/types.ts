@@ -29,6 +29,8 @@ export type PromotionStatus = 'planned' | 'active' | 'cancelled' | 'expired' | '
 export type DiscountType = 'dollar' | 'percent'
 export type DiscountDuration = 'one_time' | 'recurring'
 export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'declined' | 'expired' | 'converted'
+export type QueueVisitorType = 'lead' | 'customer'
+export type QueueStatus = 'waiting' | 'being_assisted' | 'completed' | 'removed'
 
 export interface Profile {
   id: string
@@ -468,6 +470,44 @@ export interface QuotePromotion {
   created_at: string
 }
 
+export interface Carrier {
+  id: string
+  name: string
+  account_info: string
+  pin_info: string
+  support_number: string | null
+  tips: string | null
+  sort_order: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface StoreQueueEntry {
+  id: string
+  visitor_type: QueueVisitorType
+  lead_id: string | null
+  customer_id: string | null
+  visitor_name: string
+  visitor_phone: string | null
+  visitor_email: string | null
+  status: QueueStatus
+  checked_in_at: string
+  assisted_by: string | null
+  assistance_started_at: string | null
+  completed_at: string | null
+  removed_at: string | null
+  removal_reason: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+
+  // Relations (for joined queries)
+  lead?: Lead
+  customer?: Customer
+  assisting_user?: Profile
+}
+
 // Form Types
 export interface RegisterForm {
   email: string
@@ -837,6 +877,46 @@ export interface UpdateQuoteForm {
   notes?: string
   terms?: string
   declined_reason?: string
+}
+
+export interface CreateCarrierForm {
+  name: string
+  account_info: string
+  pin_info: string
+  support_number?: string
+  tips?: string
+  sort_order?: number
+  is_active?: boolean
+}
+
+export interface UpdateCarrierForm {
+  name?: string
+  account_info?: string
+  pin_info?: string
+  support_number?: string
+  tips?: string
+  sort_order?: number
+  is_active?: boolean
+}
+
+export interface CreateQueueEntryForm {
+  visitor_type: QueueVisitorType
+  lead_id?: string
+  customer_id?: string
+  visitor_name: string
+  visitor_phone?: string
+  visitor_email?: string
+  notes?: string
+}
+
+export interface UpdateQueueEntryForm {
+  status?: QueueStatus
+  assisted_by?: string
+  assistance_started_at?: string
+  completed_at?: string
+  removed_at?: string
+  removal_reason?: string
+  notes?: string
 }
 
 // Database schema type for Supabase client

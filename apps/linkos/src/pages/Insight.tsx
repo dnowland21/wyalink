@@ -1,26 +1,18 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getMVNOPlans, type MVNOPlan } from '@wyalink/supabase-client'
+import {
+  getMVNOPlans,
+  getActiveCarriers,
+  createCarrier,
+  updateCarrier,
+  deleteCarrier,
+  getActivePromotions,
+  useIsAdmin,
+  type MVNOPlan,
+  type Carrier,
+  type Promotion,
+} from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
-
-// Carrier porting information (comprehensive list from reference)
-const CARRIERS = [
-  { name: "AirVoice", account: "SIM card number", pin: "Last 4 digits of phone number", support: "888-944-2355", tips: null },
-  { name: "AT&T (Postpaid)", account: "9- or 12-digit wireless account number (not the phone number)", pin: "6-digit Number Transfer PIN (*PORT, myAT&T app, or online)", support: "888-898-7685 (Port Center)", tips: "Find account at myAT&T: Profile > Sign-in Info > My linked accounts. If bundled with wireline/Internet/DIRECTV, the wireless account is separate." },
-  { name: "AT&T (Prepaid)", account: "2-digit account number", pin: "4-digit number", support: "800-901-9878 (Member Service)", tips: "Prepaid and Postpaid have separate account numbers." },
-  { name: "Boost / Dish Wireless", account: "9-digit account number (not the phone number)", pin: "4-digit number", support: "833-502-6678", tips: null },
-  { name: "Consumer Cellular", account: "Typically starts with 1000; upper-right of bill/online account (not the phone number)", pin: "6-digit alphanumeric; sent to each device and tied to that number", support: "888-750-5519", tips: "You may be asked for account owner name, last 4 of SSN, and billing address." },
-  { name: "Cricket", account: "9-digit account number (not the phone number)", pin: "4-digit Authorization ID (AID)", support: "800-274-2538 (Port Center)", tips: "Reset AID: call 855-246-2461, enter '1111' 3 times, press # to get one-time PIN by text, then set new PIN." },
-  { name: "Google Fi (Project Fi)", account: "5-digit account number (Manage plan > Leave Google Fi)", pin: "5-digit PIN (same flow as account number)", support: "844-825-5234 (Port Center) or in-app/chat", tips: null },
-  { name: "Metro", account: "9-digit account number (from payment confirmation texts)", pin: "8-digit number (remove 4-digit high-security PIN if present, then set 8-digit)", support: "888-863-8768 (Port Center)", tips: null },
-  { name: "Mint Mobile", account: "12-digit account number", pin: "4-digit number (default last 4 of phone number)", support: "800-683-7392", tips: null },
-  { name: "T-Mobile (Postpaid)", account: "9-digit account number (online account)", pin: "6-digit Number Transfer PIN (MyT-Mobile or dial 611/800-937-8997)", support: "800-937-8997 (Port Center)", tips: "Disable Number Lock in security settings if enabled." },
-  { name: "T-Mobile (Prepaid)", account: "9-digit account number (online account or support)", pin: "4-digit number", support: "877-778-2106 (Port Center)", tips: null },
-  { name: "Verizon (Postpaid)", account: "9-digit account number (MyVerizon; not the MDN)", pin: "6-digit Number Transfer PIN (MyVerizon > Number Transfer PIN > Generate or dial #PORT)", support: "Verizon Care", tips: null },
-  { name: "Verizon Prepaid", account: "Shown on bill/online account", pin: "6-digit Number Transfer PIN (MyVerizon > Number Transfer PIN > Generate or dial #PORT)", support: "Verizon Care", tips: "Billing ZIP may be required." },
-  { name: "Visible", account: "Shown in account", pin: "6-digit Number Transfer PIN (request via app: Account > Port-Out PIN; delivered by email)", support: "Verizon Care", tips: "PIN valid 7 days. Max 3 PINs per 24 hours. Requesting a new PIN invalidates prior ones. Email PIN can take up to 60 minutes. You can invalidate the latest PIN via the link in email/SMS." },
-  { name: "Xfinity Mobile / Comcast", account: "10-digit number (usually starts with 100; on the bill)", pin: "Request via account: Devices > select number > Transfer your number (PIN by text)", support: "888-936-4968", tips: "Use only for Xfinity Mobile lines. Billing ZIP may be required." },
-]
 
 type Tab = 'dashboard' | 'contacts' | 'porting' | 'kb' | 'plans' | 'promos' | 'links'
 
@@ -310,39 +302,106 @@ function ContactsTab({ query }: { query: string }) {
 }
 
 function PortingTab({ query }: { query: string }) {
-  const filtered = CARRIERS.filter(c =>
+  const isAdmin = useIsAdmin()
+  const [carriers, setCarriers] = useState<Carrier[]>([])
+  const [loading, setLoading] = useState(true)
+  const [editingCarrier, setEditingCarrier] = useState<Carrier | null>(null)
+  const [isCreating, setIsCreating] = useState(false)
+
+  useEffect(() => {
+    fetchCarriers()
+  }, [])
+
+  const fetchCarriers = async () => {
+    try {
+      const result = await getActiveCarriers()
+      if (result.data) setCarriers(result.data)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this carrier?')) return
+    const result = await deleteCarrier(id)
+    if (!result.error) {
+      fetchCarriers()
+    } else {
+      alert('Failed to delete carrier: ' + result.error.message)
+    }
+  }
+
+  const filtered = carriers.filter(c =>
     c.name.toLowerCase().includes(query.toLowerCase()) ||
-    c.account.toLowerCase().includes(query.toLowerCase()) ||
-    c.pin.toLowerCase().includes(query.toLowerCase()) ||
-    c.support.toLowerCase().includes(query.toLowerCase()) ||
+    c.account_info.toLowerCase().includes(query.toLowerCase()) ||
+    c.pin_info.toLowerCase().includes(query.toLowerCase()) ||
+    (c.support_number && c.support_number.toLowerCase().includes(query.toLowerCase())) ||
     (c.tips && c.tips.toLowerCase().includes(query.toLowerCase()))
   )
+
+  if (loading) return <p className="text-gray-600">Loading carriers...</p>
 
   return (
     <div className="space-y-4">
       <Card>
-        <div className="text-sm text-gray-700">
-          <p className="font-semibold mb-2">Porting Guide</p>
-          <p>Find account and PIN requirements for major carriers. This information helps speed up number porting requests.</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-semibold mb-2">Porting Guide</p>
+            <p className="text-sm text-gray-600">Find account and PIN requirements for major carriers. This information helps speed up number porting requests.</p>
+          </div>
+          {isAdmin && (
+            <button
+              onClick={() => setIsCreating(true)}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
+            >
+              Add Carrier
+            </button>
+          )}
         </div>
       </Card>
 
       {filtered.length === 0 && <p className="text-gray-600">No carriers found</p>}
       {filtered.map((carrier) => (
-        <Card key={carrier.name}>
-          <h4 className="text-lg font-semibold text-gray-900 mb-3">{carrier.name}</h4>
+        <Card key={carrier.id}>
+          <div className="flex items-start justify-between mb-3">
+            <h4 className="text-lg font-semibold text-gray-900">{carrier.name}</h4>
+            {isAdmin && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setEditingCarrier(carrier)}
+                  className="text-blue-600 hover:text-blue-800"
+                  title="Edit"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => handleDelete(carrier.id)}
+                  className="text-red-600 hover:text-red-800"
+                  title="Delete"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
             <div>
               <span className="font-semibold text-gray-700">Account #:</span>
-              <p className="text-gray-600 mt-1">{carrier.account}</p>
+              <p className="text-gray-600 mt-1">{carrier.account_info}</p>
             </div>
             <div>
               <span className="font-semibold text-gray-700">PIN:</span>
-              <p className="text-gray-600 mt-1">{carrier.pin}</p>
+              <p className="text-gray-600 mt-1">{carrier.pin_info}</p>
             </div>
             <div className="md:col-span-2">
               <span className="font-semibold text-gray-700">Support:</span>
-              <p className="text-gray-600 mt-1">{carrier.support}</p>
+              <p className="text-gray-600 mt-1">{carrier.support_number || 'N/A'}</p>
             </div>
             {carrier.tips && (
               <div className="md:col-span-2 bg-amber-50 border border-amber-200 rounded-lg p-3">
@@ -353,6 +412,22 @@ function PortingTab({ query }: { query: string }) {
           </div>
         </Card>
       ))}
+
+      {/* Edit/Create Carrier Modal */}
+      {(editingCarrier || isCreating) && (
+        <CarrierModal
+          carrier={editingCarrier}
+          onClose={() => {
+            setEditingCarrier(null)
+            setIsCreating(false)
+          }}
+          onSave={() => {
+            fetchCarriers()
+            setEditingCarrier(null)
+            setIsCreating(false)
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -535,7 +610,49 @@ function PlansTab({ query }: { query: string }) {
   )
 }
 
-function PromotionsTab({ query: _query }: { query: string }) {
+function PromotionsTab({ query }: { query: string }) {
+  const [promotions, setPromotions] = useState<Promotion[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchPromotions()
+  }, [])
+
+  const fetchPromotions = async () => {
+    try {
+      const result = await getActivePromotions()
+      if (result.data) setPromotions(result.data)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const filtered = promotions.filter(p =>
+    p.promotion_name.toLowerCase().includes(query.toLowerCase()) ||
+    (p.promotion_code && p.promotion_code.toLowerCase().includes(query.toLowerCase())) ||
+    (p.promotion_description && p.promotion_description.toLowerCase().includes(query.toLowerCase()))
+  )
+
+  const formatDiscount = (promo: Promotion) => {
+    if (promo.discount_type === 'percent') {
+      return `${promo.discount_amount}% off`
+    } else {
+      return `$${promo.discount_amount.toFixed(2)} off`
+    }
+  }
+
+  const formatDuration = (promo: Promotion) => {
+    if (promo.discount_duration === 'one_time') {
+      return 'One-time discount'
+    } else {
+      return promo.recurring_months ? `${promo.recurring_months} months` : 'Recurring'
+    }
+  }
+
+  if (loading) return <p className="text-gray-600">Loading promotions...</p>
+
   return (
     <div className="space-y-4">
       <Card>
@@ -553,11 +670,54 @@ function PromotionsTab({ query: _query }: { query: string }) {
         </div>
       </Card>
 
-      <Card>
-        <p className="text-gray-600 text-center py-8">
-          Active promotions will appear here. Add promotions in the Promotions module.
-        </p>
-      </Card>
+      {filtered.length === 0 && (
+        <Card>
+          <p className="text-gray-600 text-center py-8">
+            {promotions.length === 0 ? 'No active promotions. Add promotions in the Promotions module.' : 'No promotions found'}
+          </p>
+        </Card>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filtered.map((promo) => (
+          <Card key={promo.id}>
+            <div className="flex items-start justify-between mb-2">
+              <h4 className="text-lg font-semibold text-gray-900">{promo.promotion_name}</h4>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                Active
+              </span>
+            </div>
+
+            {promo.promotion_code && (
+              <div className="mb-3 p-2 bg-gray-100 rounded border border-gray-300 text-center">
+                <span className="text-xs font-semibold text-gray-600">CODE:</span>{' '}
+                <span className="text-sm font-bold text-primary-600">{promo.promotion_code}</span>
+              </div>
+            )}
+
+            {promo.promotion_description && (
+              <p className="text-sm text-gray-600 mb-3">{promo.promotion_description}</p>
+            )}
+
+            <div className="space-y-1 text-sm">
+              <div>
+                <span className="font-semibold text-gray-700">Discount:</span>{' '}
+                <span className="text-primary-600 font-semibold">{formatDiscount(promo)}</span>
+              </div>
+              <div>
+                <span className="font-semibold text-gray-700">Duration:</span>{' '}
+                <span className="text-gray-600">{formatDuration(promo)}</span>
+              </div>
+              {promo.valid_until && (
+                <div>
+                  <span className="font-semibold text-gray-700">Expires:</span>{' '}
+                  <span className="text-gray-600">{new Date(promo.valid_until).toLocaleDateString()}</span>
+                </div>
+              )}
+            </div>
+          </Card>
+        ))}
+      </div>
     </div>
   )
 }
@@ -649,6 +809,153 @@ function LinksTab({ query }: { query: string }) {
             </a>
           </Card>
         ))}
+      </div>
+    </div>
+  )
+}
+
+// Carrier Modal Component
+function CarrierModal({
+  carrier,
+  onClose,
+  onSave,
+}: {
+  carrier: Carrier | null
+  onClose: () => void
+  onSave: () => void
+}) {
+  const [name, setName] = useState(carrier?.name || '')
+  const [accountInfo, setAccountInfo] = useState(carrier?.account_info || '')
+  const [pinInfo, setPinInfo] = useState(carrier?.pin_info || '')
+  const [supportNumber, setSupportNumber] = useState(carrier?.support_number || '')
+  const [tips, setTips] = useState(carrier?.tips || '')
+  const [saving, setSaving] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSaving(true)
+
+    try {
+      const data = {
+        name,
+        account_info: accountInfo,
+        pin_info: pinInfo,
+        support_number: supportNumber || undefined,
+        tips: tips || undefined,
+      }
+
+      if (carrier) {
+        const result = await updateCarrier(carrier.id, data)
+        if (result.error) throw result.error
+      } else {
+        const result = await createCarrier(data)
+        if (result.error) throw result.error
+      }
+
+      onSave()
+    } catch (err) {
+      alert('Failed to save carrier: ' + (err as Error).message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            {carrier ? 'Edit Carrier' : 'Add New Carrier'}
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Carrier Name *
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                placeholder="e.g., AT&T (Postpaid)"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Account # Information *
+              </label>
+              <textarea
+                value={accountInfo}
+                onChange={(e) => setAccountInfo(e.target.value)}
+                required
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                placeholder="e.g., 9- or 12-digit wireless account number (not the phone number)"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                PIN Information *
+              </label>
+              <textarea
+                value={pinInfo}
+                onChange={(e) => setPinInfo(e.target.value)}
+                required
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                placeholder="e.g., 6-digit Number Transfer PIN"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Support Number
+              </label>
+              <input
+                type="text"
+                value={supportNumber}
+                onChange={(e) => setSupportNumber(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                placeholder="e.g., 888-898-7685"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tips & Notes
+              </label>
+              <textarea
+                value={tips}
+                onChange={(e) => setTips(e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                placeholder="Additional information, tips, or special instructions..."
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                disabled={saving}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+                disabled={saving}
+              >
+                {saving ? 'Saving...' : carrier ? 'Update Carrier' : 'Add Carrier'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   )
