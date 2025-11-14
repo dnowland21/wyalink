@@ -7,17 +7,10 @@ import {
   type Customer,
   type Line,
   type Subscription,
-  type LeadType,
   type LineStatus,
 } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
 import CustomerModal from '../components/CustomerModal'
-
-const typeColors: Record<LeadType, string> = {
-  business: 'bg-purple-100 text-purple-800',
-  consumer: 'bg-blue-100 text-blue-800',
-  internal: 'bg-gray-100 text-gray-800',
-}
 
 const lineStatusColors: Record<LineStatus, string> = {
   initiating: 'bg-gray-100 text-gray-800',
@@ -39,6 +32,7 @@ export default function CustomerDetail() {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'lines' | 'subscriptions' | 'billing'>('overview')
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [expandedLines, setExpandedLines] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     if (!id) {
@@ -97,6 +91,18 @@ export default function CustomerDetail() {
     })
   }
 
+  const toggleLineExpansion = (lineId: string) => {
+    setExpandedLines((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(lineId)) {
+        newSet.delete(lineId)
+      } else {
+        newSet.add(lineId)
+      }
+      return newSet
+    })
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -120,12 +126,12 @@ export default function CustomerDetail() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
+      {/* Header with Gradient Background */}
+      <div className="bg-gradient-to-r from-primary-600 via-primary-500 to-accent-500 rounded-2xl p-6 mb-8 shadow-lg">
+        <div className="flex items-center gap-4 mb-4">
           <Link
             to="/customers"
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-white hover:text-white/80 transition-colors"
             title="Back to Customers"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,39 +139,46 @@ export default function CustomerDetail() {
             </svg>
           </Link>
           <div className="flex-1">
-            <div className="flex items-center gap-3">
-              <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white font-bold text-2xl border-2 border-white/30">
                 {customer.first_name[0]}
                 {customer.last_name[0]}
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="text-3xl font-bold text-white tracking-tight">
                   {customer.first_name} {customer.middle_initial ? `${customer.middle_initial}. ` : ''}
                   {customer.last_name}
                 </h1>
-                <p className="text-gray-600 font-mono">{customer.account_number}</p>
+                <p className="text-white/90 font-mono text-sm mt-1">Account #{customer.account_number}</p>
               </div>
             </div>
           </div>
-          <button
-            onClick={() => setIsEditModalOpen(true)}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Edit Customer
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="px-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 text-white rounded-lg hover:bg-white/30 transition-colors"
+            >
+              Edit Customer
+            </button>
+            <button className="px-4 py-2 bg-white text-primary-600 rounded-lg hover:bg-white/90 transition-colors font-medium">
+              Account Actions
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Customer Type Badge and Status */}
-      <div className="flex items-center gap-3 mb-6">
-        <span className={`px-3 py-1 rounded-full text-sm font-medium ${typeColors[customer.type]}`}>
-          {customer.type.charAt(0).toUpperCase() + customer.type.slice(1)}
-        </span>
-        {customer.company_name && (
-          <span className="text-sm text-gray-600">
-            <span className="font-medium">Company:</span> {customer.company_name}
-          </span>
-        )}
+        {/* Quick Stats */}
+        <div className="flex gap-4 mt-4">
+          <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/30">
+            <span className="text-white/80 text-sm">Active Lines:</span>{' '}
+            <span className="text-white font-bold">{lines.filter((l) => l.status === 'activated').length}</span>
+          </div>
+          {customer.company_name && (
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/30">
+              <span className="text-white/80 text-sm">Company:</span>{' '}
+              <span className="text-white font-semibold">{customer.company_name}</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}
@@ -332,45 +345,141 @@ export default function CustomerDetail() {
               </div>
             </Card>
           ) : (
-            <div className="space-y-4">
-              {lines.map((line) => (
-                <Card key={line.id}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-semibold text-gray-900">{line.phone_number || 'Pending Activation'}</h4>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${lineStatusColors[line.status]}`}>
-                          {line.status.charAt(0).toUpperCase() + line.status.slice(1)}
-                        </span>
+            <div className="space-y-3">
+              {lines.map((line, index) => {
+                const isExpanded = expandedLines.has(line.id)
+                return (
+                  <div
+                    key={line.id}
+                    className={`bg-white rounded-2xl border overflow-hidden transition-all duration-200 ${
+                      isExpanded
+                        ? 'shadow-lg border-primary-100'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    {/* Line Header */}
+                    <div
+                      className="flex items-center justify-between gap-4 p-4 cursor-pointer"
+                      onClick={() => toggleLineExpansion(line.id)}
+                    >
+                      <div className="flex items-center gap-4 flex-1 min-w-0">
+                        {/* Line Number Badge */}
+                        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-700">
+                          {index + 1}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-semibold text-gray-900 text-base tracking-wide">
+                              {line.phone_number || 'Pending Activation'}
+                            </h4>
+                            {line.type && (
+                              <span className="px-2.5 py-0.5 bg-primary-600 text-white text-xs font-medium rounded-full uppercase tracking-wide">
+                                {line.type.charAt(0).toUpperCase() + line.type.slice(1)}
+                              </span>
+                            )}
+                          </div>
+                          <div className={`mt-1 px-3 py-1 rounded-full text-xs font-medium inline-flex uppercase tracking-wide ${lineStatusColors[line.status]}`}>
+                            {line.status.charAt(0).toUpperCase() + line.status.slice(1)}
+                          </div>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                        {line.active_sim_id && (
-                          <div>
-                            <span className="text-gray-600">SIM:</span>{' '}
-                            <span className="text-gray-900 font-mono">{line.active_sim_id.slice(0, 8)}...</span>
+
+                      {/* Expand Button */}
+                      <button
+                        className={`flex-shrink-0 w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center text-2xl font-light transition-transform duration-200 hover:bg-primary-700 ${
+                          isExpanded ? 'rotate-45' : ''
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleLineExpansion(line.id)
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    {/* Line Body (Expandable) */}
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ${
+                        isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+                      }`}
+                    >
+                      <div className="border-t border-gray-100 bg-gray-50 p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6">
+                          {/* Device Photo Placeholder */}
+                          <div className="bg-white border-2 border-dashed border-gray-300 rounded-xl min-h-[160px] flex flex-col items-center justify-center text-gray-500 text-sm">
+                            <svg className="w-12 h-12 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            <span>Device Photo</span>
                           </div>
-                        )}
-                        {line.device_manufacturer && line.device_model && (
+
+                          {/* Device Details */}
                           <div>
-                            <span className="text-gray-600">Device:</span>{' '}
-                            <span className="text-gray-900">{line.device_manufacturer} {line.device_model}</span>
+                            <h4 className="text-base font-bold text-primary-900 mb-3">
+                              {line.device_manufacturer && line.device_model
+                                ? `${line.device_manufacturer} ${line.device_model}`
+                                : 'Device Information'}
+                            </h4>
+
+                            <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2 text-sm mb-4">
+                              {line.active_sim_id && (
+                                <>
+                                  <label className="font-semibold text-gray-700">ICCID:</label>
+                                  <span className="text-gray-900 font-mono">{line.active_sim_id}</span>
+                                </>
+                              )}
+                              {line.sim_type && (
+                                <>
+                                  <label className="font-semibold text-gray-700">SIM Type:</label>
+                                  <span className="text-gray-900">
+                                    {line.sim_type === 'esim' ? 'eSIM' : 'Physical SIM'}
+                                  </span>
+                                </>
+                              )}
+                              {line.type && (
+                                <>
+                                  <label className="font-semibold text-gray-700">Line Type:</label>
+                                  <span className="text-gray-900">
+                                    {line.type.charAt(0).toUpperCase() + line.type.slice(1)}
+                                  </span>
+                                </>
+                              )}
+                              {line.updated_at && (
+                                <>
+                                  <label className="font-semibold text-gray-700">Last Change:</label>
+                                  <span className="text-gray-900">{formatDate(line.updated_at)}</span>
+                                </>
+                              )}
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex flex-wrap gap-2 mt-4">
+                              <button className="px-4 py-2 rounded-full text-sm font-medium bg-yellow-50 text-yellow-800 border border-yellow-200 hover:bg-yellow-100 transition-colors">
+                                Change Device
+                              </button>
+                              <button className="px-4 py-2 rounded-full text-sm font-medium bg-red-50 text-red-800 border border-red-200 hover:bg-red-100 transition-colors">
+                                Upgrade
+                              </button>
+                              <button className="px-4 py-2 rounded-full text-sm font-medium bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition-colors">
+                                Update Info
+                              </button>
+                              <Link
+                                to={`/lines/${line.id}`}
+                                className="px-4 py-2 rounded-full text-sm font-medium bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100 transition-colors"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                View Details
+                              </Link>
+                            </div>
                           </div>
-                        )}
-                        <div>
-                          <span className="text-gray-600">Type:</span>{' '}
-                          <span className="text-gray-900">{line.type.charAt(0).toUpperCase() + line.type.slice(1)}</span>
                         </div>
                       </div>
                     </div>
-                    <Link
-                      to={`/lines/${line.id}`}
-                      className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-                    >
-                      View
-                    </Link>
                   </div>
-                </Card>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
