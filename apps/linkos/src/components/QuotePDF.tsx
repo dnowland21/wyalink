@@ -348,7 +348,7 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
             {quote.quote_items.map((item: any, index: number) => (
               <View
                 key={item.id}
-                style={[styles.tableRow, index % 2 === 1 ? styles.tableRowAlt : undefined]}
+                style={index % 2 === 1 ? [styles.tableRow, styles.tableRowAlt] : styles.tableRow}
               >
                 <View style={styles.colItem}>
                   <Text style={{ fontWeight: 'bold', marginBottom: 3 }}>{item.item_name}</Text>
