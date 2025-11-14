@@ -20,7 +20,7 @@ export default function AuthButton() {
           onClick={() => setShowDropdown(!showDropdown)}
           className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
         >
-          <div className="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+          <div className="w-8 h-8 bg-primary-800 text-white rounded-full flex items-center justify-center text-sm font-medium">
             {user?.email?.[0].toUpperCase()}
           </div>
           <svg

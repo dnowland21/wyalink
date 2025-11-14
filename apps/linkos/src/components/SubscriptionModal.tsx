@@ -17,9 +17,10 @@ interface SubscriptionModalProps {
   isOpen: boolean
   onClose: (shouldRefresh?: boolean) => void
   subscription?: Subscription | null
+  preSelectedCustomerId?: string
 }
 
-export default function SubscriptionModal({ isOpen, onClose, subscription }: SubscriptionModalProps) {
+export default function SubscriptionModal({ isOpen, onClose, subscription, preSelectedCustomerId }: SubscriptionModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -80,8 +81,11 @@ export default function SubscriptionModal({ isOpen, onClose, subscription }: Sub
       setActivationType(subscription.activation_type)
     } else {
       resetForm()
+      if (preSelectedCustomerId) {
+        setCustomerId(preSelectedCustomerId)
+      }
     }
-  }, [subscription, isOpen])
+  }, [subscription, isOpen, preSelectedCustomerId])
 
   const resetForm = () => {
     setPlanId('')
@@ -363,7 +367,7 @@ export default function SubscriptionModal({ isOpen, onClose, subscription }: Sub
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Saving...' : subscription ? 'Update Subscription' : 'Create Subscription'}
             </button>

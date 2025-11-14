@@ -9,6 +9,7 @@ import {
 } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
 import InventoryModal from '../components/InventoryModal'
+import AddSerialsModal from '../components/AddSerialsModal'
 
 const statusColors: Record<InventoryStatus, string> = {
   available: 'bg-green-100 text-green-800',
@@ -37,6 +38,7 @@ export default function InventoryDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isAddSerialsModalOpen, setIsAddSerialsModalOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'details' | 'serials'>('details')
 
   useEffect(() => {
@@ -50,6 +52,13 @@ export default function InventoryDetail() {
 
   const handleEditModalClose = (shouldRefresh?: boolean) => {
     setIsEditModalOpen(false)
+    if (shouldRefresh) {
+      fetchItemData()
+    }
+  }
+
+  const handleAddSerialsModalClose = (shouldRefresh?: boolean) => {
+    setIsAddSerialsModalOpen(false)
     if (shouldRefresh) {
       fetchItemData()
     }
@@ -91,7 +100,10 @@ export default function InventoryDetail() {
     })
   }
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number | null | undefined) => {
+    if (price === null || price === undefined || isNaN(price)) {
+      return '$0.00'
+    }
     return `$${price.toFixed(2)}`
   }
 
@@ -324,7 +336,10 @@ export default function InventoryDetail() {
                 Track individual units by serial number and IMEI (FIFO - First In, First Out)
               </p>
             </div>
-            <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+            <button
+              onClick={() => setIsAddSerialsModalOpen(true)}
+              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+            >
               + Add Serials
             </button>
           </div>
@@ -407,7 +422,7 @@ export default function InventoryDetail() {
                         </td>
                         <td className="py-4 px-4">
                           {serial.status === 'available' && (
-                            <button className="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                            <button className="px-3 py-1.5 text-sm bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors">
                               Assign
                             </button>
                           )}
@@ -432,6 +447,15 @@ export default function InventoryDetail() {
 
       {/* Edit Modal */}
       <InventoryModal isOpen={isEditModalOpen} onClose={handleEditModalClose} inventory={item} />
+
+      {/* Add Serials Modal */}
+      {item && (
+        <AddSerialsModal
+          isOpen={isAddSerialsModalOpen}
+          onClose={handleAddSerialsModalClose}
+          inventoryId={item.id}
+        />
+      )}
     </div>
   )
 }

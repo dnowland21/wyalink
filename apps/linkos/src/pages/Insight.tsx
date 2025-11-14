@@ -262,7 +262,7 @@ function ContactsTab({ query }: { query: string }) {
           />
           <button
             onClick={addContact}
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors"
           >
             Add Contact
           </button>
@@ -354,7 +354,7 @@ function PortingTab({ query }: { query: string }) {
           {isAdmin && (
             <button
               onClick={() => setIsCreating(true)}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
+              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
             >
               Add Carrier
             </button>
@@ -494,7 +494,7 @@ function KnowledgeBaseTab({ query }: { query: string }) {
           <div className="md:col-span-2">
             <button
               onClick={addArticle}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
               Add Article
             </button>
@@ -582,7 +582,7 @@ function PlansTab({ query }: { query: string }) {
           </div>
           <Link
             to="/plans"
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
+            className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
           >
             Manage Plans
           </Link>
@@ -663,7 +663,7 @@ function PromotionsTab({ query }: { query: string }) {
           </div>
           <Link
             to="/promotions"
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
+            className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
           >
             Manage Promotions
           </Link>
@@ -775,7 +775,7 @@ function LinksTab({ query }: { query: string }) {
           <div className="md:col-span-3">
             <button
               onClick={addLink}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
               Add Link
             </button>
@@ -948,7 +948,7 @@ function CarrierModal({
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
                 disabled={saving}
               >
                 {saving ? 'Saving...' : carrier ? 'Update Carrier' : 'Add Carrier'}

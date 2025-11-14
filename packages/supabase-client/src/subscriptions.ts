@@ -12,7 +12,7 @@ export async function getSubscriptions(filters?: {
   try {
     let query = supabase
       .from('subscriptions')
-      .select('*, plan:plans(*), customer:customers(id, first_name, last_name, account_number), line:lines(id, phone_number)')
+      .select('*, plan:plans(*), customer:customers!subscriptions_customer_id_fkey(id, first_name, last_name, account_number), line:lines(id, phone_number)')
       .order('created_at', { ascending: false })
 
     if (filters?.customer_id) {
@@ -67,7 +67,7 @@ export async function getSubscription(id: string) {
   try {
     const { data, error } = await supabase
       .from('subscriptions')
-      .select('*, plan:plans(*), customer:customers(*), line:lines(*)')
+      .select('*, plan:plans(*), customer:customers!subscriptions_customer_id_fkey(*), line:lines(*)')
       .eq('id', id)
       .single()
 
@@ -211,7 +211,7 @@ export async function getSubscriptionsDueForRenewal(daysAhead: number = 7) {
 
     const { data, error } = await supabase
       .from('subscriptions')
-      .select('*, plan:plans(*), customer:customers(id, first_name, last_name, email, account_number), line:lines(id, phone_number)')
+      .select('*, plan:plans(*), customer:customers!subscriptions_customer_id_fkey(id, first_name, last_name, email, account_number), line:lines(id, phone_number)')
       .eq('is_active', true)
       .eq('renewal_type', 'automatic')
       .lte('next_renewal_date', futureDate.toISOString())

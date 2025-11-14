@@ -329,7 +329,7 @@ export default function LeadModal({ isOpen, onClose, lead }: LeadModalProps) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="px-6 py-3 bg-primary-800 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Saving...' : lead ? 'Update Lead' : 'Create Lead'}
                 </button>

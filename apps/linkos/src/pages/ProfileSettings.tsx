@@ -179,7 +179,7 @@ export default function ProfileSettings() {
                 <button
                   type="submit"
                   disabled={profileLoading}
-                  className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="px-6 py-2.5 bg-primary-800 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {profileLoading ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -267,7 +267,7 @@ export default function ProfileSettings() {
                 <button
                   type="submit"
                   disabled={passwordLoading}
-                  className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="px-6 py-2.5 bg-primary-800 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {passwordLoading ? 'Updating...' : 'Update Password'}
                 </button>

@@ -166,7 +166,7 @@ export default function EmailForm({ leadId, leadEmail, onSuccess }: EmailFormPro
       <button
         type="submit"
         disabled={loading}
-        className="w-full px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+        className="w-full px-4 py-3 bg-primary-800 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
       >
         {loading ? 'Sending Email...' : 'Send Email'}
       </button>

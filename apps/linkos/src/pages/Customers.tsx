@@ -180,7 +180,7 @@ export default function Customers() {
             </select>
             <button
               onClick={handleOpenCreateModal}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
             >
               + New Customer
             </button>
@@ -257,7 +257,7 @@ export default function Customers() {
                       <div className="flex items-center gap-2">
                         <Link
                           to={`/customers/${customer.id}`}
-                          className="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                          className="px-3 py-1.5 text-sm bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors"
                         >
                           View
                         </Link>

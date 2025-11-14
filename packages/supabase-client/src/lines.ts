@@ -13,7 +13,7 @@ export async function getLines(filters?: {
   try {
     let query = supabase
       .from('lines')
-      .select('*, customer:customers(id, first_name, last_name, account_number), active_sim:sim_cards(id, iccid, status)')
+      .select('*, customer:customers(id, first_name, last_name, account_number), active_sim:sim_cards!lines_active_sim_id_fkey(id, iccid, status)')
       .order('created_at', { ascending: false })
 
     if (filters?.status) {
@@ -50,7 +50,7 @@ export async function getCustomerLines(customerId: string) {
   try {
     const { data, error } = await supabase
       .from('lines')
-      .select('*, active_sim:sim_cards(id, iccid, status)')
+      .select('*, active_sim:sim_cards!lines_active_sim_id_fkey(id, iccid, status)')
       .eq('customer_id', customerId)
       .in('status', ['activated', 'paused'])
       .order('created_at', { ascending: false })
@@ -69,7 +69,7 @@ export async function getLine(id: string) {
   try {
     const { data, error } = await supabase
       .from('lines')
-      .select('*, customer:customers(*), active_sim:sim_cards(*)')
+      .select('*, customer:customers(*), active_sim:sim_cards!lines_active_sim_id_fkey(*)')
       .eq('id', id)
       .single()
 

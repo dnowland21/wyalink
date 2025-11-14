@@ -409,7 +409,7 @@ export default function Dashboard() {
                     <div
                       className={`h-2 rounded-full ${
                         index === 0
-                          ? 'bg-primary-600'
+                          ? 'bg-primary-800'
                           : index === 1
                           ? 'bg-secondary-500'
                           : index === 2

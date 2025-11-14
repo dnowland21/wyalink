@@ -12,7 +12,7 @@ export async function getSimCards(filters?: {
   try {
     let query = supabase
       .from('sim_cards')
-      .select('*, assigned_customer:customers(id, first_name, last_name, account_number), line:lines(id, phone_number)')
+      .select('*, assigned_customer:customers(id, first_name, last_name, account_number), line:lines!sim_cards_line_id_fkey(id, phone_number)')
       .order('created_at', { ascending: false })
 
     if (filters?.status) {
@@ -70,7 +70,7 @@ export async function getSimCard(id: string) {
   try {
     const { data, error } = await supabase
       .from('sim_cards')
-      .select('*, assigned_customer:customers(*), line:lines(*)')
+      .select('*, assigned_customer:customers(*), line:lines!sim_cards_line_id_fkey(*)')
       .eq('id', id)
       .single()
 
@@ -88,7 +88,7 @@ export async function getSimCardByICCID(iccid: string) {
   try {
     const { data, error } = await supabase
       .from('sim_cards')
-      .select('*, assigned_customer:customers(*), line:lines(*)')
+      .select('*, assigned_customer:customers(*), line:lines!sim_cards_line_id_fkey(*)')
       .eq('iccid', iccid)
       .single()
 

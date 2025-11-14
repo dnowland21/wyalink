@@ -106,7 +106,7 @@ export default function ConvertLeadModal({ isOpen, onClose, lead }: ConvertLeadM
                 </button>
                 <button
                   onClick={handleViewCustomer}
-                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  className="flex-1 px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors"
                 >
                   View Customer
                 </button>
@@ -168,7 +168,7 @@ export default function ConvertLeadModal({ isOpen, onClose, lead }: ConvertLeadM
                 <button
                   onClick={handleConvert}
                   disabled={loading}
-                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Converting...' : 'Convert to Customer'}
                 </button>

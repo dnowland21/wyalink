@@ -260,7 +260,7 @@ export default function VendorDetail() {
               {vendor.email && (
                 <a
                   href={`mailto:${vendor.email}`}
-                  className="block w-full px-4 py-2 bg-primary-600 text-white text-center rounded-lg hover:bg-primary-700 transition-colors"
+                  className="block w-full px-4 py-2 bg-primary-800 text-white text-center rounded-lg hover:bg-primary-700 transition-colors"
                 >
                   Send Email
                 </a>

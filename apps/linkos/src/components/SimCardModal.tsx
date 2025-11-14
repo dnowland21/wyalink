@@ -23,7 +23,7 @@ export default function SimCardModal({ isOpen, onClose, simCard }: SimCardModalP
   const [type, setType] = useState<SimType>('psim')
   const [status, setStatus] = useState<SimStatus>('cold')
   const [activationCode, setActivationCode] = useState('')
-  const [country, setCountry] = useState('USA')
+  const [country, setCountry] = useState('US')
   const [simOrder, setSimOrder] = useState('')
   const [simTag, setSimTag] = useState('')
   const [manufacturer, setManufacturer] = useState('')
@@ -35,7 +35,7 @@ export default function SimCardModal({ isOpen, onClose, simCard }: SimCardModalP
       setType(simCard.type)
       setStatus(simCard.status)
       setActivationCode(simCard.activation_code || '')
-      setCountry(simCard.country || 'USA')
+      setCountry(simCard.country || 'US')
       setSimOrder(simCard.sim_order || '')
       setSimTag(simCard.sim_tag || '')
       setManufacturer(simCard.manufacturer || '')
@@ -50,7 +50,7 @@ export default function SimCardModal({ isOpen, onClose, simCard }: SimCardModalP
     setType('psim')
     setStatus('cold')
     setActivationCode('')
-    setCountry('USA')
+    setCountry('US')
     setSimOrder('')
     setSimTag('')
     setManufacturer('')
@@ -262,7 +262,7 @@ export default function SimCardModal({ isOpen, onClose, simCard }: SimCardModalP
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Saving...' : simCard ? 'Update SIM Card' : 'Create SIM Card'}
             </button>

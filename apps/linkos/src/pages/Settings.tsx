@@ -179,7 +179,7 @@ export default function Settings() {
                   type="button"
                   onClick={() => setEmailEnabled(!emailEnabled)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
-                    emailEnabled ? 'bg-primary-600' : 'bg-gray-200'
+                    emailEnabled ? 'bg-primary-800' : 'bg-gray-200'
                   }`}
                 >
                   <span
@@ -316,7 +316,7 @@ export default function Settings() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="px-6 py-2 bg-primary-800 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {saving ? 'Saving...' : 'Save Settings'}
                 </button>

@@ -202,7 +202,7 @@ export default function LeadProfile() {
                 onClick={() => setActiveTab('timeline')}
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                   activeTab === 'timeline'
-                    ? 'bg-primary-600 text-white'
+                    ? 'bg-primary-800 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -212,7 +212,7 @@ export default function LeadProfile() {
                 onClick={() => setActiveTab('call')}
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                   activeTab === 'call'
-                    ? 'bg-primary-600 text-white'
+                    ? 'bg-primary-800 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -222,7 +222,7 @@ export default function LeadProfile() {
                 onClick={() => setActiveTab('email')}
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                   activeTab === 'email'
-                    ? 'bg-primary-600 text-white'
+                    ? 'bg-primary-800 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -232,7 +232,7 @@ export default function LeadProfile() {
                 onClick={() => setActiveTab('note')}
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                   activeTab === 'note'
-                    ? 'bg-primary-600 text-white'
+                    ? 'bg-primary-800 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >

@@ -156,7 +156,7 @@ export default function Home() {
             </div>
 
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-secondary-400/20 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary-600/20 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary-800/20 rounded-full blur-3xl"></div>
           </div>
         </Container>
       </section>

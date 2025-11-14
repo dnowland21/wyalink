@@ -308,7 +308,7 @@ export default function QuoteDetail() {
               {quote.status === 'draft' && (
                 <button
                   onClick={() => setIsItemModalOpen(true)}
-                  className="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  className="px-3 py-1.5 text-sm bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors"
                 >
                   + Add Item
                 </button>

@@ -14,9 +14,10 @@ interface LineModalProps {
   isOpen: boolean
   onClose: (shouldRefresh?: boolean) => void
   line?: Line | null
+  customerId?: string
 }
 
-export default function LineModal({ isOpen, onClose, line }: LineModalProps) {
+export default function LineModal({ isOpen, onClose, line, customerId }: LineModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -68,6 +69,7 @@ export default function LineModal({ isOpen, onClose, line }: LineModalProps) {
         sim_type: simType,
         device_manufacturer: deviceManufacturer || undefined,
         device_model: deviceModel || undefined,
+        customer_id: customerId || undefined,
       }
 
       let result
@@ -245,7 +247,7 @@ export default function LineModal({ isOpen, onClose, line }: LineModalProps) {
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Saving...' : line ? 'Update Line' : 'Create Line'}
             </button>

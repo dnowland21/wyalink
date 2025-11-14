@@ -11,6 +11,8 @@ import {
 } from '@wyalink/supabase-client'
 import { Card } from '@wyalink/ui'
 import CustomerModal from '../components/CustomerModal'
+import LineModal from '../components/LineModal'
+import SubscriptionModal from '../components/SubscriptionModal'
 
 const lineStatusColors: Record<LineStatus, string> = {
   initiating: 'bg-gray-100 text-gray-800',
@@ -32,6 +34,8 @@ export default function CustomerDetail() {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'lines' | 'subscriptions' | 'billing'>('overview')
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isLineModalOpen, setIsLineModalOpen] = useState(false)
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
   const [expandedLines, setExpandedLines] = useState<Set<string>>(new Set())
 
   useEffect(() => {
@@ -45,6 +49,20 @@ export default function CustomerDetail() {
 
   const handleEditModalClose = (shouldRefresh?: boolean) => {
     setIsEditModalOpen(false)
+    if (shouldRefresh) {
+      fetchCustomerData()
+    }
+  }
+
+  const handleLineModalClose = (shouldRefresh?: boolean) => {
+    setIsLineModalOpen(false)
+    if (shouldRefresh) {
+      fetchCustomerData()
+    }
+  }
+
+  const handleSubscriptionModalClose = (shouldRefresh?: boolean) => {
+    setIsSubscriptionModalOpen(false)
     if (shouldRefresh) {
       fetchCustomerData()
     }
@@ -70,8 +88,12 @@ export default function CustomerDetail() {
         getSubscriptions({ customer_id: id }),
       ])
 
-      if (linesResult.error) console.error('Failed to load lines:', linesResult.error)
-      if (subscriptionsResult.error) console.error('Failed to load subscriptions:', subscriptionsResult.error)
+      if (linesResult.error) {
+        console.error('Failed to load lines:', linesResult.error.message || linesResult.error)
+      }
+      if (subscriptionsResult.error) {
+        console.error('Failed to load subscriptions:', subscriptionsResult.error.message || subscriptionsResult.error)
+      }
 
       setLines(linesResult.data || [])
       setSubscriptions(subscriptionsResult.data || [])
@@ -127,7 +149,7 @@ export default function CustomerDetail() {
   return (
     <div>
       {/* Header with Gradient Background */}
-      <div className="bg-gradient-to-r from-primary-600 to-accent-500 rounded-2xl p-6 mb-8 shadow-lg">
+      <div className="bg-gradient-to-r from-primary-600 to-secondary-400 rounded-2xl p-6 mb-8 shadow-lg">
         <div className="flex items-center gap-4 mb-4">
           <Link
             to="/customers"
@@ -333,7 +355,10 @@ export default function CustomerDetail() {
         <div>
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-gray-900">Customer Lines</h3>
-            <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+            <button
+              onClick={() => setIsLineModalOpen(true)}
+              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+            >
               + Add Line
             </button>
           </div>
@@ -374,7 +399,7 @@ export default function CustomerDetail() {
                               {line.phone_number || 'Pending Activation'}
                             </h4>
                             {line.type && (
-                              <span className="px-2.5 py-0.5 bg-primary-600 text-white text-xs font-medium rounded-full uppercase tracking-wide">
+                              <span className="px-2.5 py-0.5 bg-primary-800 text-white text-xs font-medium rounded-full uppercase tracking-wide">
                                 {line.type.charAt(0).toUpperCase() + line.type.slice(1)}
                               </span>
                             )}
@@ -387,7 +412,7 @@ export default function CustomerDetail() {
 
                       {/* Expand Button */}
                       <button
-                        className={`flex-shrink-0 w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center text-2xl font-light transition-transform duration-200 hover:bg-primary-700 ${
+                        className={`flex-shrink-0 w-10 h-10 rounded-full bg-primary-800 text-white flex items-center justify-center text-2xl font-light transition-transform duration-200 hover:bg-primary-700 ${
                           isExpanded ? 'rotate-45' : ''
                         }`}
                         onClick={(e) => {
@@ -489,7 +514,10 @@ export default function CustomerDetail() {
         <div>
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-gray-900">Customer Subscriptions</h3>
-            <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+            <button
+              onClick={() => setIsSubscriptionModalOpen(true)}
+              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+            >
               + Add Subscription
             </button>
           </div>
@@ -580,6 +608,20 @@ export default function CustomerDetail() {
         isOpen={isEditModalOpen}
         onClose={handleEditModalClose}
         customer={customer}
+      />
+
+      {/* Add Line Modal */}
+      <LineModal
+        isOpen={isLineModalOpen}
+        onClose={handleLineModalClose}
+        customerId={customer?.id}
+      />
+
+      {/* Add Subscription Modal */}
+      <SubscriptionModal
+        isOpen={isSubscriptionModalOpen}
+        onClose={handleSubscriptionModalClose}
+        preSelectedCustomerId={customer?.id}
       />
     </div>
   )

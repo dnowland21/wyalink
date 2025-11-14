@@ -114,7 +114,7 @@ export default function Queue() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+          className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors"
         >
           Add to Queue
         </button>
@@ -191,7 +191,7 @@ export default function Queue() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleStartAssisting(entry)}
-                      className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
+                      className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
                     >
                       Assist
                     </button>
@@ -403,7 +403,7 @@ function AddToQueueModal({
               onClick={() => setMode('select')}
               className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
                 mode === 'select'
-                  ? 'bg-primary-600 text-white'
+                  ? 'bg-primary-800 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -413,7 +413,7 @@ function AddToQueueModal({
               onClick={() => setMode('create')}
               className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
                 mode === 'create'
-                  ? 'bg-primary-600 text-white'
+                  ? 'bg-primary-800 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -513,7 +513,7 @@ function AddToQueueModal({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
                   disabled={saving || !selectedId}
                 >
                   {saving ? 'Adding...' : 'Add to Queue'}
@@ -596,7 +596,7 @@ function AddToQueueModal({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
                   disabled={saving}
                 >
                   {saving ? 'Creating...' : 'Create & Add to Queue'}
