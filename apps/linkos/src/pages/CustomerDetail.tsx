@@ -127,7 +127,7 @@ export default function CustomerDetail() {
   return (
     <div>
       {/* Header with Gradient Background */}
-      <div className="bg-gradient-to-r from-primary-600 via-primary-500 to-accent-500 rounded-2xl p-6 mb-8 shadow-lg">
+      <div className="bg-gradient-to-r from-primary-600 to-accent-500 rounded-2xl p-6 mb-8 shadow-lg">
         <div className="flex items-center gap-4 mb-4">
           <Link
             to="/customers"
