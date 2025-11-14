@@ -15,6 +15,7 @@ import LineModal from '../components/LineModal'
 import SubscriptionModal from '../components/SubscriptionModal'
 import QuoteModal from '../components/QuoteModal'
 import CustomerActivityTimeline from '../components/CustomerActivityTimeline'
+import QuotesList from '../components/QuotesList'
 
 const lineStatusColors: Record<LineStatus, string> = {
   initiating: 'bg-gray-100 text-gray-800',
@@ -34,7 +35,7 @@ export default function CustomerDetail() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'overview' | 'lines' | 'subscriptions' | 'activity' | 'billing'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'lines' | 'subscriptions' | 'activity' | 'quotes' | 'billing'>('overview')
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isLineModalOpen, setIsLineModalOpen] = useState(false)
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
@@ -261,6 +262,16 @@ export default function CustomerDetail() {
             }`}
           >
             Activity
+          </button>
+          <button
+            onClick={() => setActiveTab('quotes')}
+            className={`pb-3 px-1 border-b-2 font-medium transition-colors ${
+              activeTab === 'quotes'
+                ? 'border-primary-600 text-primary-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Quotes
           </button>
           <button
             onClick={() => setActiveTab('billing')}
@@ -631,6 +642,18 @@ export default function CustomerDetail() {
             </p>
           </div>
           <CustomerActivityTimeline customerId={customer.id} />
+        </div>
+      )}
+
+      {activeTab === 'quotes' && (
+        <div>
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-900">Customer Quotes</h3>
+            <p className="text-gray-600 text-sm mt-1">
+              View and manage all quotes for this customer
+            </p>
+          </div>
+          <QuotesList customerId={customer.id} />
         </div>
       )}
 

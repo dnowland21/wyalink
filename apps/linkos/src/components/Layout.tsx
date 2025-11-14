@@ -334,7 +334,7 @@ export default function Layout({ children }: LayoutProps) {
                       <div className="flex items-center">
                         <span
                           className={`flex-shrink-0 ${sidebarCollapsed ? 'text-2xl' : 'text-lg mr-3'} ${
-                            groupActive ? 'text-primary-600' : 'text-secondary-500 group-hover:text-primary-600'
+                            groupActive ? 'text-primary-600' : 'text-secondary-400 group-hover:text-primary-600'
                           }`}
                         >
                           {group.icon}
@@ -404,7 +404,7 @@ export default function Layout({ children }: LayoutProps) {
                   >
                     <span
                       className={`flex-shrink-0 ${sidebarCollapsed ? 'text-2xl' : 'text-lg mr-3'} ${
-                        isActive ? 'text-white' : 'text-secondary-500 group-hover:text-primary-600'
+                        isActive ? 'text-white' : 'text-secondary-400 group-hover:text-primary-600'
                       }`}
                     >
                       {item.icon}

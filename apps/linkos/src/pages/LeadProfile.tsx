@@ -6,6 +6,7 @@ import CallLogForm from '../components/CallLogForm'
 import EmailForm from '../components/EmailForm'
 import NoteForm from '../components/NoteForm'
 import ActivityTimeline from '../components/ActivityTimeline'
+import QuotesList from '../components/QuotesList'
 
 const statusColors: Record<LeadStatus, string> = {
   new: 'bg-blue-100 text-blue-800',
@@ -15,7 +16,7 @@ const statusColors: Record<LeadStatus, string> = {
   lost: 'bg-gray-100 text-gray-800',
 }
 
-type ActivityTab = 'timeline' | 'call' | 'email' | 'note'
+type ActivityTab = 'timeline' | 'call' | 'email' | 'note' | 'quotes'
 
 export default function LeadProfile() {
   const { id } = useParams<{ id: string }>()
@@ -238,6 +239,16 @@ export default function LeadProfile() {
               >
                 Add Note
               </button>
+              <button
+                onClick={() => setActiveTab('quotes')}
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  activeTab === 'quotes'
+                    ? 'bg-primary-800 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Quotes
+              </button>
             </div>
 
             {/* Activity Content */}
@@ -245,6 +256,7 @@ export default function LeadProfile() {
             {activeTab === 'call' && <CallLogForm leadId={lead.id} onSuccess={handleActivityLogged} />}
             {activeTab === 'email' && <EmailForm leadId={lead.id} leadEmail={lead.email} onSuccess={handleActivityLogged} />}
             {activeTab === 'note' && <NoteForm leadId={lead.id} onSuccess={handleActivityLogged} />}
+            {activeTab === 'quotes' && <QuotesList leadId={lead.id} />}
           </Card>
         </div>
       </div>

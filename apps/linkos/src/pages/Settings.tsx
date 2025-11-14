@@ -352,7 +352,7 @@ export default function Settings() {
               <button
                 onClick={handleTestEmail}
                 disabled={testing || !emailEnabled}
-                className="w-full px-4 py-2 bg-secondary-600 hover:bg-secondary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2 bg-secondary-400 hover:bg-secondary-600 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
                 {testing ? 'Sending Test Email...' : 'Send Test Email'}
               </button>

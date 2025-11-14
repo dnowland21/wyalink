@@ -349,19 +349,19 @@ export default function ProfileSettings() {
                   <h4 className="text-sm font-bold text-primary-900 mb-3">Security Tips</h4>
                   <ul className="text-xs text-primary-800 space-y-2">
                     <li className="flex items-start gap-2">
-                      <span className="text-secondary-500 font-bold">•</span>
+                      <span className="text-secondary-400 font-bold">•</span>
                       <span>Use a strong, unique password</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-secondary-500 font-bold">•</span>
+                      <span className="text-secondary-400 font-bold">•</span>
                       <span>Change your password regularly</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-secondary-500 font-bold">•</span>
+                      <span className="text-secondary-400 font-bold">•</span>
                       <span>Never share your credentials</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-secondary-500 font-bold">•</span>
+                      <span className="text-secondary-400 font-bold">•</span>
                       <span>Log out on shared devices</span>
                     </li>
                   </ul>
