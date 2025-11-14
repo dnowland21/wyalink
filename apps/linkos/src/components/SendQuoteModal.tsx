@@ -69,46 +69,60 @@ Website: www.wyalink.com`
         })
       }
 
-      // Call the email API endpoint
-      const response = await fetch('/api/send-quote-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          to: recipientEmail,
-          subject,
-          message,
-          quoteNumber: quote.quote_number,
-          includePDF,
-          pdfBase64,
-          pdfFileName: `WyaLink-Quote-${quote.quote_number}.pdf`,
-        }),
-      })
+      // Check if email service is configured
+      // This is a placeholder - you need to set up the email service first
+      // See QUOTE_EMAIL_SETUP.md for instructions
+
+      throw new Error(
+        'Email service not yet configured. Please follow the setup instructions in QUOTE_EMAIL_SETUP.md to enable email functionality. ' +
+        'For now, you can download the PDF and send it manually via your email client.'
+      )
+
+      /* Uncomment this code after setting up the email service:
+
+      // Call the email API endpoint (Supabase Edge Function)
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+      const response = await fetch(
+        `${supabaseUrl}/functions/v1/send-quote-email`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+          },
+          body: JSON.stringify({
+            to: recipientEmail,
+            subject,
+            message,
+            quoteNumber: quote.quote_number,
+            includePDF,
+            pdfBase64,
+            pdfFileName: `WyaLink-Quote-${quote.quote_number}.pdf`,
+          }),
+        }
+      )
 
       if (!response.ok) {
-        const errorData = await response.json()
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }))
         throw new Error(errorData.message || 'Failed to send email')
       }
 
-      // Update quote status to 'sent'
-      const updateResponse = await fetch(`/api/quotes/${quote.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: 'sent',
-          sent_at: new Date().toISOString(),
-        }),
+      // Update quote status to 'sent' using Supabase client
+      const { updateQuote } = await import('@wyalink/supabase-client')
+      const updateResult = await updateQuote(quote.id, {
+        status: 'sent',
+        sent_at: new Date().toISOString(),
       })
 
-      if (!updateResponse.ok) {
-        console.error('Failed to update quote status')
+      if (updateResult.error) {
+        console.error('Failed to update quote status:', updateResult.error)
       }
 
       onSuccess?.()
       onClose()
+      */
     } catch (err: any) {
       setError(err.message || 'Failed to send email')
       console.error('Error sending quote email:', err)

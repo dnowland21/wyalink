@@ -322,13 +322,14 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
             <Text style={styles.infoLabel}>Phone:</Text>
             <Text style={styles.infoValue}>{customerPhone}</Text>
           </View>
-          {quote.customer && (
+          {quote.customer && quote.customer.billing_address_line1 && (
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Address:</Text>
               <Text style={styles.infoValue}>
                 {quote.customer.billing_address_line1}
-                {quote.customer.billing_address_line2 && `, ${quote.customer.billing_address_line2}`}
-                , {quote.customer.billing_city}, {quote.customer.billing_state} {quote.customer.billing_zip}
+                {quote.customer.billing_address_line2 ? `, ${quote.customer.billing_address_line2}` : ''}
+                {quote.customer.billing_city ? `, ${quote.customer.billing_city}` : ''}
+                {quote.customer.billing_state ? `, ${quote.customer.billing_state}` : ''} {quote.customer.billing_zip || ''}
               </Text>
             </View>
           )}

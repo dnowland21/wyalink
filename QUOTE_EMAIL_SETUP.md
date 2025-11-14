@@ -159,22 +159,22 @@ supabase secrets set RESEND_API_KEY=your_api_key_here
 supabase functions deploy send-quote-email
 ```
 
-### Step 5: Update Frontend API Endpoint
+### Step 5: Enable Email Sending in Frontend
 
-Update the `SendQuoteModal.tsx` to use the correct Supabase Function URL:
+In `apps/linkos/src/components/SendQuoteModal.tsx`:
+
+1. **Remove** the placeholder error throw (lines 72-79)
+2. **Uncomment** the email sending code (lines 81-125)
+
+The code is already configured to use Supabase Edge Functions - you just need to uncomment it!
 
 ```typescript
-// Replace this line:
-const response = await fetch('/api/send-quote-email', {
+// DELETE these lines:
+throw new Error(
+  'Email service not yet configured...'
+)
 
-// With this:
-const response = await fetch(
-  `${process.env.VITE_SUPABASE_URL}/functions/v1/send-quote-email`,
-  {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${supabaseAnonKey}`,
-    },
+// UNCOMMENT the block below them (remove /* and */)
 ```
 
 ## Email Template Customization
