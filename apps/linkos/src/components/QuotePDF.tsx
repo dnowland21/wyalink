@@ -329,7 +329,8 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
                 {quote.customer.billing_address_line1}
                 {quote.customer.billing_address_line2 ? `, ${quote.customer.billing_address_line2}` : ''}
                 {quote.customer.billing_city ? `, ${quote.customer.billing_city}` : ''}
-                {quote.customer.billing_state ? `, ${quote.customer.billing_state}` : ''} {quote.customer.billing_zip || ''}
+                {quote.customer.billing_state ? `, ${quote.customer.billing_state}` : ''}
+                {quote.customer.billing_zip ? ` ${quote.customer.billing_zip}` : ''}
               </Text>
             </View>
           )}
