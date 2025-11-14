@@ -23,7 +23,8 @@ import {
   FaBoxes,
   FaBuilding,
   FaTags,
-  FaCog
+  FaCog,
+  FaFileAlt
 } from 'react-icons/fa'
 
 interface LayoutProps {
@@ -82,6 +83,11 @@ const navStructure: NavElement[] = [
     name: 'Orders',
     path: '/orders',
     icon: <FaShoppingCart />,
+  },
+  {
+    name: 'Quotes',
+    path: '/quotes',
+    icon: <FaFileAlt />,
   },
 
   // In Store Group

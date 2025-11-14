@@ -14,9 +14,11 @@ interface QuoteModalProps {
   isOpen: boolean
   onClose: (shouldRefresh?: boolean) => void
   quote?: Quote | null
+  preSelectedCustomerId?: string
+  preSelectedLeadId?: string
 }
 
-export default function QuoteModal({ isOpen, onClose, quote }: QuoteModalProps) {
+export default function QuoteModal({ isOpen, onClose, quote, preSelectedCustomerId, preSelectedLeadId }: QuoteModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -50,7 +52,7 @@ export default function QuoteModal({ isOpen, onClose, quote }: QuoteModalProps) 
     } else {
       resetForm()
     }
-  }, [quote, isOpen])
+  }, [quote, isOpen, preSelectedCustomerId, preSelectedLeadId])
 
   const fetchCustomersAndLeads = async () => {
     setLoadingData(true)
@@ -67,9 +69,19 @@ export default function QuoteModal({ isOpen, onClose, quote }: QuoteModalProps) 
   }
 
   const resetForm = () => {
-    setCustomerOrLeadType('customer')
-    setCustomerId('')
-    setLeadId('')
+    if (preSelectedCustomerId) {
+      setCustomerOrLeadType('customer')
+      setCustomerId(preSelectedCustomerId)
+      setLeadId('')
+    } else if (preSelectedLeadId) {
+      setCustomerOrLeadType('lead')
+      setCustomerId('')
+      setLeadId(preSelectedLeadId)
+    } else {
+      setCustomerOrLeadType('customer')
+      setCustomerId('')
+      setLeadId('')
+    }
     // Default expiration: 30 days from now
     const defaultExpiration = new Date()
     defaultExpiration.setDate(defaultExpiration.getDate() + 30)

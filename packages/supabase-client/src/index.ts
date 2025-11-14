@@ -34,3 +34,6 @@ export * from './carriers'
 
 // Export Queue API functions
 export * from './queue'
+
+// Export Customer Activity API functions
+export * from './customer-activities'

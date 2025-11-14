@@ -4,6 +4,7 @@ import { getLeads, getLeadStats, type Lead, type LeadStatus } from '@wyalink/sup
 import { Card } from '@wyalink/ui'
 import LeadModal from '../components/LeadModal'
 import ConvertLeadModal from '../components/ConvertLeadModal'
+import QuoteModal from '../components/QuoteModal'
 
 const statusColors: Record<LeadStatus, string> = {
   new: 'bg-blue-100 text-blue-800',
@@ -36,6 +37,7 @@ export default function Leads() {
   // Modals
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isConvertModalOpen, setIsConvertModalOpen] = useState(false)
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false)
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
 
   // Fetch leads and stats
@@ -114,6 +116,19 @@ export default function Leads() {
     setIsConvertModalOpen(false)
     setSelectedLead(null)
     if (converted) {
+      fetchData()
+    }
+  }
+
+  const handleCreateQuote = (lead: Lead) => {
+    setSelectedLead(lead)
+    setIsQuoteModalOpen(true)
+  }
+
+  const handleQuoteModalClose = (shouldRefresh?: boolean) => {
+    setIsQuoteModalOpen(false)
+    setSelectedLead(null)
+    if (shouldRefresh) {
       fetchData()
     }
   }
@@ -305,6 +320,20 @@ export default function Leads() {
                             />
                           </svg>
                         </button>
+                        <button
+                          onClick={() => handleCreateQuote(lead)}
+                          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Create Quote"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
+                          </svg>
+                        </button>
                         {lead.status !== 'converted' && (
                           <button
                             onClick={() => handleConvertLead(lead)}
@@ -336,6 +365,9 @@ export default function Leads() {
 
       {/* Convert Lead Modal */}
       <ConvertLeadModal isOpen={isConvertModalOpen} onClose={handleConvertModalClose} lead={selectedLead} />
+
+      {/* Quote Modal */}
+      <QuoteModal isOpen={isQuoteModalOpen} onClose={handleQuoteModalClose} preSelectedLeadId={selectedLead?.id} />
     </div>
   )
 }

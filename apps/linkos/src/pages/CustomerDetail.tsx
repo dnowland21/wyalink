@@ -13,6 +13,8 @@ import { Card } from '@wyalink/ui'
 import CustomerModal from '../components/CustomerModal'
 import LineModal from '../components/LineModal'
 import SubscriptionModal from '../components/SubscriptionModal'
+import QuoteModal from '../components/QuoteModal'
+import CustomerActivityTimeline from '../components/CustomerActivityTimeline'
 
 const lineStatusColors: Record<LineStatus, string> = {
   initiating: 'bg-gray-100 text-gray-800',
@@ -32,10 +34,11 @@ export default function CustomerDetail() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'overview' | 'lines' | 'subscriptions' | 'billing'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'lines' | 'subscriptions' | 'activity' | 'billing'>('overview')
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isLineModalOpen, setIsLineModalOpen] = useState(false)
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false)
   const [expandedLines, setExpandedLines] = useState<Set<string>>(new Set())
 
   useEffect(() => {
@@ -63,6 +66,13 @@ export default function CustomerDetail() {
 
   const handleSubscriptionModalClose = (shouldRefresh?: boolean) => {
     setIsSubscriptionModalOpen(false)
+    if (shouldRefresh) {
+      fetchCustomerData()
+    }
+  }
+
+  const handleQuoteModalClose = (shouldRefresh?: boolean) => {
+    setIsQuoteModalOpen(false)
     if (shouldRefresh) {
       fetchCustomerData()
     }
@@ -177,6 +187,12 @@ export default function CustomerDetail() {
           </div>
           <div className="flex gap-2">
             <button
+              onClick={() => setIsQuoteModalOpen(true)}
+              className="px-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 text-white rounded-lg hover:bg-white/30 transition-colors"
+            >
+              Create Quote
+            </button>
+            <button
               onClick={() => setIsEditModalOpen(true)}
               className="px-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 text-white rounded-lg hover:bg-white/30 transition-colors"
             >
@@ -235,6 +251,16 @@ export default function CustomerDetail() {
             }`}
           >
             Subscriptions ({subscriptions.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('activity')}
+            className={`pb-3 px-1 border-b-2 font-medium transition-colors ${
+              activeTab === 'activity'
+                ? 'border-primary-600 text-primary-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Activity
           </button>
           <button
             onClick={() => setActiveTab('billing')}
@@ -596,6 +622,18 @@ export default function CustomerDetail() {
         </div>
       )}
 
+      {activeTab === 'activity' && (
+        <div>
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-900">Activity Timeline</h3>
+            <p className="text-gray-600 text-sm mt-1">
+              Track all customer interactions including store visits, quotes, and subscriptions
+            </p>
+          </div>
+          <CustomerActivityTimeline customerId={customer.id} />
+        </div>
+      )}
+
       {activeTab === 'billing' && (
         <Card>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Billing Information</h3>
@@ -623,6 +661,9 @@ export default function CustomerDetail() {
         onClose={handleSubscriptionModalClose}
         preSelectedCustomerId={customer?.id}
       />
+
+      {/* Create Quote Modal */}
+      <QuoteModal isOpen={isQuoteModalOpen} onClose={handleQuoteModalClose} preSelectedCustomerId={customer?.id} />
     </div>
   )
 }
