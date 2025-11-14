@@ -1,12 +1,27 @@
 import React from 'react'
-import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer'
 import type { Quote, QuoteItem, Customer, Lead } from '@wyalink/supabase-client'
+
+// Register Nunito font
+Font.register({
+  family: 'Nunito',
+  fonts: [
+    {
+      src: 'https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDDshRTM9jo7eTWk.ttf',
+      fontWeight: 400,
+    },
+    {
+      src: 'https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDOUhRTM9jo7eTWk.ttf',
+      fontWeight: 700,
+    },
+  ],
+})
 
 // WyaLink Brand Colors
 const COLORS = {
   primary: '#00254a', // WyaLink Blue
-  secondary: '#36b1b3', // WyaLink Teal
-  accent: '#f37021', // WyaLink Orange
+  secondary: '#36b1b3', // WyaLink Teal (accent color)
+  accent: '#36b1b3', // WyaLink Teal (replacing orange)
   gray: {
     50: '#f9fafb',
     100: '#f3f4f6',
@@ -24,7 +39,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     padding: 40,
     fontSize: 10,
-    fontFamily: 'Helvetica',
+    fontFamily: 'Nunito',
   },
   header: {
     marginBottom: 30,
@@ -250,11 +265,12 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
                 Status: {quote.status.charAt(0).toUpperCase() + quote.status.slice(1)}
               </Text>
             </View>
-            <View>
-              <Text style={[styles.companyInfo, { fontWeight: 'bold', fontSize: 14, color: COLORS.primary }]}>
-                WyaLink
-              </Text>
-              <Text style={styles.companyInfo}>Your Wireless Provider</Text>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Image
+                src="/logos/wyalink-full-logo.svg"
+                style={styles.logo}
+              />
+              <Text style={[styles.companyInfo, { marginTop: 5 }]}>Your Wireless Provider</Text>
               <Text style={styles.companyInfo}>support@wyalink.com</Text>
             </View>
           </View>
