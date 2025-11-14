@@ -190,6 +190,93 @@ app.post('/api/email/test', async (req, res) => {
 })
 
 /**
+ * POST /api/email/send-quote
+ * Send a quote email with PDF attachment
+ */
+app.post('/api/email/send-quote', async (req, res) => {
+  try {
+    const { to, subject, message, quoteNumber, includePDF, pdfBase64, pdfFileName } = req.body
+
+    // Validate required fields
+    if (!to || !subject || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields: to, subject, message',
+      })
+    }
+
+    // Get email settings
+    const settings = await getEmailSettings()
+
+    // Create transporter
+    const transporter = await createTransporter()
+
+    // Build HTML email with WyaLink branding
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #00254a 0%, #36b1b3 100%); padding: 30px; text-align: center;">
+          <h1 style="color: white; margin: 0;">WyaLink</h1>
+          <p style="color: white; margin: 10px 0 0 0;">Your Wireless Provider</p>
+        </div>
+
+        <div style="padding: 30px; background: #ffffff;">
+          <div style="white-space: pre-wrap; line-height: 1.6; color: #374151;">
+            ${message.replace(/\n/g, '<br>')}
+          </div>
+        </div>
+
+        <div style="background: #f3f4f6; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
+          <p style="margin: 0 0 10px 0;">WyaLink • Your Wireless Provider</p>
+          <p style="margin: 0;">Email: support@wyalink.com • Website: www.wyalink.com</p>
+        </div>
+      </div>
+    `
+
+    // Prepare email options
+    const mailOptions = {
+      from: {
+        name: settings['email.from.name'] || 'WyaLink',
+        address: settings['email.from.address'] || settings['email.smtp.username'],
+      },
+      to,
+      subject,
+      text: message,
+      html: htmlContent,
+    }
+
+    // Add PDF attachment if included
+    if (includePDF && pdfBase64) {
+      mailOptions.attachments = [
+        {
+          filename: pdfFileName || `Quote-${quoteNumber}.pdf`,
+          content: pdfBase64,
+          encoding: 'base64',
+          contentType: 'application/pdf',
+        },
+      ]
+    }
+
+    // Send email
+    const info = await transporter.sendMail(mailOptions)
+
+    console.log('Quote email sent:', info.messageId)
+
+    // Return success response
+    res.json({
+      success: true,
+      messageId: info.messageId,
+      message: 'Quote email sent successfully',
+    })
+  } catch (error) {
+    console.error('Error sending quote email:', error)
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to send quote email',
+    })
+  }
+})
+
+/**
  * GET /health
  * Health check endpoint
  */

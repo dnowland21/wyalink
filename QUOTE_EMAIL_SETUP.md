@@ -1,6 +1,6 @@
 # Quote Email Service Setup Guide
 
-This guide explains how to set up the email service for sending quotes to customers.
+This guide explains how the quote email functionality works in WyaLink LinkOS.
 
 ## Overview
 
@@ -10,255 +10,257 @@ The quote email functionality allows you to:
 - Track when quotes are sent
 - Automatically update quote status
 
-## Required Components
+## How It Works
 
-### 1. Email Service Provider
+Quote emails use the **same email service** as lead emails. This means:
 
-You'll need to set up an email service provider. Recommended options:
+✅ **No additional setup required** if you're already sending lead emails
+✅ Uses your existing Office 365 SMTP configuration
+✅ Sends from the same email address configured in Settings
+✅ Same branding and professional appearance
 
-#### Option A: Resend (Recommended)
-- **Why**: Simple, modern API, great for transactional emails
-- **Setup**: https://resend.com
-- **Pricing**: Free tier includes 100 emails/day
-- **API Documentation**: https://resend.com/docs/api-reference/emails/send-email
+## Architecture
 
-#### Option B: SendGrid
-- **Why**: Robust, widely used
-- **Setup**: https://sendgrid.com
-- **Pricing**: Free tier includes 100 emails/day
-- **API Documentation**: https://docs.sendgrid.com/api-reference/mail-send/mail-send
-
-#### Option C: AWS SES
-- **Why**: Cost-effective at scale
-- **Setup**: https://aws.amazon.com/ses/
-- **Pricing**: $0.10 per 1,000 emails
-
-### 2. Backend API Endpoint
-
-You need to create an API endpoint at `/api/send-quote-email` that:
-
-1. Receives the email data
-2. Sends the email via your chosen provider
-3. Returns success/error response
-
-## Implementation Steps
-
-### Step 1: Choose and Setup Email Provider
-
-1. Sign up for one of the email providers above
-2. Verify your domain (required for production)
-3. Get your API key
-
-### Step 2: Create Supabase Edge Function
-
-Create a Supabase Edge Function to handle email sending:
-
-```bash
-# Create the function
-supabase functions new send-quote-email
+```
+SendQuoteModal → Email API Service → Office 365 SMTP → Customer
+     ↓
+  Updates Quote Status in Supabase
 ```
 
-Edit `supabase/functions/send-quote-email/index.ts`:
+The email service is a separate Node.js/Express API that:
+1. Fetches your Office 365 SMTP credentials from Supabase
+2. Generates branded HTML emails with WyaLink colors
+3. Attaches the PDF quote (if selected)
+4. Sends via Office 365 SMTP
+5. Returns success/failure to the frontend
 
-```typescript
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+## Email Template
 
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
+Quote emails automatically include:
 
-serve(async (req) => {
-  try {
-    const { to, subject, message, quoteNumber, includePDF, pdfBase64, pdfFileName } = await req.json()
+### Header
+- WyaLink branding with blue/teal gradient
+- Company tagline "Your Wireless Provider"
 
-    const emailData: any = {
-      from: 'WyaLink <quotes@wyalink.com>',
-      to: [to],
-      subject,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #00254a 0%, #36b1b3 100%); padding: 30px; text-align: center;">
-            <h1 style="color: white; margin: 0;">WyaLink</h1>
-            <p style="color: white; margin: 10px 0 0 0;">Your Wireless Provider</p>
-          </div>
+### Body
+- Custom message from the Send Quote modal
+- Professional formatting with proper line breaks
+- Easy-to-read layout
 
-          <div style="padding: 30px; background: #ffffff;">
-            <div style="white-space: pre-wrap; line-height: 1.6; color: #374151;">
-              ${message.replace(/\n/g, '<br>')}
-            </div>
-          </div>
+### Footer
+- Company contact information
+- Website link
 
-          <div style="background: #f3f4f6; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-            <p style="margin: 0 0 10px 0;">WyaLink • Your Wireless Provider</p>
-            <p style="margin: 0;">Email: support@wyalink.com • Website: www.wyalink.com</p>
-          </div>
-        </div>
-      `,
-    }
+### PDF Attachment (Optional)
+- Letter-size (8.5" x 11") professionally formatted PDF
+- Quote number, customer info, items, totals
+- WyaLink branding with teal accent color
+- Nunito font throughout
 
-    // Add PDF attachment if included
-    if (includePDF && pdfBase64) {
-      emailData.attachments = [
-        {
-          filename: pdfFileName,
-          content: pdfBase64,
-          type: 'application/pdf',
-          disposition: 'attachment',
-        },
-      ]
-    }
+## Prerequisites
 
-    // Send email via Resend
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify(emailData),
-    })
+To send quote emails, you need:
 
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`Email send failed: ${error}`)
-    }
+1. **Email API Service Running**
+   - The service at `services/email-api` must be deployed
+   - See `services/email-api/COOLIFY_DEPLOYMENT.md` for deployment instructions
 
-    const result = await response.json()
+2. **Office 365 SMTP Configured**
+   - Configure in LinkOS: Settings → Email Settings
+   - Same configuration used for lead emails
 
-    return new Response(
-      JSON.stringify({ success: true, messageId: result.id }),
-      {
-        headers: { 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    )
-  } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        headers: { 'Content-Type': 'application/json' },
-        status: 500,
-      }
-    )
-  }
-})
-```
-
-### Step 3: Set Environment Variables
-
-Add your email API key to Supabase:
-
-```bash
-# Set the environment variable
-supabase secrets set RESEND_API_KEY=your_api_key_here
-```
-
-### Step 4: Deploy the Function
-
-```bash
-# Deploy to Supabase
-supabase functions deploy send-quote-email
-```
-
-### Step 5: Enable Email Sending in Frontend
-
-In `apps/linkos/src/components/SendQuoteModal.tsx`:
-
-1. **Remove** the placeholder error throw (lines 72-79)
-2. **Uncomment** the email sending code (lines 81-125)
-
-The code is already configured to use Supabase Edge Functions - you just need to uncomment it!
-
-```typescript
-// DELETE these lines:
-throw new Error(
-  'Email service not yet configured...'
-)
-
-// UNCOMMENT the block below them (remove /* and */)
-```
-
-## Email Template Customization
-
-The email template in the Edge Function includes:
-
-1. **Header**: WyaLink logo and branding with gradient background
-2. **Body**: The custom message from the modal
-3. **Footer**: Company information
-
-You can customize the HTML template in the Edge Function to match your exact branding needs.
+3. **Environment Variable Set**
+   - `VITE_EMAIL_API_URL` must point to your email service
+   - Production: `https://email-api.wyalink.com`
+   - Local dev: `http://localhost:3001`
 
 ## Testing
 
-### Test Locally
+### Check if Email Service is Running
 
 ```bash
-# Start Supabase locally
-supabase start
+# Test the health endpoint
+curl https://email-api.wyalink.com/health
 
-# Serve the function locally
-supabase functions serve send-quote-email --env-file .env.local
-
-# Test with curl
-curl -X POST http://localhost:54321/functions/v1/send-quote-email \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ANON_KEY" \
-  -d '{
-    "to": "test@example.com",
-    "subject": "Test Quote",
-    "message": "This is a test",
-    "quoteNumber": "Q-001",
-    "includePDF": false
-  }'
+# Should return:
+{"status":"ok","service":"email-api"}
 ```
 
-### Test in Production
+### Send a Test Quote
 
-1. Create a draft quote in the application
+1. Create a draft quote in LinkOS
 2. Click "Send to Customer"
-3. Fill in the email modal
-4. Send the email
-5. Check your email for the quote
+3. Fill in recipient email and message
+4. Optionally include PDF attachment
+5. Click "Send Quote"
+
+The email should:
+- ✅ Be sent from your configured Office 365 account
+- ✅ Have WyaLink branding in header/footer
+- ✅ Include your custom message
+- ✅ Have PDF attached (if selected)
+- ✅ Update quote status to "Sent"
 
 ## Troubleshooting
 
-### Emails Not Sending
+### Error: "Failed to load resource: 404"
 
-1. **Check API Key**: Ensure your API key is correct and set in Supabase secrets
-2. **Check Domain Verification**: Verify your sending domain in your email provider
-3. **Check Logs**: View Supabase function logs: `supabase functions logs send-quote-email`
-4. **Check Spam**: Email might be in spam folder during testing
+**Cause:** Email API service is not running or `VITE_EMAIL_API_URL` is incorrect
 
-### PDF Not Attaching
+**Fix:**
+1. Verify email service is deployed: `curl https://email-api.wyalink.com/health`
+2. Check `VITE_EMAIL_API_URL` environment variable in LinkOS
+3. Restart email service if needed
 
-1. **Check PDF Generation**: Download the PDF manually first to ensure it generates correctly
-2. **Check Base64 Encoding**: Ensure the PDF is properly encoded to base64
-3. **Check File Size**: Some email providers have attachment size limits (usually 10MB)
+### Error: "Email sending is disabled in settings"
 
-### Email Formatting Issues
+**Cause:** Email settings not configured in LinkOS
 
-1. **Test with Different Clients**: Gmail, Outlook, Apple Mail may render HTML differently
-2. **Keep HTML Simple**: Use inline styles and basic HTML
-3. **Test on Mobile**: Ensure emails look good on mobile devices
+**Fix:**
+1. Go to Settings → Email Settings
+2. Enable "Email Sending"
+3. Configure Office 365 SMTP credentials
+4. Test connection
 
-## Next Steps
+### Error: "Missing required fields"
 
-1. **Custom Branding**: Add your company logo to the email template
-2. **Email Tracking**: Implement open and click tracking
-3. **Templates**: Create different email templates for different scenarios
-4. **Scheduled Sending**: Add ability to schedule quote emails
-5. **Follow-ups**: Implement automatic follow-up emails for un-responded quotes
+**Cause:** Recipient email, subject, or message is empty
+
+**Fix:**
+1. Ensure all required fields are filled
+2. Check that customer/lead has an email address
+
+### Error: "Failed to send email" (SMTP error)
+
+**Cause:** Office 365 SMTP connection issue
+
+**Fix:**
+1. Verify SMTP credentials in Settings
+2. Check SMTP username/password are correct
+3. Ensure Office 365 account allows SMTP access
+4. Check firewall allows outbound connections on port 587
+
+### PDF Not Generating
+
+**Cause:** PDF generation error in browser
+
+**Fix:**
+1. Check browser console for errors
+2. Ensure quote has all required data (items, customer info)
+3. Try downloading PDF manually first to test generation
+
+## Email Service Endpoint
+
+The quote email uses: `POST /api/email/send-quote`
+
+**Request Body:**
+```json
+{
+  "to": "customer@example.com",
+  "subject": "Your Quote from WyaLink - #Q-001",
+  "message": "Hello...",
+  "quoteNumber": "Q-001",
+  "includePDF": true,
+  "pdfBase64": "JVBERi0xLjQK...",
+  "pdfFileName": "WyaLink-Quote-Q-001.pdf"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "messageId": "abc123@mail.outlook.com",
+  "message": "Quote email sent successfully"
+}
+```
+
+## Security
+
+- ✅ SMTP credentials never sent to client
+- ✅ Credentials stored encrypted in Supabase
+- ✅ Email service uses service role key (bypasses RLS)
+- ✅ HTTPS enforced in production
+- ✅ PDF generated client-side, sent as base64
+
+## Customization
+
+### Customize Email Template
+
+Edit the HTML template in `services/email-api/index.js` at the `/api/email/send-quote` endpoint:
+
+```javascript
+const htmlContent = `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <!-- Customize this HTML -->
+  </div>
+`
+```
+
+### Customize PDF Template
+
+Edit the PDF template in `apps/linkos/src/components/QuotePDF.tsx`:
+
+- Change colors in `COLORS` constant
+- Modify styles in `StyleSheet.create()`
+- Update layout in the component JSX
+
+### Customize Default Message
+
+Edit the default message in `apps/linkos/src/components/SendQuoteModal.tsx`:
+
+```typescript
+const [message, setMessage] = useState(`
+  // Your custom default message here
+`)
+```
+
+## Production Deployment
+
+The quote email functionality works automatically if:
+
+1. ✅ Email API service is deployed and running
+2. ✅ `VITE_EMAIL_API_URL` is set in LinkOS environment
+3. ✅ Office 365 SMTP is configured in Settings
+4. ✅ Email sending is enabled in Settings
+
+No additional deployment steps needed beyond the initial email service setup.
+
+## Local Development
+
+To run the email service locally:
+
+```bash
+# Navigate to email service
+cd services/email-api
+
+# Install dependencies
+npm install
+
+# Create .env file with:
+# VITE_SUPABASE_URL=your-supabase-url
+# SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+# PORT=3001
+
+# Start the service
+npm start
+```
+
+Then in LinkOS `.env.local`:
+```
+VITE_EMAIL_API_URL=http://localhost:3001
+```
 
 ## Support
 
 For issues or questions:
-- Check Supabase function logs
-- Review email provider documentation
+- Check email service logs for detailed error messages
+- Review Office 365 SMTP configuration in Settings
+- Verify email service health endpoint
 - Contact support at support@wyalink.com
 
-## Security Notes
+## Related Documentation
 
-- Never expose your email API key in frontend code
-- Always use Supabase Edge Functions or similar backend
-- Implement rate limiting to prevent abuse
-- Validate all email addresses before sending
-- Use environment variables for all sensitive data
+- Email API Service Deployment: `services/email-api/COOLIFY_DEPLOYMENT.md`
+- Email API Service Setup: `docs/EMAIL_SETUP.md`
+- Office 365 Configuration: Settings → Email Settings in LinkOS
