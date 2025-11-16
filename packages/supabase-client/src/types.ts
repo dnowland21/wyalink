@@ -32,6 +32,12 @@ export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'declined' | 'expired'
 export type QueueVisitorType = 'lead' | 'customer'
 export type QueueStatus = 'waiting' | 'being_assisted' | 'completed' | 'removed'
 
+// POS System Types
+export type POSTransactionType = 'sale' | 'activation' | 'bill_payment' | 'return' | 'refund' | 'exchange'
+export type POSPaymentMethod = 'cash' | 'credit_card' | 'debit_card' | 'check' | 'account_credit' | 'other'
+export type POSTransactionStatus = 'pending' | 'completed' | 'voided' | 'refunded' | 'partially_refunded'
+export type POSSessionStatus = 'open' | 'closed' | 'balanced' | 'over' | 'short'
+
 export interface Profile {
   id: string
   role: UserRole
@@ -919,6 +925,211 @@ export interface UpdateQueueEntryForm {
   notes?: string
 }
 
+// ==================================================
+// POS SYSTEM ENTITIES
+// ==================================================
+
+export interface POSSession {
+  id: string
+  session_number: string
+  register_name: string
+  opened_by: string
+  closed_by: string | null
+  opened_at: string
+  closed_at: string | null
+  starting_cash: number
+  expected_cash: number | null
+  actual_cash: number | null
+  cash_difference: number | null
+  total_sales: number
+  total_refunds: number
+  total_cash_payments: number
+  total_card_payments: number
+  total_other_payments: number
+  transaction_count: number
+  status: POSSessionStatus
+  opening_notes: string | null
+  closing_notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface POSTransaction {
+  id: string
+  transaction_number: string
+  transaction_type: POSTransactionType
+  status: POSTransactionStatus
+  session_id: string
+  customer_id: string
+  sales_person: string
+  processed_by: string | null
+  requires_manager_override: boolean
+  override_reason: string | null
+  overridden_by: string | null
+  overridden_at: string | null
+  subtotal: number
+  tax_total: number
+  discount_total: number
+  total: number
+  original_transaction_id: string | null
+  refund_amount: number | null
+  refund_reason: string | null
+  activation_plan_id: string | null
+  activation_line_id: string | null
+  activation_sim_id: string | null
+  bill_payment_account_number: string | null
+  bill_payment_amount: number | null
+  notes: string | null
+  receipt_printed: boolean
+  receipt_printed_at: string | null
+  completed_at: string | null
+  voided_at: string | null
+  voided_by: string | null
+  void_reason: string | null
+  created_at: string
+  updated_at: string
+
+  // Relations
+  customer?: Customer
+  session?: POSSession
+  salesperson?: Profile
+  items?: POSTransactionItem[]
+  payments?: POSTransactionPayment[]
+  serials?: POSTransactionSerial[]
+}
+
+export interface POSTransactionItem {
+  id: string
+  transaction_id: string
+  item_type: 'inventory' | 'plan' | 'service' | 'fee'
+  inventory_id: string | null
+  plan_id: string | null
+  item_name: string
+  item_description: string | null
+  item_sku: string | null
+  quantity: number
+  unit_price: number
+  discount_amount: number
+  tax_amount: number
+  subtotal: number
+  promotion_id: string | null
+  is_returned: boolean
+  returned_quantity: number
+  created_at: string
+  updated_at: string
+
+  // Relations
+  inventory?: Inventory
+  plan?: MVNOPlan
+}
+
+export interface POSTransactionSerial {
+  id: string
+  transaction_item_id: string
+  transaction_id: string
+  inventory_id: string
+  serial_number: string
+  imei: string | null
+  inventory_serial_id: string | null
+  is_returned: boolean
+  returned_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface POSTransactionPayment {
+  id: string
+  transaction_id: string
+  payment_method: POSPaymentMethod
+  amount: number
+  card_last_four: string | null
+  card_type: string | null
+  authorization_code: string | null
+  transaction_id_external: string | null
+  cash_tendered: number | null
+  cash_change: number | null
+  check_number: string | null
+  processed_at: string
+  created_at: string
+  updated_at: string
+}
+
+export interface POSCommission {
+  id: string
+  transaction_id: string
+  sales_person: string
+  commission_amount: number
+  commission_rate: number | null
+  base_amount: number
+  commission_type: string | null
+  is_paid: boolean
+  paid_at: string | null
+  paid_in_period: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+// ==================================================
+// POS FORM TYPES
+// ==================================================
+
+export interface CreatePOSSessionForm {
+  register_name?: string
+  starting_cash: number
+  opening_notes?: string
+}
+
+export interface ClosePOSSessionForm {
+  actual_cash: number
+  closing_notes?: string
+}
+
+export interface CreatePOSTransactionForm {
+  transaction_type: POSTransactionType
+  customer_id: string
+  session_id: string
+  requires_manager_override?: boolean
+  override_reason?: string
+  activation_plan_id?: string
+  bill_payment_amount?: number
+  bill_payment_account_number?: string
+  notes?: string
+}
+
+export interface AddPOSTransactionItemForm {
+  item_type: 'inventory' | 'plan' | 'service' | 'fee'
+  inventory_id?: string
+  plan_id?: string
+  item_name: string
+  item_description?: string
+  item_sku?: string
+  quantity: number
+  unit_price: number
+  discount_amount?: number
+  tax_amount?: number
+  promotion_id?: string
+}
+
+export interface AddPOSPaymentForm {
+  payment_method: POSPaymentMethod
+  amount: number
+  card_last_four?: string
+  card_type?: string
+  authorization_code?: string
+  transaction_id_external?: string
+  cash_tendered?: number
+  check_number?: string
+}
+
+export interface AddPOSSerialForm {
+  transaction_item_id: string
+  inventory_id: string
+  serial_number: string
+  imei?: string
+  inventory_serial_id?: string
+}
+
 // Database schema type for Supabase client
 export interface Database {
   public: {
@@ -957,6 +1168,41 @@ export interface Database {
         Row: SupportTicket
         Insert: Omit<SupportTicket, 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Omit<SupportTicket, 'id' | 'created_at' | 'updated_at'>>
+      }
+      pos_sessions: {
+        Row: POSSession
+        Insert: Omit<POSSession, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<POSSession, 'id' | 'created_at' | 'updated_at'>>
+      }
+      pos_transactions: {
+        Row: POSTransaction
+        Insert: Omit<POSTransaction, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<POSTransaction, 'id' | 'created_at' | 'updated_at'>>
+      }
+      pos_transaction_items: {
+        Row: POSTransactionItem
+        Insert: Omit<POSTransactionItem, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<POSTransactionItem, 'id' | 'created_at' | 'updated_at'>>
+      }
+      pos_transaction_serials: {
+        Row: POSTransactionSerial
+        Insert: Omit<POSTransactionSerial, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<POSTransactionSerial, 'id' | 'created_at' | 'updated_at'>>
+      }
+      pos_transaction_payments: {
+        Row: POSTransactionPayment
+        Insert: Omit<POSTransactionPayment, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<POSTransactionPayment, 'id' | 'created_at' | 'updated_at'>>
+      }
+      pos_commissions: {
+        Row: POSCommission
+        Insert: Omit<POSCommission, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<POSCommission, 'id' | 'created_at' | 'updated_at'>>
+      }
+      inventory_serials: {
+        Row: InventorySerial
+        Insert: Omit<InventorySerial, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<InventorySerial, 'id' | 'created_at' | 'updated_at'>>
       }
     }
   }

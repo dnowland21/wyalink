@@ -37,3 +37,9 @@ export * from './queue'
 
 // Export Customer Activity API functions
 export * from './customer-activities'
+
+// Export POS API functions
+export * from './pos'
+
+// Export Plans API functions
+export * from './plans'
