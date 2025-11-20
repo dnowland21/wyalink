@@ -34,6 +34,7 @@ import Investigations from './pages/Investigations'
 import Incidents from './pages/Incidents'
 import Invoices from './pages/Invoices'
 import Payments from './pages/Payments'
+import UIShowcase from './pages/UIShowcase'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth()
@@ -100,6 +101,7 @@ function App() {
                   <Route path="/incidents" element={<Incidents />} />
                   <Route path="/invoices" element={<Invoices />} />
                   <Route path="/payments" element={<Payments />} />
+                  <Route path="/ui-showcase" element={<UIShowcase />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>
