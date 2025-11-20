@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getQuotes, type Quote, type QuoteStatus } from '@wyalink/supabase-client'
-import { Card } from '@wyalink/ui'
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card'
+import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Search, Plus } from 'lucide-react'
 import QuoteModal from '../components/QuoteModal'
 
 const statusColors: Record<QuoteStatus, string> = {
-  draft: 'bg-gray-100 text-gray-800',
-  sent: 'bg-blue-100 text-blue-800',
-  accepted: 'bg-green-100 text-green-800',
-  declined: 'bg-red-100 text-red-800',
-  expired: 'bg-orange-100 text-orange-800',
-  converted: 'bg-purple-100 text-purple-800',
+  draft: 'default',
+  sent: 'info',
+  accepted: 'success',
+  declined: 'error',
+  expired: 'warning',
+  converted: 'secondary',
 }
 
 export default function Quotes() {
@@ -124,93 +128,96 @@ export default function Quotes() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
         <Card>
-          <div className="text-sm text-gray-600">Total Quotes</div>
-          <div className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Total Quotes</div>
+            <div className="text-2xl font-bold mt-1">{stats.total}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-sm text-gray-600">Draft</div>
-          <div className="text-2xl font-bold text-gray-600 mt-1">{stats.draft}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Draft</div>
+            <div className="text-2xl font-bold text-muted-foreground mt-1">{stats.draft}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-sm text-gray-600">Sent</div>
-          <div className="text-2xl font-bold text-blue-600 mt-1">{stats.sent}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Sent</div>
+            <div className="text-2xl font-bold text-info mt-1">{stats.sent}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-sm text-gray-600">Accepted</div>
-          <div className="text-2xl font-bold text-green-600 mt-1">{stats.accepted}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Accepted</div>
+            <div className="text-2xl font-bold text-success mt-1">{stats.accepted}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-sm text-gray-600">Declined</div>
-          <div className="text-2xl font-bold text-red-600 mt-1">{stats.declined}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Declined</div>
+            <div className="text-2xl font-bold text-error mt-1">{stats.declined}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-sm text-gray-600">Total Value</div>
-          <div className="text-2xl font-bold text-primary-600 mt-1">{formatPrice(stats.totalValue)}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Total Value</div>
+            <div className="text-2xl font-bold text-primary mt-1">{formatPrice(stats.totalValue)}</div>
+          </CardContent>
         </Card>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <p className="text-sm text-red-800">{error}</p>
+        <div className="bg-error-50 border border-error-200 rounded-lg p-4 mb-6">
+          <p className="text-sm text-error-800">{error}</p>
         </div>
       )}
 
       {/* Quotes Table */}
       <Card>
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">All Quotes</h3>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">All Quotes</CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  type="text"
+                  placeholder="Search by quote number..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-64 pl-9"
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Search by quote number..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="text-sm border border-input rounded-md px-3 py-2 h-10 focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="all">All Status</option>
+                <option value="draft">Draft</option>
+                <option value="sent">Sent</option>
+                <option value="accepted">Accepted</option>
+                <option value="declined">Declined</option>
+                <option value="expired">Expired</option>
+                <option value="converted">Converted</option>
+              </select>
+              <Button onClick={() => setIsQuoteModalOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Quote
+              </Button>
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="all">All Status</option>
-              <option value="draft">Draft</option>
-              <option value="sent">Sent</option>
-              <option value="accepted">Accepted</option>
-              <option value="declined">Declined</option>
-              <option value="expired">Expired</option>
-              <option value="converted">Converted</option>
-            </select>
-            <button
-              onClick={() => setIsQuoteModalOpen(true)}
-              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
-            >
-              + Create Quote
-            </button>
           </div>
-        </div>
-
-        {loading ? (
-          <div className="p-8 text-center text-gray-600">Loading quotes...</div>
-        ) : filteredQuotes.length === 0 ? (
-          <div className="p-8 text-center text-gray-600">
-            {searchQuery || statusFilter !== 'all' ? 'No quotes found matching your filters' : 'No quotes yet'}
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="p-8 text-center text-muted-foreground">Loading quotes...</div>
+          ) : filteredQuotes.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground">
+              {searchQuery || statusFilter !== 'all' ? 'No quotes found matching your filters' : 'No quotes yet'}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Quote #</th>
@@ -231,27 +238,27 @@ export default function Quotes() {
                       <span className="text-sm font-mono font-semibold text-gray-900">{quote.quote_number}</span>
                     </td>
                     <td className="py-4 px-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[quote.status]}`}>
+                      <Badge variant={statusColors[quote.status] as any}>
                         {quote.status.charAt(0).toUpperCase() + quote.status.slice(1)}
-                      </span>
+                      </Badge>
                     </td>
                     <td className="py-4 px-4">
                       {quote.customer_id ? (
                         <Link
                           to={`/customers/${quote.customer_id}`}
-                          className="text-sm text-primary-600 hover:text-primary-700"
+                          className="text-sm text-primary hover:text-primary/80"
                         >
                           View Customer
                         </Link>
                       ) : quote.lead_id ? (
                         <Link
                           to={`/leads/${quote.lead_id}`}
-                          className="text-sm text-primary-600 hover:text-primary-700"
+                          className="text-sm text-primary hover:text-primary/80"
                         >
                           View Lead
                         </Link>
                       ) : (
-                        <span className="text-sm text-gray-400">None</span>
+                        <span className="text-sm text-muted-foreground">None</span>
                       )}
                     </td>
                     <td className="py-4 px-4">
@@ -281,12 +288,15 @@ export default function Quotes() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-2">
-                        <Link
-                          to={`/quotes/${quote.id}`}
-                          className="px-3 py-1.5 text-sm bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          asChild
                         >
-                          View
-                        </Link>
+                          <Link to={`/quotes/${quote.id}`}>
+                            View
+                          </Link>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -295,63 +305,70 @@ export default function Quotes() {
             </table>
           </div>
         )}
+        </CardContent>
       </Card>
 
       {/* Quick Actions Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
         <Card>
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-1">Create New Quote</h4>
+                <p className="text-xs text-gray-600">Build customized quotes with plans, devices, and promotions</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">Create New Quote</h4>
-              <p className="text-xs text-gray-600">Build customized quotes with plans, devices, and promotions</p>
-            </div>
-          </div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-1">Convert to Order</h4>
+                <p className="text-xs text-gray-600">Accepted quotes can be converted to customer orders</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">Convert to Order</h4>
-              <p className="text-xs text-gray-600">Accepted quotes can be converted to customer orders</p>
-            </div>
-          </div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                />
-              </svg>
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-1">Apply Promotions</h4>
+                <p className="text-xs text-gray-600">Add discounts and promotional offers to your quotes</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">Apply Promotions</h4>
-              <p className="text-xs text-gray-600">Add discounts and promotional offers to your quotes</p>
-            </div>
-          </div>
+          </CardContent>
         </Card>
       </div>
 

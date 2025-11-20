@@ -14,7 +14,11 @@ import {
   type Lead,
   type Customer,
 } from '@wyalink/supabase-client'
-import { Card } from '@wyalink/ui'
+import { Card, CardContent } from '../components/ui/card'
+import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Plus, Clock, Phone, UserPlus, Trash2, CheckCircle } from 'lucide-react'
 
 export default function Queue() {
   const { user } = useAuth()
@@ -99,7 +103,7 @@ export default function Queue() {
     return (
       <div>
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Store Queue</h1>
-        <p className="text-gray-600">Loading queue...</p>
+        <p className="text-muted-foreground">Loading queue...</p>
       </div>
     )
   }
@@ -110,35 +114,39 @@ export default function Queue() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Store Queue</h1>
-          <p className="text-gray-600 mt-1">Manage in-store visitor queue</p>
+          <p className="text-muted-foreground mt-1">Manage in-store visitor queue</p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors"
-        >
+        <Button onClick={() => setShowAddModal(true)}>
+          <Plus className="mr-2 h-4 w-4" />
           Add to Queue
-        </button>
+        </Button>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900">{waitingQueue.length}</div>
-            <div className="text-sm text-gray-600 mt-1">Waiting</div>
-          </div>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-gray-900">{waitingQueue.length}</div>
+              <div className="text-sm text-muted-foreground mt-1">Waiting</div>
+            </div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-primary-600">{beingAssisted.length}</div>
-            <div className="text-sm text-gray-600 mt-1">Being Assisted</div>
-          </div>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary-600">{beingAssisted.length}</div>
+              <div className="text-sm text-muted-foreground mt-1">Being Assisted</div>
+            </div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900">{waitingQueue.length + beingAssisted.length}</div>
-            <div className="text-sm text-gray-600 mt-1">Total in Queue</div>
-          </div>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-gray-900">{waitingQueue.length + beingAssisted.length}</div>
+              <div className="text-sm text-muted-foreground mt-1">Total in Queue</div>
+            </div>
+          </CardContent>
         </Card>
       </div>
 
@@ -147,62 +155,64 @@ export default function Queue() {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Waiting ({waitingQueue.length})</h2>
         {waitingQueue.length === 0 ? (
           <Card>
-            <p className="text-gray-600 text-center py-8">No one waiting in queue</p>
+            <CardContent className="pt-6">
+              <p className="text-muted-foreground text-center py-8">No one waiting in queue</p>
+            </CardContent>
           </Card>
         ) : (
           <div className="space-y-3">
             {waitingQueue.map((entry, index) => (
               <Card key={entry.id}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary-100 text-primary-700 font-bold">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-semibold text-gray-900">{entry.visitor_name}</h3>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          entry.visitor_type === 'lead' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-                        }`}>
-                          {entry.visitor_type === 'lead' ? 'Lead' : 'Customer'}
-                        </span>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary-100 text-primary-700 font-bold">
+                        {index + 1}
                       </div>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
-                        {entry.visitor_phone && (
-                          <span>
-                            <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                            </svg>
-                            {entry.visitor_phone}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-lg font-semibold text-gray-900">{entry.visitor_name}</h3>
+                          <Badge variant={entry.visitor_type === 'lead' ? 'info' : 'success'}>
+                            {entry.visitor_type === 'lead' ? 'Lead' : 'Customer'}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                          {entry.visitor_phone && (
+                            <span className="flex items-center">
+                              <Phone className="w-4 h-4 mr-1" />
+                              {entry.visitor_phone}
+                            </span>
+                          )}
+                          <span className="flex items-center">
+                            <Clock className="w-4 h-4 mr-1" />
+                            Waiting {getWaitTime(entry)}
                           </span>
+                        </div>
+                        {entry.notes && (
+                          <p className="text-sm text-muted-foreground mt-1 italic">{entry.notes}</p>
                         )}
-                        <span>
-                          <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          Waiting {getWaitTime(entry)}
-                        </span>
                       </div>
-                      {entry.notes && (
-                        <p className="text-sm text-gray-500 mt-1 italic">{entry.notes}</p>
-                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleStartAssisting(entry)}
+                        size="sm"
+                      >
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        Assist
+                      </Button>
+                      <Button
+                        onClick={() => handleRemoveFromQueue(entry)}
+                        variant="outline"
+                        size="sm"
+                        className="border-red-300 text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Remove
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleStartAssisting(entry)}
-                      className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
-                    >
-                      Assist
-                    </button>
-                    <button
-                      onClick={() => handleRemoveFromQueue(entry)}
-                      className="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
+                </CardContent>
               </Card>
             ))}
           </div>
@@ -214,45 +224,47 @@ export default function Queue() {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Being Assisted ({beingAssisted.length})</h2>
         {beingAssisted.length === 0 ? (
           <Card>
-            <p className="text-gray-600 text-center py-8">No one currently being assisted</p>
+            <CardContent className="pt-6">
+              <p className="text-muted-foreground text-center py-8">No one currently being assisted</p>
+            </CardContent>
           </Card>
         ) : (
           <div className="space-y-3">
             {beingAssisted.map((entry) => (
               <Card key={entry.id}>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-semibold text-gray-900">{entry.visitor_name}</h3>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        entry.visitor_type === 'lead' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-                      }`}>
-                        {entry.visitor_type === 'lead' ? 'Lead' : 'Customer'}
-                      </span>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{entry.visitor_name}</h3>
+                        <Badge variant={entry.visitor_type === 'lead' ? 'info' : 'success'}>
+                          {entry.visitor_type === 'lead' ? 'Lead' : 'Customer'}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                        {entry.visitor_phone && (
+                          <span className="flex items-center">
+                            <Phone className="w-4 h-4 mr-1" />
+                            {entry.visitor_phone}
+                          </span>
+                        )}
+                        {entry.assisting_user && (
+                          <span className="text-primary-600 font-medium">
+                            Assisted by {entry.assisting_user.first_name || 'Staff'}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
-                      {entry.visitor_phone && (
-                        <span>
-                          <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                          </svg>
-                          {entry.visitor_phone}
-                        </span>
-                      )}
-                      {entry.assisting_user && (
-                        <span className="text-primary-600 font-medium">
-                          Assisted by {entry.assisting_user.first_name || 'Staff'}
-                        </span>
-                      )}
-                    </div>
+                    <Button
+                      onClick={() => handleCompleteAssistance(entry)}
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Complete
+                    </Button>
                   </div>
-                  <button
-                    onClick={() => handleCompleteAssistance(entry)}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                  >
-                    Complete
-                  </button>
-                </div>
+                </CardContent>
               </Card>
             ))}
           </div>
@@ -399,26 +411,22 @@ function AddToQueueModal({
 
           {/* Mode Selector */}
           <div className="flex gap-2 mb-6">
-            <button
+            <Button
+              type="button"
               onClick={() => setMode('select')}
-              className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
-                mode === 'select'
-                  ? 'bg-primary-800 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              variant={mode === 'select' ? 'default' : 'outline'}
+              className="flex-1"
             >
               Select Existing
-            </button>
-            <button
+            </Button>
+            <Button
+              type="button"
               onClick={() => setMode('create')}
-              className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
-                mode === 'create'
-                  ? 'bg-primary-800 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              variant={mode === 'create' ? 'default' : 'outline'}
+              className="flex-1"
             >
               Create New Lead
-            </button>
+            </Button>
           </div>
 
           {mode === 'select' ? (
@@ -427,34 +435,36 @@ function AddToQueueModal({
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Visitor Type</label>
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => {
                       setVisitorType('lead')
                       setSelectedId('')
                     }}
-                    className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
+                    variant={visitorType === 'lead' ? 'default' : 'outline'}
+                    className={`flex-1 ${
                       visitorType === 'lead'
-                        ? 'bg-blue-100 text-blue-800 border-2 border-blue-600'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-transparent'
+                        ? 'bg-info text-info-foreground hover:bg-info/90'
+                        : ''
                     }`}
                   >
                     Lead
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => {
                       setVisitorType('customer')
                       setSelectedId('')
                     }}
-                    className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
+                    variant={visitorType === 'customer' ? 'default' : 'outline'}
+                    className={`flex-1 ${
                       visitorType === 'customer'
-                        ? 'bg-green-100 text-green-800 border-2 border-green-600'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-transparent'
+                        ? 'bg-success text-success-foreground hover:bg-success/90'
+                        : ''
                     }`}
                   >
                     Customer
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -464,13 +474,13 @@ function AddToQueueModal({
                   Select {visitorType === 'lead' ? 'Lead' : 'Customer'} *
                 </label>
                 {loading ? (
-                  <p className="text-gray-600 text-sm">Loading...</p>
+                  <p className="text-muted-foreground text-sm">Loading...</p>
                 ) : (
                   <select
                     value={selectedId}
                     onChange={(e) => setSelectedId(e.target.value)}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <option value="">-- Select --</option>
                     {visitorType === 'lead'
@@ -497,27 +507,26 @@ function AddToQueueModal({
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   placeholder="Special requests, reason for visit, etc."
                 />
               </div>
 
               <div className="flex justify-end gap-3 pt-4">
-                <button
+                <Button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  variant="outline"
                   disabled={saving}
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
                   disabled={saving || !selectedId}
                 >
                   {saving ? 'Adding...' : 'Add to Queue'}
-                </button>
+                </Button>
               </div>
             </form>
           ) : (
@@ -527,24 +536,22 @@ function AddToQueueModal({
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     First Name *
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Last Name *
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
               </div>
@@ -553,12 +560,11 @@ function AddToQueueModal({
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Email *
                 </label>
-                <input
+                <Input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
@@ -566,11 +572,10 @@ function AddToQueueModal({
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Phone
                 </label>
-                <input
+                <Input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
@@ -580,27 +585,26 @@ function AddToQueueModal({
                   value={createNotes}
                   onChange={(e) => setCreateNotes(e.target.value)}
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   placeholder="Special requests, reason for visit, etc."
                 />
               </div>
 
               <div className="flex justify-end gap-3 pt-4">
-                <button
+                <Button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  variant="outline"
                   disabled={saving}
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
                   disabled={saving}
                 >
                   {saving ? 'Creating...' : 'Create & Add to Queue'}
-                </button>
+                </Button>
               </div>
             </form>
           )}

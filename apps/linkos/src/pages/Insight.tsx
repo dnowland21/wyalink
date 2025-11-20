@@ -12,7 +12,24 @@ import {
   type Carrier,
   type Promotion,
 } from '@wyalink/supabase-client'
-import { Card } from '@wyalink/ui'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card'
+import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import {
+  Search,
+  Home,
+  Phone,
+  ArrowLeftRight,
+  BookOpen,
+  Layers,
+  Tag,
+  Link as LinkIcon,
+  Plus,
+  Trash2,
+  Edit,
+  X,
+} from 'lucide-react'
 
 type Tab = 'dashboard' | 'contacts' | 'porting' | 'kb' | 'plans' | 'promos' | 'links'
 
@@ -95,23 +112,21 @@ export default function Insight() {
             className="h-10 w-auto"
           />
         </div>
-        <p className="text-gray-600">Employee Portal — Resources, Tools, and Information</p>
+        <p className="text-muted-foreground">Employee Portal — Resources, Tools, and Information</p>
       </div>
 
       {/* Search Bar */}
       <div className="mb-6">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            <Search className="h-5 w-5 text-muted-foreground" />
           </div>
-          <input
+          <Input
             type="text"
             placeholder="Search Insight... (press / to focus)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="pl-10 h-12"
           />
         </div>
       </div>
@@ -144,44 +159,39 @@ export default function Insight() {
 }
 
 function TabButton({ label, icon, active, onClick }: { label: string; icon: string; active: boolean; onClick: () => void }) {
+  const IconComponent = {
+    home: Home,
+    phone: Phone,
+    swap: ArrowLeftRight,
+    book: BookOpen,
+    layers: Layers,
+    tag: Tag,
+    link: LinkIcon,
+  }[icon] || Home
+
   return (
     <button
       onClick={onClick}
       className={`flex items-center gap-2 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
         active
           ? 'border-primary-500 text-primary-600'
-          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
       }`}
     >
-      <Icon name={icon} size={18} />
+      <IconComponent className="h-[18px] w-[18px]" />
       {label}
     </button>
   )
-}
-
-function Icon({ name, size = 20 }: { name: string; size?: number }) {
-  const props = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round" as const, strokeLinejoin: "round" as const }
-
-  switch (name) {
-    case "home": return (<svg {...props}><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/></svg>)
-    case "phone": return (<svg {...props}><path d="M22 16.92a4.65 4.65 0 01-5 4.58c-7.5 0-13.5-6-13.5-13.5a4.65 4.65 0 014.58-5H9l2 5-3 2a12.15 12.15 0 007 7l2-3 5 2z"/></svg>)
-    case "swap": return (<svg {...props}><path d="M22 2v6h-6"/><path d="M22 8L16 2"/><path d="M2 22v-6h6"/><path d="M2 16l6 6"/></svg>)
-    case "book": return (<svg {...props}><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M20 22H6.5A2.5 2.5 0 014 19.5V4.5A2.5 2.5 0 016.5 2H20z"/></svg>)
-    case "layers": return (<svg {...props}><path d="m12 2 9 5-9 5-9-5 9-5z"/><path d="m3 12 9 5 9-5"/></svg>)
-    case "tag": return (<svg {...props}><path d="M20.59 13.41L12 22l-8-8 8-8 8.59 8.41z"/><circle cx="7.5" cy="14.5" r="1.5"/></svg>)
-    case "link": return (<svg {...props}><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>)
-    default: return (<svg {...props}><circle cx="12" cy="12" r="10"/></svg>)
-  }
 }
 
 function DashboardTab({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
   return (
     <div className="space-y-6">
       <Card>
-        <div className="text-center py-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Insight</h2>
-          <p className="text-gray-600">Your one-stop portal for everything you need to serve customers</p>
-        </div>
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl">Welcome to Insight</CardTitle>
+          <CardDescription>Your one-stop portal for everything you need to serve customers</CardDescription>
+        </CardHeader>
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -197,15 +207,25 @@ function DashboardTab({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
 }
 
 function QuickTile({ label, icon, onClick }: { label: string; icon: string; onClick: () => void }) {
+  const IconComponent = {
+    home: Home,
+    phone: Phone,
+    swap: ArrowLeftRight,
+    book: BookOpen,
+    layers: Layers,
+    tag: Tag,
+    link: LinkIcon,
+  }[icon] || Home
+
   return (
     <button
       onClick={onClick}
       className="p-6 bg-white border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-md transition-all text-center"
     >
       <div className="flex justify-center mb-3 text-primary-600">
-        <Icon name={icon} size={32} />
+        <IconComponent className="h-8 w-8" />
       </div>
-      <div className="font-semibold text-gray-900">{label}</div>
+      <div className="font-semibold">{label}</div>
     </button>
   )
 }
@@ -237,63 +257,63 @@ function ContactsTab({ query }: { query: string }) {
   return (
     <div className="space-y-6">
       <Card>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Add Contact</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input
-            type="text"
-            placeholder="Name/Department"
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-          <input
-            type="tel"
-            placeholder="Phone Number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-          <input
-            type="email"
-            placeholder="Email (optional)"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-          <button
-            onClick={addContact}
-            className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors"
-          >
-            Add Contact
-          </button>
-        </div>
+        <CardHeader>
+          <CardTitle>Add Contact</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <Input
+              type="text"
+              placeholder="Name/Department"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+            />
+            <Input
+              type="tel"
+              placeholder="Phone Number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+            <Input
+              type="email"
+              placeholder="Email (optional)"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Button onClick={addContact}>
+              Add Contact
+            </Button>
+          </div>
+        </CardContent>
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.length === 0 && <p className="text-gray-600">No contacts found</p>}
+        {filtered.length === 0 && <p className="text-muted-foreground">No contacts found</p>}
         {filtered.map((contact, i) => (
           <Card key={i}>
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-900">{contact.label}</h4>
-                <a href={`tel:${contact.phone}`} className="text-primary-600 hover:underline block mt-1">
-                  {contact.phone}
-                </a>
-                {contact.email && (
-                  <a href={`mailto:${contact.email}`} className="text-primary-600 hover:underline block mt-1 text-sm">
-                    {contact.email}
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-semibold">{contact.label}</h4>
+                  <a href={`tel:${contact.phone}`} className="text-primary-600 hover:underline block mt-1">
+                    {contact.phone}
                   </a>
-                )}
+                  {contact.email && (
+                    <a href={`mailto:${contact.email}`} className="text-primary-600 hover:underline block mt-1 text-sm">
+                      {contact.email}
+                    </a>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeContact(i)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </Button>
               </div>
-              <button
-                onClick={() => removeContact(i)}
-                className="text-red-600 hover:text-red-800"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            </div>
+            </CardContent>
           </Card>
         ))}
       </div>
@@ -341,75 +361,76 @@ function PortingTab({ query }: { query: string }) {
     (c.tips && c.tips.toLowerCase().includes(query.toLowerCase()))
   )
 
-  if (loading) return <p className="text-gray-600">Loading carriers...</p>
+  if (loading) return <p className="text-muted-foreground">Loading carriers...</p>
 
   return (
     <div className="space-y-4">
       <Card>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-semibold mb-2">Porting Guide</p>
-            <p className="text-sm text-gray-600">Find account and PIN requirements for major carriers. This information helps speed up number porting requests.</p>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Porting Guide</CardTitle>
+              <CardDescription>Find account and PIN requirements for major carriers. This information helps speed up number porting requests.</CardDescription>
+            </div>
+            {isAdmin && (
+              <Button onClick={() => setIsCreating(true)} size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Carrier
+              </Button>
+            )}
           </div>
-          {isAdmin && (
-            <button
-              onClick={() => setIsCreating(true)}
-              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
-            >
-              Add Carrier
-            </button>
-          )}
-        </div>
+        </CardHeader>
       </Card>
 
-      {filtered.length === 0 && <p className="text-gray-600">No carriers found</p>}
+      {filtered.length === 0 && <p className="text-muted-foreground">No carriers found</p>}
       {filtered.map((carrier) => (
         <Card key={carrier.id}>
-          <div className="flex items-start justify-between mb-3">
-            <h4 className="text-lg font-semibold text-gray-900">{carrier.name}</h4>
-            {isAdmin && (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setEditingCarrier(carrier)}
-                  className="text-blue-600 hover:text-blue-800"
-                  title="Edit"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => handleDelete(carrier.id)}
-                  className="text-red-600 hover:text-red-800"
-                  title="Delete"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
+          <CardContent className="pt-6">
+            <div className="flex items-start justify-between mb-3">
+              <h4 className="text-lg font-semibold">{carrier.name}</h4>
+              {isAdmin && (
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setEditingCarrier(carrier)}
+                    title="Edit"
+                  >
+                    <Edit className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(carrier.id)}
+                    className="text-destructive hover:text-destructive"
+                    title="Delete"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="font-semibold">Account #:</span>
+                <p className="text-muted-foreground mt-1">{carrier.account_info}</p>
               </div>
-            )}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-            <div>
-              <span className="font-semibold text-gray-700">Account #:</span>
-              <p className="text-gray-600 mt-1">{carrier.account_info}</p>
-            </div>
-            <div>
-              <span className="font-semibold text-gray-700">PIN:</span>
-              <p className="text-gray-600 mt-1">{carrier.pin_info}</p>
-            </div>
-            <div className="md:col-span-2">
-              <span className="font-semibold text-gray-700">Support:</span>
-              <p className="text-gray-600 mt-1">{carrier.support_number || 'N/A'}</p>
-            </div>
-            {carrier.tips && (
-              <div className="md:col-span-2 bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <span className="font-semibold text-amber-900">Tips:</span>
-                <p className="text-amber-800 mt-1 text-xs">{carrier.tips}</p>
+              <div>
+                <span className="font-semibold">PIN:</span>
+                <p className="text-muted-foreground mt-1">{carrier.pin_info}</p>
               </div>
-            )}
-          </div>
+              <div className="md:col-span-2">
+                <span className="font-semibold">Support:</span>
+                <p className="text-muted-foreground mt-1">{carrier.support_number || 'N/A'}</p>
+              </div>
+              {carrier.tips && (
+                <div className="md:col-span-2 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <span className="font-semibold text-amber-900">Tips:</span>
+                  <p className="text-amber-800 mt-1 text-xs">{carrier.tips}</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
         </Card>
       ))}
 
@@ -461,72 +482,71 @@ function KnowledgeBaseTab({ query }: { query: string }) {
   return (
     <div className="space-y-6">
       <Card>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Add Article</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <input
-            type="text"
-            placeholder="Article Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-          <input
-            type="text"
-            placeholder="Category (e.g., Policy, Network)"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-          <input
-            type="url"
-            placeholder="URL"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-          <input
-            type="text"
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-          <div className="md:col-span-2">
-            <button
-              onClick={addArticle}
-              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors"
-            >
-              Add Article
-            </button>
+        <CardHeader>
+          <CardTitle>Add Article</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Input
+              type="text"
+              placeholder="Article Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <Input
+              type="text"
+              placeholder="Category (e.g., Policy, Network)"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            />
+            <Input
+              type="url"
+              placeholder="URL"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+            />
+            <Input
+              type="text"
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            <div className="md:col-span-2">
+              <Button onClick={addArticle}>
+                Add Article
+              </Button>
+            </div>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.length === 0 && <p className="text-gray-600">No articles found</p>}
+        {filtered.length === 0 && <p className="text-muted-foreground">No articles found</p>}
         {filtered.map((article, i) => (
           <Card key={i}>
-            <div className="flex items-start justify-between mb-2">
-              <span className="text-xs font-semibold text-primary-600 uppercase">{article.category}</span>
-              <button
-                onClick={() => removeArticle(i)}
-                className="text-red-600 hover:text-red-800"
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between mb-2">
+                <span className="text-xs font-semibold text-primary-600 uppercase">{article.category}</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeArticle(i)}
+                  className="h-6 w-6 text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+              <h4 className="font-semibold mb-2">{article.title}</h4>
+              {article.description && <p className="text-sm text-muted-foreground mb-3">{article.description}</p>}
+              <a
+                href={article.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-primary-600 hover:underline"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            </div>
-            <h4 className="font-semibold text-gray-900 mb-2">{article.title}</h4>
-            {article.description && <p className="text-sm text-gray-600 mb-3">{article.description}</p>}
-            <a
-              href={article.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-primary-600 hover:underline"
-            >
-              Open Article →
-            </a>
+                Open Article →
+              </a>
+            </CardContent>
           </Card>
         ))}
       </div>
@@ -570,38 +590,41 @@ function PlansTab({ query }: { query: string }) {
     return monthly ? `$${monthly.toFixed(2)}/mo` : 'N/A'
   }
 
-  if (loading) return <p className="text-gray-600">Loading plans...</p>
+  if (loading) return <p className="text-muted-foreground">Loading plans...</p>
 
   return (
     <div className="space-y-4">
       <Card>
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">MVNO Plans Quick Reference</h3>
-            <p className="text-sm text-gray-600 mt-1">View detailed plans in the Plans module</p>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>MVNO Plans Quick Reference</CardTitle>
+              <CardDescription>View detailed plans in the Plans module</CardDescription>
+            </div>
+            <Button asChild size="sm">
+              <Link to="/plans">
+                Manage Plans
+              </Link>
+            </Button>
           </div>
-          <Link
-            to="/plans"
-            className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
-          >
-            Manage Plans
-          </Link>
-        </div>
+        </CardHeader>
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {filtered.length === 0 && <p className="text-gray-600">No plans found</p>}
+        {filtered.length === 0 && <p className="text-muted-foreground">No plans found</p>}
         {filtered.map((plan) => {
           const totalData = (plan.high_priority_data_mb || 0) + (plan.general_data_mb || 0) + (plan.low_priority_data_mb || 0)
           return (
             <Card key={plan.id}>
-              <h4 className="text-xl font-bold text-gray-900 mb-1">{plan.plan_name}</h4>
-              <div className="text-2xl font-bold text-primary-600 mb-3">{formatPrice(plan.prices)}</div>
-              <div className="space-y-1 text-sm text-gray-700">
-                <div><span className="font-semibold">Talk:</span> {plan.voice_minutes === null ? 'Unlimited' : `${plan.voice_minutes} min`}</div>
-                <div><span className="font-semibold">Text:</span> {plan.sms_messages === null ? 'Unlimited' : `${plan.sms_messages} msgs`}</div>
-                <div><span className="font-semibold">Data:</span> {totalData > 0 ? formatDataAmount(totalData) : 'N/A'}</div>
-              </div>
+              <CardContent className="pt-6">
+                <h4 className="text-xl font-bold mb-1">{plan.plan_name}</h4>
+                <div className="text-2xl font-bold text-primary-600 mb-3">{formatPrice(plan.prices)}</div>
+                <div className="space-y-1 text-sm">
+                  <div><span className="font-semibold">Talk:</span> {plan.voice_minutes === null ? 'Unlimited' : `${plan.voice_minutes} min`}</div>
+                  <div><span className="font-semibold">Text:</span> {plan.sms_messages === null ? 'Unlimited' : `${plan.sms_messages} msgs`}</div>
+                  <div><span className="font-semibold">Data:</span> {totalData > 0 ? formatDataAmount(totalData) : 'N/A'}</div>
+                </div>
+              </CardContent>
             </Card>
           )
         })}
@@ -651,70 +674,73 @@ function PromotionsTab({ query }: { query: string }) {
     }
   }
 
-  if (loading) return <p className="text-gray-600">Loading promotions...</p>
+  if (loading) return <p className="text-muted-foreground">Loading promotions...</p>
 
   return (
     <div className="space-y-4">
       <Card>
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Current Promotions</h3>
-            <p className="text-sm text-gray-600 mt-1">View and manage promotions in the Promotions module</p>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Current Promotions</CardTitle>
+              <CardDescription>View and manage promotions in the Promotions module</CardDescription>
+            </div>
+            <Button asChild size="sm">
+              <Link to="/promotions">
+                Manage Promotions
+              </Link>
+            </Button>
           </div>
-          <Link
-            to="/promotions"
-            className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
-          >
-            Manage Promotions
-          </Link>
-        </div>
+        </CardHeader>
       </Card>
 
       {filtered.length === 0 && (
         <Card>
-          <p className="text-gray-600 text-center py-8">
-            {promotions.length === 0 ? 'No active promotions. Add promotions in the Promotions module.' : 'No promotions found'}
-          </p>
+          <CardContent className="pt-6">
+            <p className="text-muted-foreground text-center py-8">
+              {promotions.length === 0 ? 'No active promotions. Add promotions in the Promotions module.' : 'No promotions found'}
+            </p>
+          </CardContent>
         </Card>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((promo) => (
           <Card key={promo.id}>
-            <div className="flex items-start justify-between mb-2">
-              <h4 className="text-lg font-semibold text-gray-900">{promo.promotion_name}</h4>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Active
-              </span>
-            </div>
-
-            {promo.promotion_code && (
-              <div className="mb-3 p-2 bg-gray-100 rounded border border-gray-300 text-center">
-                <span className="text-xs font-semibold text-gray-600">CODE:</span>{' '}
-                <span className="text-sm font-bold text-primary-600">{promo.promotion_code}</span>
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between mb-2">
+                <h4 className="text-lg font-semibold">{promo.promotion_name}</h4>
+                <Badge variant="success">Active</Badge>
               </div>
-            )}
 
-            {promo.promotion_description && (
-              <p className="text-sm text-gray-600 mb-3">{promo.promotion_description}</p>
-            )}
-
-            <div className="space-y-1 text-sm">
-              <div>
-                <span className="font-semibold text-gray-700">Discount:</span>{' '}
-                <span className="text-primary-600 font-semibold">{formatDiscount(promo)}</span>
-              </div>
-              <div>
-                <span className="font-semibold text-gray-700">Duration:</span>{' '}
-                <span className="text-gray-600">{formatDuration(promo)}</span>
-              </div>
-              {promo.valid_until && (
-                <div>
-                  <span className="font-semibold text-gray-700">Expires:</span>{' '}
-                  <span className="text-gray-600">{new Date(promo.valid_until).toLocaleDateString()}</span>
+              {promo.promotion_code && (
+                <div className="mb-3 p-2 bg-gray-100 rounded border border-gray-300 text-center">
+                  <span className="text-xs font-semibold text-muted-foreground">CODE:</span>{' '}
+                  <span className="text-sm font-bold text-primary-600">{promo.promotion_code}</span>
                 </div>
               )}
-            </div>
+
+              {promo.promotion_description && (
+                <p className="text-sm text-muted-foreground mb-3">{promo.promotion_description}</p>
+              )}
+
+              <div className="space-y-1 text-sm">
+                <div>
+                  <span className="font-semibold">Discount:</span>{' '}
+                  <span className="text-primary-600 font-semibold">{formatDiscount(promo)}</span>
+                </div>
+                <div>
+                  <span className="font-semibold">Duration:</span>{' '}
+                  <span className="text-muted-foreground">{formatDuration(promo)}</span>
+                </div>
+                {promo.valid_until && (
+                  <div>
+                    <span className="font-semibold">Expires:</span>{' '}
+                    <span className="text-muted-foreground">{new Date(promo.valid_until).toLocaleDateString()}</span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
           </Card>
         ))}
       </div>
@@ -749,64 +775,64 @@ function LinksTab({ query }: { query: string }) {
   return (
     <div className="space-y-6">
       <Card>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Add Quick Link</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <input
-            type="text"
-            placeholder="Link Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-          <input
-            type="url"
-            placeholder="URL"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-          <input
-            type="text"
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-          <div className="md:col-span-3">
-            <button
-              onClick={addLink}
-              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors"
-            >
-              Add Link
-            </button>
+        <CardHeader>
+          <CardTitle>Add Quick Link</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Input
+              type="text"
+              placeholder="Link Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <Input
+              type="url"
+              placeholder="URL"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+            />
+            <Input
+              type="text"
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            <div className="md:col-span-3">
+              <Button onClick={addLink}>
+                Add Link
+              </Button>
+            </div>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.length === 0 && <p className="text-gray-600">No links found</p>}
+        {filtered.length === 0 && <p className="text-muted-foreground">No links found</p>}
         {filtered.map((link, i) => (
           <Card key={i}>
-            <div className="flex items-start justify-between mb-2">
-              <h4 className="font-semibold text-gray-900">{link.title}</h4>
-              <button
-                onClick={() => removeLink(i)}
-                className="text-red-600 hover:text-red-800"
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between mb-2">
+                <h4 className="font-semibold">{link.title}</h4>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeLink(i)}
+                  className="h-6 w-6 text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+              {link.description && <p className="text-sm text-muted-foreground mb-3">{link.description}</p>}
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-primary-600 hover:underline"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            </div>
-            {link.description && <p className="text-sm text-gray-600 mb-3">{link.description}</p>}
-            <a
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-primary-600 hover:underline"
-            >
-              Open Link →
-            </a>
+                Open Link →
+              </a>
+            </CardContent>
           </Card>
         ))}
       </div>
@@ -864,27 +890,36 @@ function CarrierModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            {carrier ? 'Edit Carrier' : 'Add New Carrier'}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">
+              {carrier ? 'Edit Carrier' : 'Add New Carrier'}
+            </h2>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              disabled={saving}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium mb-1">
                 Carrier Name *
               </label>
-              <input
+              <Input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="e.g., AT&T (Postpaid)"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium mb-1">
                 Account # Information *
               </label>
               <textarea
@@ -892,13 +927,13 @@ function CarrierModal({
                 onChange={(e) => setAccountInfo(e.target.value)}
                 required
                 rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder="e.g., 9- or 12-digit wireless account number (not the phone number)"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium mb-1">
                 PIN Information *
               </label>
               <textarea
@@ -906,53 +941,51 @@ function CarrierModal({
                 onChange={(e) => setPinInfo(e.target.value)}
                 required
                 rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder="e.g., 6-digit Number Transfer PIN"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium mb-1">
                 Support Number
               </label>
-              <input
+              <Input
                 type="text"
                 value={supportNumber}
                 onChange={(e) => setSupportNumber(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="e.g., 888-898-7685"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium mb-1">
                 Tips & Notes
               </label>
               <textarea
                 value={tips}
                 onChange={(e) => setTips(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder="Additional information, tips, or special instructions..."
               />
             </div>
 
             <div className="flex justify-end gap-3 pt-4">
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={onClose}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 disabled={saving}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
                 disabled={saving}
               >
                 {saving ? 'Saving...' : carrier ? 'Update Carrier' : 'Add Carrier'}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

@@ -5,7 +5,10 @@ import {
   deleteSubscription,
   type Subscription,
 } from '@wyalink/supabase-client'
-import { Card } from '@wyalink/ui'
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card'
+import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
+import { Edit, Trash2, Loader2 } from 'lucide-react'
 import SubscriptionModal from '../components/SubscriptionModal'
 
 export default function SubscriptionDetail() {
@@ -85,8 +88,8 @@ export default function SubscriptionDetail() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading subscription...</p>
+          <Loader2 className="w-16 h-16 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Loading subscription...</p>
         </div>
       </div>
     )
@@ -109,8 +112,8 @@ export default function SubscriptionDetail() {
     <div>
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-          <Link to="/subscriptions" className="hover:text-primary-600">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <Link to="/subscriptions" className="hover:text-primary">
             Subscriptions
           </Link>
           <span>/</span>
@@ -127,41 +130,42 @@ export default function SubscriptionDetail() {
               {(subscription as any).plan?.plan_name || 'Subscription'}
             </h1>
             {(subscription as any).customer && (
-              <p className="text-gray-600 mt-1">
+              <p className="text-muted-foreground mt-1">
                 {(subscription as any).customer.first_name} {(subscription as any).customer.last_name}
               </p>
             )}
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
               onClick={() => setIsEditModalOpen(true)}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              variant="outline"
             >
+              <Edit className="w-4 h-4 mr-2" />
               Edit Subscription
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleDelete}
-              className="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+              variant="outline"
+              className="border-red-300 text-red-700 hover:bg-red-50"
             >
+              <Trash2 className="w-4 h-4 mr-2" />
               Delete
-            </button>
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Status Badge */}
       <div className="flex items-center gap-3 mb-6">
-        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-          subscription.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-        }`}>
+        <Badge variant={subscription.is_active ? 'success' : 'default'}>
           {subscription.is_active ? 'Active' : 'Inactive'}
-        </span>
-        <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+        </Badge>
+        <Badge variant="info">
           {subscription.activation_type === 'active' ? 'Active Subscription' : 'Pre-Active'}
-        </span>
-        <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+        </Badge>
+        <Badge variant="secondary">
           {subscription.renewal_type === 'automatic' ? 'Auto-Renew' : 'Manual Renew'}
-        </span>
+        </Badge>
       </div>
 
       {/* Main Content */}
@@ -170,140 +174,156 @@ export default function SubscriptionDetail() {
         <div className="lg:col-span-2 space-y-6">
           {/* Plan Information */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Plan Information</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Plan</label>
-                {subscription.plan_id && (
-                  <Link
-                    to={`/plans/${subscription.plan_id}`}
-                    className="text-sm text-primary-600 hover:text-primary-700"
-                  >
-                    {(subscription as any).plan?.plan_name || 'View Plan'}
-                  </Link>
+            <CardHeader>
+              <CardTitle>Plan Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Plan</label>
+                  {subscription.plan_id && (
+                    <Link
+                      to={`/plans/${subscription.plan_id}`}
+                      className="text-sm text-primary hover:text-primary/80"
+                    >
+                      {(subscription as any).plan?.plan_name || 'View Plan'}
+                    </Link>
+                  )}
+                </div>
+                {(subscription as any).plan?.description && (
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">Description</label>
+                    <p className="text-sm text-gray-900">{(subscription as any).plan.description}</p>
+                  </div>
                 )}
               </div>
-              {(subscription as any).plan?.description && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Description</label>
-                  <p className="text-sm text-gray-900">{(subscription as any).plan.description}</p>
-                </div>
-              )}
-            </div>
+            </CardContent>
           </Card>
 
           {/* Customer & Line Information */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Customer & Line</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Customer</label>
-                <Link
-                  to={`/customers/${subscription.customer_id}`}
-                  className="text-sm text-primary-600 hover:text-primary-700"
-                >
-                  {(subscription as any).customer
-                    ? `${(subscription as any).customer.first_name} ${(subscription as any).customer.last_name} (${(subscription as any).customer.account_number})`
-                    : 'View Customer'}
-                </Link>
-              </div>
-              {subscription.line_id && (
+            <CardHeader>
+              <CardTitle>Customer & Line</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Line</label>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Customer</label>
                   <Link
-                    to={`/lines/${subscription.line_id}`}
-                    className="text-sm text-primary-600 hover:text-primary-700 font-mono"
+                    to={`/customers/${subscription.customer_id}`}
+                    className="text-sm text-primary hover:text-primary/80"
                   >
-                    {(subscription as any).line?.phone_number || 'View Line'}
+                    {(subscription as any).customer
+                      ? `${(subscription as any).customer.first_name} ${(subscription as any).customer.last_name} (${(subscription as any).customer.account_number})`
+                      : 'View Customer'}
                   </Link>
                 </div>
-              )}
-            </div>
+                {subscription.line_id && (
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">Line</label>
+                    <Link
+                      to={`/lines/${subscription.line_id}`}
+                      className="text-sm text-primary hover:text-primary/80 font-mono"
+                    >
+                      {(subscription as any).line?.phone_number || 'View Line'}
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </CardContent>
           </Card>
 
           {/* Billing Information */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Billing & Renewal</h3>
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Start Type</label>
-                  <p className="text-sm text-gray-900">{subscription.start_type === 'asap' ? 'ASAP' : 'Specific Date'}</p>
-                </div>
-                {subscription.start_date && (
+            <CardHeader>
+              <CardTitle>Billing & Renewal</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Start Date</label>
-                    <p className="text-sm text-gray-900">{formatDate(subscription.start_date)}</p>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">Start Type</label>
+                    <p className="text-sm text-gray-900">{subscription.start_type === 'asap' ? 'ASAP' : 'Specific Date'}</p>
+                  </div>
+                  {subscription.start_date && (
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">Start Date</label>
+                      <p className="text-sm text-gray-900">{formatDate(subscription.start_date)}</p>
+                    </div>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">End Type</label>
+                    <p className="text-sm text-gray-900">
+                      {subscription.end_type === 'unlimited' ? 'Unlimited' :
+                       subscription.end_type === 'after_cycles' ? `After ${subscription.end_cycles} cycles` :
+                       'On Date'}
+                    </p>
+                  </div>
+                  {subscription.end_date && (
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">End Date</label>
+                      <p className="text-sm text-gray-900">{formatDate(subscription.end_date)}</p>
+                    </div>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">Renewal Type</label>
+                    <p className="text-sm text-gray-900">
+                      {subscription.renewal_type === 'automatic' ? 'Automatic' : 'Manual'}
+                    </p>
+                  </div>
+                  {subscription.next_renewal_date && (
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">Next Renewal</label>
+                      <p className="text-sm text-gray-900 font-semibold">{formatDate(subscription.next_renewal_date)}</p>
+                    </div>
+                  )}
+                </div>
+                {subscription.renewal_interval_days && (
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">Renewal Interval</label>
+                    <p className="text-sm text-gray-900">{subscription.renewal_interval_days} days</p>
                   </div>
                 )}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">End Type</label>
-                  <p className="text-sm text-gray-900">
-                    {subscription.end_type === 'unlimited' ? 'Unlimited' :
-                     subscription.end_type === 'after_cycles' ? `After ${subscription.end_cycles} cycles` :
-                     'On Date'}
-                  </p>
-                </div>
-                {subscription.end_date && (
+                {subscription.renewal_day_of_month && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">End Date</label>
-                    <p className="text-sm text-gray-900">{formatDate(subscription.end_date)}</p>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">Renewal Day of Month</label>
+                    <p className="text-sm text-gray-900">{subscription.renewal_day_of_month}</p>
                   </div>
                 )}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Renewal Type</label>
-                  <p className="text-sm text-gray-900">
-                    {subscription.renewal_type === 'automatic' ? 'Automatic' : 'Manual'}
-                  </p>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Grace Period</label>
+                  <p className="text-sm text-gray-900">{subscription.grace_period_days} days</p>
                 </div>
-                {subscription.next_renewal_date && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Next Renewal</label>
-                    <p className="text-sm text-gray-900 font-semibold">{formatDate(subscription.next_renewal_date)}</p>
-                  </div>
-                )}
               </div>
-              {subscription.renewal_interval_days && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Renewal Interval</label>
-                  <p className="text-sm text-gray-900">{subscription.renewal_interval_days} days</p>
-                </div>
-              )}
-              {subscription.renewal_day_of_month && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Renewal Day of Month</label>
-                  <p className="text-sm text-gray-900">{subscription.renewal_day_of_month}</p>
-                </div>
-              )}
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Grace Period</label>
-                <p className="text-sm text-gray-900">{subscription.grace_period_days} days</p>
-              </div>
-            </div>
+            </CardContent>
           </Card>
 
           {/* Additional Details */}
           {(subscription.bill_to || subscription.transaction_reason) && (
             <Card>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Additional Details</h3>
-              <div className="space-y-3">
-                {subscription.bill_to && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Bill To</label>
-                    <p className="text-sm text-gray-900">{subscription.bill_to}</p>
-                  </div>
-                )}
-                {subscription.transaction_reason && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Transaction Reason</label>
-                    <p className="text-sm text-gray-900">{subscription.transaction_reason}</p>
-                  </div>
-                )}
-              </div>
+              <CardHeader>
+                <CardTitle>Additional Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {subscription.bill_to && (
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">Bill To</label>
+                      <p className="text-sm text-gray-900">{subscription.bill_to}</p>
+                    </div>
+                  )}
+                  {subscription.transaction_reason && (
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">Transaction Reason</label>
+                      <p className="text-sm text-gray-900">{subscription.transaction_reason}</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
             </Card>
           )}
         </div>
@@ -312,56 +332,62 @@ export default function SubscriptionDetail() {
         <div className="space-y-6">
           {/* Status Information */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Status</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Active</label>
-                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                  subscription.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                }`}>
-                  {subscription.is_active ? 'Yes' : 'No'}
-                </span>
+            <CardHeader>
+              <CardTitle>Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Active</label>
+                  <Badge variant={subscription.is_active ? 'success' : 'default'}>
+                    {subscription.is_active ? 'Yes' : 'No'}
+                  </Badge>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Activation Type</label>
+                  <p className="text-sm text-gray-900">
+                    {subscription.activation_type === 'active' ? 'Active' : 'Pre-Active'}
+                  </p>
+                </div>
+                {subscription.activated_at && (
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">Activated At</label>
+                    <p className="text-sm text-gray-900">{formatDateTime(subscription.activated_at)}</p>
+                  </div>
+                )}
+                {subscription.paused_at && (
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">Paused At</label>
+                    <p className="text-sm text-gray-900">{formatDateTime(subscription.paused_at)}</p>
+                  </div>
+                )}
+                {subscription.cancelled_at && (
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">Cancelled At</label>
+                    <p className="text-sm text-gray-900">{formatDateTime(subscription.cancelled_at)}</p>
+                  </div>
+                )}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Activation Type</label>
-                <p className="text-sm text-gray-900">
-                  {subscription.activation_type === 'active' ? 'Active' : 'Pre-Active'}
-                </p>
-              </div>
-              {subscription.activated_at && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Activated At</label>
-                  <p className="text-sm text-gray-900">{formatDateTime(subscription.activated_at)}</p>
-                </div>
-              )}
-              {subscription.paused_at && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Paused At</label>
-                  <p className="text-sm text-gray-900">{formatDateTime(subscription.paused_at)}</p>
-                </div>
-              )}
-              {subscription.cancelled_at && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Cancelled At</label>
-                  <p className="text-sm text-gray-900">{formatDateTime(subscription.cancelled_at)}</p>
-                </div>
-              )}
-            </div>
+            </CardContent>
           </Card>
 
           {/* Metadata */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Metadata</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Created</label>
-                <p className="text-sm text-gray-900">{formatDateTime(subscription.created_at)}</p>
+            <CardHeader>
+              <CardTitle>Metadata</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Created</label>
+                  <p className="text-sm text-gray-900">{formatDateTime(subscription.created_at)}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Last Updated</label>
+                  <p className="text-sm text-gray-900">{formatDateTime(subscription.updated_at)}</p>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Last Updated</label>
-                <p className="text-sm text-gray-900">{formatDateTime(subscription.updated_at)}</p>
-              </div>
-            </div>
+            </CardContent>
           </Card>
         </div>
       </div>

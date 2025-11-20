@@ -1,5 +1,10 @@
 import { useState } from 'react'
 import { useAuth } from '@wyalink/supabase-client'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card'
+import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { AlertCircle, CheckCircle, Lock } from 'lucide-react'
 
 export default function ProfileSettings() {
   const { user, profile, updateProfile, changePassword } = useAuth()
@@ -78,35 +83,24 @@ export default function ProfileSettings() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile Settings</h1>
-        <p className="text-gray-600">Manage your account information and security settings</p>
+        <p className="text-muted-foreground">Manage your account information and security settings</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Personal Information Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">Personal Information</h2>
-              <p className="text-sm text-gray-600 mt-1">Update your personal details</p>
-            </div>
-            <form onSubmit={handleProfileSubmit} className="p-6 space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Personal Information</CardTitle>
+              <CardDescription>Update your personal details</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleProfileSubmit} className="space-y-4">
               {profileError && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <div className="flex items-start gap-3">
-                    <svg
-                      className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
+                    <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                     <p className="text-sm text-red-700">{profileError}</p>
                   </div>
                 </div>
@@ -115,14 +109,7 @@ export default function ProfileSettings() {
               {profileSuccess && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <div className="flex items-start gap-3">
-                    <svg
-                      className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+                    <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                     <p className="text-sm text-green-700">Profile updated successfully!</p>
                   </div>
                 </div>
@@ -133,14 +120,13 @@ export default function ProfileSettings() {
                   <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
                     First Name
                   </label>
-                  <input
+                  <Input
                     id="firstName"
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     required
                     disabled={profileLoading}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -148,14 +134,13 @@ export default function ProfileSettings() {
                   <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
                     Last Name
                   </label>
-                  <input
+                  <Input
                     id="lastName"
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     required
                     disabled={profileLoading}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -164,52 +149,40 @@ export default function ProfileSettings() {
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
                   Phone Number
                 </label>
-                <input
+                <Input
                   id="phone"
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="(555) 555-5555"
                   disabled={profileLoading}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
 
               <div className="pt-4">
-                <button
+                <Button
                   type="submit"
                   disabled={profileLoading}
-                  className="px-6 py-2.5 bg-primary-800 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {profileLoading ? 'Saving...' : 'Save Changes'}
-                </button>
+                </Button>
               </div>
-            </form>
-          </div>
+              </form>
+            </CardContent>
+          </Card>
 
           {/* Change Password Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">Change Password</h2>
-              <p className="text-sm text-gray-600 mt-1">Update your password to keep your account secure</p>
-            </div>
-            <form onSubmit={handlePasswordSubmit} className="p-6 space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Change Password</CardTitle>
+              <CardDescription>Update your password to keep your account secure</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handlePasswordSubmit} className="space-y-4">
               {passwordError && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <div className="flex items-start gap-3">
-                    <svg
-                      className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
+                    <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                     <p className="text-sm text-red-700">{passwordError}</p>
                   </div>
                 </div>
@@ -218,14 +191,7 @@ export default function ProfileSettings() {
               {passwordSuccess && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <div className="flex items-start gap-3">
-                    <svg
-                      className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+                    <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                     <p className="text-sm text-green-700">Password changed successfully!</p>
                   </div>
                 </div>
@@ -235,7 +201,7 @@ export default function ProfileSettings() {
                 <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
                   New Password
                 </label>
-                <input
+                <Input
                   id="newPassword"
                   type="password"
                   value={newPassword}
@@ -243,7 +209,6 @@ export default function ProfileSettings() {
                   placeholder="••••••••"
                   required
                   disabled={passwordLoading}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -251,7 +216,7 @@ export default function ProfileSettings() {
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
                   Confirm New Password
                 </label>
-                <input
+                <Input
                   id="confirmPassword"
                   type="password"
                   value={confirmPassword}
@@ -259,64 +224,53 @@ export default function ProfileSettings() {
                   placeholder="••••••••"
                   required
                   disabled={passwordLoading}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
 
               <div className="pt-4">
-                <button
+                <Button
                   type="submit"
                   disabled={passwordLoading}
-                  className="px-6 py-2.5 bg-primary-800 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {passwordLoading ? 'Updating...' : 'Update Password'}
-                </button>
+                </Button>
               </div>
-            </form>
-          </div>
+              </form>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Account Info Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Information</h3>
-            <div className="space-y-3">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Account Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Email</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Email</p>
                 <p className="text-sm text-gray-900">{user?.email}</p>
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Role</p>
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800 capitalize">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Role</p>
+                <Badge variant="default" className="capitalize">
                   {profile?.role || 'User'}
-                </span>
+                </Badge>
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Account Created</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Account Created</p>
                 <p className="text-sm text-gray-900">
                   {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
                 </p>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Security Tips */}
           <div className="bg-blue-50 rounded-xl border border-blue-200 p-6">
             <div className="flex items-start gap-3">
-              <svg
-                className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
+              <Lock className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
                 <h4 className="text-sm font-semibold text-blue-900 mb-2">Security Tips</h4>
                 <ul className="text-xs text-blue-800 space-y-1">

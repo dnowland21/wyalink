@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Card, Button } from '@wyalink/ui'
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card'
+import { Button } from '../components/ui/button'
 import {
   useAuth,
   getCurrentSession,
@@ -20,7 +21,7 @@ import ProductSearch from '../components/POS/ProductSearch'
 import ShoppingCart from '../components/POS/ShoppingCart'
 import PaymentModal from '../components/POS/PaymentModal'
 import SerialNumberModal from '../components/POS/SerialNumberModal'
-import { FiShoppingCart, FiDollarSign, FiRepeat, FiPhone, FiUser } from 'react-icons/fi'
+import { ShoppingCart as ShoppingCartIcon, DollarSign, Repeat, Phone, User } from 'lucide-react'
 
 export default function POS() {
   const { user } = useAuth()
@@ -251,7 +252,7 @@ export default function POS() {
   if (sessionLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600">Loading session...</div>
+        <div className="text-muted-foreground">Loading session...</div>
       </div>
     )
   }
@@ -260,8 +261,8 @@ export default function POS() {
     return (
       <div>
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Point of Sale</h1>
-          <p className="text-gray-600 mt-1">Open a session to begin processing transactions</p>
+          <h1 className="text-2xl font-bold text-foreground">Point of Sale</h1>
+          <p className="text-muted-foreground mt-1">Open a session to begin processing transactions</p>
         </div>
         <SessionManager onSessionOpened={handleSessionOpened} />
       </div>
@@ -273,8 +274,8 @@ export default function POS() {
       {/* Header with session info */}
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Point of Sale</h1>
-          <p className="text-sm text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Point of Sale</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             Session: {currentSession.session_number} | Register: {currentSession.register_name}
           </p>
         </div>
@@ -292,17 +293,19 @@ export default function POS() {
             <div className="space-y-4">
               {/* Customer Selection */}
               <Card>
-                <div className="p-5">
-                  <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <FiUser className="text-blue-600" />
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <User className="h-5 w-5 text-blue-600" />
                     Customer
-                  </h2>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                   <CustomerSelector
                     selectedCustomer={selectedCustomer}
                     onCustomerSelected={handleCustomerSelected}
                     disabled={!!currentTransaction}
                   />
-                </div>
+                </CardContent>
               </Card>
 
               {/* Customer Info Card */}
@@ -315,15 +318,17 @@ export default function POS() {
               {/* Transaction Type Selection - Large Touch-Friendly Buttons */}
               {selectedCustomer && (
                 <Card className="bg-gradient-to-br from-blue-50 to-teal-50 border-blue-200">
-                  <div className="p-5">
-                    <h2 className="text-lg font-semibold mb-4 text-gray-900">Start Transaction</h2>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Start Transaction</CardTitle>
+                  </CardHeader>
+                  <CardContent>
                     <div className="grid grid-cols-2 gap-4">
                       <Button
                         onClick={() => handleStartTransaction('sale')}
                         variant="outline"
                         className="flex flex-col items-center justify-center gap-3 h-28 bg-white hover:bg-blue-50 hover:border-blue-400 transition-all text-base font-semibold"
                       >
-                        <FiShoppingCart className="text-3xl text-blue-600" />
+                        <ShoppingCartIcon className="h-8 w-8 text-blue-600" />
                         <span>New Sale</span>
                       </Button>
                       <Button
@@ -331,7 +336,7 @@ export default function POS() {
                         variant="outline"
                         className="flex flex-col items-center justify-center gap-3 h-28 bg-white hover:bg-teal-50 hover:border-teal-400 transition-all text-base font-semibold"
                       >
-                        <FiPhone className="text-3xl text-teal-600" />
+                        <Phone className="h-8 w-8 text-teal-600" />
                         <span>Activation</span>
                       </Button>
                       <Button
@@ -339,7 +344,7 @@ export default function POS() {
                         variant="outline"
                         className="flex flex-col items-center justify-center gap-3 h-28 bg-white hover:bg-orange-50 hover:border-orange-400 transition-all text-base font-semibold"
                       >
-                        <FiDollarSign className="text-3xl text-orange-600" />
+                        <DollarSign className="h-8 w-8 text-orange-600" />
                         <span>Bill Payment</span>
                       </Button>
                       <Button
@@ -347,11 +352,11 @@ export default function POS() {
                         variant="outline"
                         className="flex flex-col items-center justify-center gap-3 h-28 bg-white hover:bg-red-50 hover:border-red-400 transition-all text-base font-semibold"
                       >
-                        <FiRepeat className="text-3xl text-red-600" />
+                        <Repeat className="h-8 w-8 text-red-600" />
                         <span>Return/Refund</span>
                       </Button>
                     </div>
-                  </div>
+                  </CardContent>
                 </Card>
               )}
             </div>
@@ -365,16 +370,18 @@ export default function POS() {
 
               {/* Product Search */}
               <Card className="flex-1 flex flex-col">
-                <div className="p-5 flex-1 flex flex-col">
-                  <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <FiShoppingCart className="text-blue-600" />
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <ShoppingCartIcon className="h-5 w-5 text-blue-600" />
                     Add Items
-                  </h2>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col">
                   <ProductSearch
                     onAddItem={handleAddItem}
                     transactionType={transactionType}
                   />
-                </div>
+                </CardContent>
               </Card>
             </div>
           )}
@@ -383,14 +390,14 @@ export default function POS() {
         {/* Right Panel - Shopping Cart */}
         <div className="w-96 flex flex-col">
           <Card className="flex-1 flex flex-col">
-            <div className="p-4 border-b">
-              <h2 className="text-lg font-semibold">Cart</h2>
+            <CardHeader className="p-4 border-b">
+              <CardTitle className="text-lg">Cart</CardTitle>
               {currentTransaction && (
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   {currentTransaction.transaction_number}
                 </p>
               )}
-            </div>
+            </CardHeader>
 
             <div className="flex-1 overflow-hidden">
               <ShoppingCart
@@ -403,7 +410,7 @@ export default function POS() {
             {/* Cart Total & Checkout */}
             <div className="p-5 border-t bg-gradient-to-br from-gray-50 to-blue-50">
               <div className="flex justify-between items-center mb-5 pb-4 border-b border-gray-200">
-                <span className="text-lg font-semibold text-gray-700">Total:</span>
+                <span className="text-lg font-semibold text-muted-foreground">Total:</span>
                 <span className="text-3xl font-bold text-blue-600">
                   ${calculateCartTotal().toFixed(2)}
                 </span>
@@ -419,12 +426,12 @@ export default function POS() {
                 >
                   <div className="flex flex-col items-center">
                     <span>Clear</span>
-                    <span className="text-xs font-normal text-gray-500">ESC</span>
+                    <span className="text-xs font-normal text-muted-foreground">ESC</span>
                   </div>
                 </Button>
                 <Button
                   onClick={handleCheckout}
-                  variant="primary"
+                  variant="default"
                   className="flex-1 h-14 text-base font-semibold bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700"
                   disabled={!currentTransaction || cartItems.length === 0}
                   title="Press F9 to checkout"

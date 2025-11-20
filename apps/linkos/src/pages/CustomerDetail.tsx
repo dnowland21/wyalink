@@ -9,7 +9,10 @@ import {
   type Subscription,
   type LineStatus,
 } from '@wyalink/supabase-client'
-import { Card } from '@wyalink/ui'
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card'
+import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
+import { ChevronLeft, Plus, Smartphone, FileText } from 'lucide-react'
 import CustomerModal from '../components/CustomerModal'
 import LineModal from '../components/LineModal'
 import SubscriptionModal from '../components/SubscriptionModal'
@@ -17,13 +20,13 @@ import QuoteModal from '../components/QuoteModal'
 import CustomerActivityTimeline from '../components/CustomerActivityTimeline'
 import QuotesList from '../components/QuotesList'
 
-const lineStatusColors: Record<LineStatus, string> = {
-  initiating: 'bg-gray-100 text-gray-800',
-  pending: 'bg-blue-100 text-blue-800',
-  activated: 'bg-green-100 text-green-800',
-  paused: 'bg-yellow-100 text-yellow-800',
-  deactivated: 'bg-orange-100 text-orange-800',
-  terminated: 'bg-red-100 text-red-800',
+const lineStatusVariants: Record<LineStatus, 'default' | 'info' | 'success' | 'warning' | 'warning' | 'error'> = {
+  initiating: 'default',
+  pending: 'info',
+  activated: 'success',
+  paused: 'warning',
+  deactivated: 'warning',
+  terminated: 'error',
 }
 
 export default function CustomerDetail() {
@@ -139,7 +142,7 @@ export default function CustomerDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-600">Loading customer...</div>
+        <div className="text-muted-foreground">Loading customer...</div>
       </div>
     )
   }
@@ -167,9 +170,7 @@ export default function CustomerDetail() {
             className="text-white hover:text-white/80 transition-colors"
             title="Back to Customers"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+            <ChevronLeft className="w-6 h-6" />
           </Link>
           <div className="flex-1">
             <div className="flex items-center gap-4">
@@ -187,21 +188,24 @@ export default function CustomerDetail() {
             </div>
           </div>
           <div className="flex gap-2">
-            <button
+            <Button
               onClick={() => setIsQuoteModalOpen(true)}
-              className="px-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 text-white rounded-lg hover:bg-white/30 transition-colors"
+              variant="outline"
+              className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30"
             >
+              <FileText className="w-4 h-4 mr-2" />
               Create Quote
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setIsEditModalOpen(true)}
-              className="px-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 text-white rounded-lg hover:bg-white/30 transition-colors"
+              variant="outline"
+              className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30"
             >
               Edit Customer
-            </button>
-            <button className="px-4 py-2 bg-white text-primary-600 rounded-lg hover:bg-white/90 transition-colors font-medium">
+            </Button>
+            <Button className="bg-white text-primary-600 hover:bg-white/90">
               Account Actions
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -291,35 +295,41 @@ export default function CustomerDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Contact Information */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
-            <div className="space-y-3">
+            <CardHeader>
+              <CardTitle className="text-lg">Contact Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-gray-600">Email</label>
-                <p className="text-gray-900">{customer.email}</p>
+                <label className="text-sm font-medium text-muted-foreground">Email</label>
+                <p className="text-foreground">{customer.email}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600">Phone</label>
-                <p className="text-gray-900">{customer.phone}</p>
+                <label className="text-sm font-medium text-muted-foreground">Phone</label>
+                <p className="text-foreground">{customer.phone}</p>
               </div>
-            </div>
+            </CardContent>
           </Card>
 
           {/* Billing Address */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Billing Address</h3>
-            <div className="space-y-1 text-gray-900">
+            <CardHeader>
+              <CardTitle className="text-lg">Billing Address</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-1 text-foreground">
               <p>{customer.billing_address_line1}</p>
               {customer.billing_address_line2 && <p>{customer.billing_address_line2}</p>}
               <p>
                 {customer.billing_city}, {customer.billing_state} {customer.billing_zip}
               </p>
-            </div>
+            </CardContent>
           </Card>
 
           {/* Shipping Address */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Shipping Address</h3>
-            <div className="space-y-1 text-gray-900">
+            <CardHeader>
+              <CardTitle className="text-lg">Shipping Address</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-1 text-foreground">
               {customer.shipping_address_line1 ? (
                 <>
                   <p>{customer.shipping_address_line1}</p>
@@ -329,61 +339,67 @@ export default function CustomerDetail() {
                   </p>
                 </>
               ) : (
-                <p className="text-gray-500 italic">Same as billing address</p>
+                <p className="text-muted-foreground italic">Same as billing address</p>
               )}
-            </div>
+            </CardContent>
           </Card>
 
           {/* Account Details */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Details</h3>
-            <div className="space-y-3">
+            <CardHeader>
+              <CardTitle className="text-lg">Account Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-gray-600">Account Number</label>
-                <p className="text-gray-900 font-mono font-semibold">{customer.account_number}</p>
+                <label className="text-sm font-medium text-muted-foreground">Account Number</label>
+                <p className="text-foreground font-mono font-semibold">{customer.account_number}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600">Customer Type</label>
-                <p className="text-gray-900">{customer.type.charAt(0).toUpperCase() + customer.type.slice(1)}</p>
+                <label className="text-sm font-medium text-muted-foreground">Customer Type</label>
+                <p className="text-foreground">{customer.type.charAt(0).toUpperCase() + customer.type.slice(1)}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600">Account Created</label>
-                <p className="text-gray-900">{formatDate(customer.created_at)}</p>
+                <label className="text-sm font-medium text-muted-foreground">Account Created</label>
+                <p className="text-foreground">{formatDate(customer.created_at)}</p>
               </div>
               {customer.company_name && (
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Company Name</label>
-                  <p className="text-gray-900">{customer.company_name}</p>
+                  <label className="text-sm font-medium text-muted-foreground">Company Name</label>
+                  <p className="text-foreground">{customer.company_name}</p>
                 </div>
               )}
-            </div>
+            </CardContent>
           </Card>
 
           {/* Service Summary */}
           <Card className="lg:col-span-2">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Service Summary</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="text-sm text-gray-600">Active Lines</div>
-                <div className="text-2xl font-bold text-gray-900 mt-1">
-                  {lines.filter((l) => l.status === 'activated').length}
+            <CardHeader>
+              <CardTitle className="text-lg">Service Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-muted rounded-lg p-4">
+                  <div className="text-sm text-muted-foreground">Active Lines</div>
+                  <div className="text-2xl font-bold text-foreground mt-1">
+                    {lines.filter((l) => l.status === 'activated').length}
+                  </div>
+                </div>
+                <div className="bg-muted rounded-lg p-4">
+                  <div className="text-sm text-muted-foreground">Total Lines</div>
+                  <div className="text-2xl font-bold text-foreground mt-1">{lines.length}</div>
+                </div>
+                <div className="bg-muted rounded-lg p-4">
+                  <div className="text-sm text-muted-foreground">Active Subscriptions</div>
+                  <div className="text-2xl font-bold text-foreground mt-1">
+                    {subscriptions.filter((s) => s.is_active).length}
+                  </div>
+                </div>
+                <div className="bg-muted rounded-lg p-4">
+                  <div className="text-sm text-muted-foreground">Total Subscriptions</div>
+                  <div className="text-2xl font-bold text-foreground mt-1">{subscriptions.length}</div>
                 </div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="text-sm text-gray-600">Total Lines</div>
-                <div className="text-2xl font-bold text-gray-900 mt-1">{lines.length}</div>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="text-sm text-gray-600">Active Subscriptions</div>
-                <div className="text-2xl font-bold text-gray-900 mt-1">
-                  {subscriptions.filter((s) => s.is_active).length}
-                </div>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="text-sm text-gray-600">Total Subscriptions</div>
-                <div className="text-2xl font-bold text-gray-900 mt-1">{subscriptions.length}</div>
-              </div>
-            </div>
+            </CardContent>
           </Card>
         </div>
       )}
@@ -391,20 +407,18 @@ export default function CustomerDetail() {
       {activeTab === 'lines' && (
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Customer Lines</h3>
-            <button
-              onClick={() => setIsLineModalOpen(true)}
-              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
-            >
-              + Add Line
-            </button>
+            <h3 className="text-lg font-semibold text-foreground">Customer Lines</h3>
+            <Button onClick={() => setIsLineModalOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Line
+            </Button>
           </div>
 
           {lines.length === 0 ? (
             <Card>
-              <div className="text-center py-8 text-gray-600">
+              <CardContent className="text-center py-8 text-muted-foreground">
                 No lines yet. Add a line to get started.
-              </div>
+              </CardContent>
             </Card>
           ) : (
             <div className="space-y-3">
@@ -432,17 +446,19 @@ export default function CustomerDetail() {
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="font-semibold text-gray-900 text-base tracking-wide">
+                            <h4 className="font-semibold text-foreground text-base tracking-wide">
                               {line.phone_number || 'Pending Activation'}
                             </h4>
                             {line.type && (
-                              <span className="px-2.5 py-0.5 bg-primary-800 text-white text-xs font-medium rounded-full uppercase tracking-wide">
+                              <Badge variant="secondary" className="uppercase">
                                 {line.type.charAt(0).toUpperCase() + line.type.slice(1)}
-                              </span>
+                              </Badge>
                             )}
                           </div>
-                          <div className={`mt-1 px-3 py-1 rounded-full text-xs font-medium inline-flex uppercase tracking-wide ${lineStatusColors[line.status]}`}>
-                            {line.status.charAt(0).toUpperCase() + line.status.slice(1)}
+                          <div className="mt-1">
+                            <Badge variant={lineStatusVariants[line.status]} className="uppercase">
+                              {line.status.charAt(0).toUpperCase() + line.status.slice(1)}
+                            </Badge>
                           </div>
                         </div>
                       </div>
@@ -470,16 +486,14 @@ export default function CustomerDetail() {
                       <div className="border-t border-gray-100 bg-gray-50 p-4">
                         <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6">
                           {/* Device Photo Placeholder */}
-                          <div className="bg-white border-2 border-dashed border-gray-300 rounded-xl min-h-[160px] flex flex-col items-center justify-center text-gray-500 text-sm">
-                            <svg className="w-12 h-12 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                            </svg>
+                          <div className="bg-white border-2 border-dashed border-gray-300 rounded-xl min-h-[160px] flex flex-col items-center justify-center text-muted-foreground text-sm">
+                            <Smartphone className="w-12 h-12 mb-2" />
                             <span>Device Photo</span>
                           </div>
 
                           {/* Device Details */}
                           <div>
-                            <h4 className="text-base font-bold text-primary-900 mb-3">
+                            <h4 className="text-base font-bold text-foreground mb-3">
                               {line.device_manufacturer && line.device_model
                                 ? `${line.device_manufacturer} ${line.device_model}`
                                 : 'Device Information'}
@@ -488,52 +502,50 @@ export default function CustomerDetail() {
                             <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2 text-sm mb-4">
                               {line.active_sim_id && (
                                 <>
-                                  <label className="font-semibold text-gray-700">ICCID:</label>
-                                  <span className="text-gray-900 font-mono">{line.active_sim_id}</span>
+                                  <label className="font-semibold text-muted-foreground">ICCID:</label>
+                                  <span className="text-foreground font-mono">{line.active_sim_id}</span>
                                 </>
                               )}
                               {line.sim_type && (
                                 <>
-                                  <label className="font-semibold text-gray-700">SIM Type:</label>
-                                  <span className="text-gray-900">
+                                  <label className="font-semibold text-muted-foreground">SIM Type:</label>
+                                  <span className="text-foreground">
                                     {line.sim_type === 'esim' ? 'eSIM' : 'Physical SIM'}
                                   </span>
                                 </>
                               )}
                               {line.type && (
                                 <>
-                                  <label className="font-semibold text-gray-700">Line Type:</label>
-                                  <span className="text-gray-900">
+                                  <label className="font-semibold text-muted-foreground">Line Type:</label>
+                                  <span className="text-foreground">
                                     {line.type.charAt(0).toUpperCase() + line.type.slice(1)}
                                   </span>
                                 </>
                               )}
                               {line.updated_at && (
                                 <>
-                                  <label className="font-semibold text-gray-700">Last Change:</label>
-                                  <span className="text-gray-900">{formatDate(line.updated_at)}</span>
+                                  <label className="font-semibold text-muted-foreground">Last Change:</label>
+                                  <span className="text-foreground">{formatDate(line.updated_at)}</span>
                                 </>
                               )}
                             </div>
 
                             {/* Action Buttons */}
                             <div className="flex flex-wrap gap-2 mt-4">
-                              <button className="px-4 py-2 rounded-full text-sm font-medium bg-yellow-50 text-yellow-800 border border-yellow-200 hover:bg-yellow-100 transition-colors">
+                              <Button variant="outline" size="sm" className="rounded-full">
                                 Change Device
-                              </button>
-                              <button className="px-4 py-2 rounded-full text-sm font-medium bg-red-50 text-red-800 border border-red-200 hover:bg-red-100 transition-colors">
+                              </Button>
+                              <Button variant="outline" size="sm" className="rounded-full">
                                 Upgrade
-                              </button>
-                              <button className="px-4 py-2 rounded-full text-sm font-medium bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition-colors">
+                              </Button>
+                              <Button variant="outline" size="sm" className="rounded-full">
                                 Update Info
-                              </button>
-                              <Link
-                                to={`/lines/${line.id}`}
-                                className="px-4 py-2 rounded-full text-sm font-medium bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100 transition-colors"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                View Details
-                              </Link>
+                              </Button>
+                              <Button variant="outline" size="sm" className="rounded-full" asChild>
+                                <Link to={`/lines/${line.id}`} onClick={(e) => e.stopPropagation()}>
+                                  View Details
+                                </Link>
+                              </Button>
                             </div>
                           </div>
                         </div>
@@ -550,41 +562,39 @@ export default function CustomerDetail() {
       {activeTab === 'subscriptions' && (
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Customer Subscriptions</h3>
-            <button
-              onClick={() => setIsSubscriptionModalOpen(true)}
-              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
-            >
-              + Add Subscription
-            </button>
+            <h3 className="text-lg font-semibold text-foreground">Customer Subscriptions</h3>
+            <Button onClick={() => setIsSubscriptionModalOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Subscription
+            </Button>
           </div>
 
           {subscriptions.length === 0 ? (
             <Card>
-              <div className="text-center py-8 text-gray-600">
+              <CardContent className="text-center py-8 text-muted-foreground">
                 No subscriptions yet. Add a subscription to get started.
-              </div>
+              </CardContent>
             </Card>
           ) : (
             <div className="space-y-4">
               {subscriptions.map((subscription) => (
                 <Card key={subscription.id}>
-                  <div className="flex items-center justify-between">
+                  <CardContent className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-semibold text-gray-900">
+                        <h4 className="font-semibold text-foreground">
                           Plan: {subscription.plan_id.slice(0, 8)}...
                         </h4>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        <Badge
+                          variant={
                             subscription.is_active
-                              ? 'bg-green-100 text-green-800'
+                              ? 'success'
                               : subscription.cancelled_at
-                              ? 'bg-red-100 text-red-800'
+                              ? 'error'
                               : subscription.paused_at
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
+                              ? 'warning'
+                              : 'default'
+                          }
                         >
                           {subscription.is_active
                             ? 'Active'
@@ -593,39 +603,39 @@ export default function CustomerDetail() {
                             : subscription.paused_at
                             ? 'Paused'
                             : 'Inactive'}
-                        </span>
+                        </Badge>
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         {subscription.start_date && (
                           <div>
-                            <span className="text-gray-600">Start:</span>{' '}
-                            <span className="text-gray-900">{formatDate(subscription.start_date)}</span>
+                            <span className="text-muted-foreground">Start:</span>{' '}
+                            <span className="text-foreground">{formatDate(subscription.start_date)}</span>
                           </div>
                         )}
                         {subscription.end_date && (
                           <div>
-                            <span className="text-gray-600">End:</span>{' '}
-                            <span className="text-gray-900">{formatDate(subscription.end_date)}</span>
+                            <span className="text-muted-foreground">End:</span>{' '}
+                            <span className="text-foreground">{formatDate(subscription.end_date)}</span>
                           </div>
                         )}
                         <div>
-                          <span className="text-gray-600">Next Renewal:</span>{' '}
-                          <span className="text-gray-900">
+                          <span className="text-muted-foreground">Next Renewal:</span>{' '}
+                          <span className="text-foreground">
                             {subscription.next_renewal_date ? formatDate(subscription.next_renewal_date) : 'N/A'}
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Renewal Type:</span>{' '}
-                          <span className="text-gray-900">
+                          <span className="text-muted-foreground">Renewal Type:</span>{' '}
+                          <span className="text-foreground">
                             {subscription.renewal_type.charAt(0).toUpperCase() + subscription.renewal_type.slice(1)}
                           </span>
                         </div>
                       </div>
                     </div>
-                    <button className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    <Button variant="ghost" size="sm">
                       Manage
-                    </button>
-                  </div>
+                    </Button>
+                  </CardContent>
                 </Card>
               ))}
             </div>
@@ -636,8 +646,8 @@ export default function CustomerDetail() {
       {activeTab === 'activity' && (
         <div>
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Activity Timeline</h3>
-            <p className="text-gray-600 text-sm mt-1">
+            <h3 className="text-lg font-semibold text-foreground">Activity Timeline</h3>
+            <p className="text-muted-foreground text-sm mt-1">
               Track all customer interactions including store visits, quotes, and subscriptions
             </p>
           </div>
@@ -648,8 +658,8 @@ export default function CustomerDetail() {
       {activeTab === 'quotes' && (
         <div>
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Customer Quotes</h3>
-            <p className="text-gray-600 text-sm mt-1">
+            <h3 className="text-lg font-semibold text-foreground">Customer Quotes</h3>
+            <p className="text-muted-foreground text-sm mt-1">
               View and manage all quotes for this customer
             </p>
           </div>
@@ -659,8 +669,12 @@ export default function CustomerDetail() {
 
       {activeTab === 'billing' && (
         <Card>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Billing Information</h3>
-          <div className="text-center py-8 text-gray-600">Billing management coming soon...</div>
+          <CardHeader>
+            <CardTitle className="text-lg">Billing Information</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center py-8 text-muted-foreground">
+            Billing management coming soon...
+          </CardContent>
         </Card>
       )}
 

@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react'
 import { getPromotions, updatePromotion, approvePromotion, type Promotion, type PromotionStatus } from '@wyalink/supabase-client'
-import { Card } from '@wyalink/ui'
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card'
+import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Search, Plus } from 'lucide-react'
 import { useAuth } from '@wyalink/supabase-client'
 import PromotionModal from '../components/PromotionModal'
 
 const statusColors: Record<PromotionStatus, string> = {
-  draft: 'bg-gray-100 text-gray-800',
-  planned: 'bg-yellow-100 text-yellow-800',
-  active: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
-  expired: 'bg-orange-100 text-orange-800',
+  draft: 'default',
+  planned: 'warning',
+  active: 'success',
+  cancelled: 'error',
+  expired: 'warning',
 }
 
 export default function Promotions() {
@@ -205,92 +209,95 @@ export default function Promotions() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
         <Card>
-          <div className="text-sm text-gray-600">Total</div>
-          <div className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Total</div>
+            <div className="text-2xl font-bold mt-1">{stats.total}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-sm text-gray-600">Draft</div>
-          <div className="text-2xl font-bold text-gray-600 mt-1">{stats.draft}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Draft</div>
+            <div className="text-2xl font-bold text-muted-foreground mt-1">{stats.draft}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-sm text-gray-600">Pending</div>
-          <div className="text-2xl font-bold text-yellow-600 mt-1">{stats.pending_approval}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Pending</div>
+            <div className="text-2xl font-bold text-warning mt-1">{stats.pending_approval}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-sm text-gray-600">Active</div>
-          <div className="text-2xl font-bold text-green-600 mt-1">{stats.active}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Active</div>
+            <div className="text-2xl font-bold text-success mt-1">{stats.active}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-sm text-gray-600">Inactive</div>
-          <div className="text-2xl font-bold text-red-600 mt-1">{stats.inactive}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Inactive</div>
+            <div className="text-2xl font-bold text-error mt-1">{stats.inactive}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-sm text-gray-600">Expired</div>
-          <div className="text-2xl font-bold text-orange-600 mt-1">{stats.expired}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Expired</div>
+            <div className="text-2xl font-bold text-warning mt-1">{stats.expired}</div>
+          </CardContent>
         </Card>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <p className="text-sm text-red-800">{error}</p>
+        <div className="bg-error-50 border border-error-200 rounded-lg p-4 mb-6">
+          <p className="text-sm text-error-800">{error}</p>
         </div>
       )}
 
       {/* Promotions Table */}
       <Card>
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">All Promotions</h3>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">All Promotions</CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  type="text"
+                  placeholder="Search promotions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-64 pl-9"
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Search promotions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="text-sm border border-input rounded-md px-3 py-2 h-10 focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="all">All Status</option>
+                <option value="draft">Draft</option>
+                <option value="planned">Planned</option>
+                <option value="active">Active</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="expired">Expired</option>
+              </select>
+              <Button onClick={handleOpenCreateModal}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Promotion
+              </Button>
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="all">All Status</option>
-              <option value="draft">Draft</option>
-              <option value="planned">Planned</option>
-              <option value="active">Active</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="expired">Expired</option>
-            </select>
-            <button
-              onClick={handleOpenCreateModal}
-              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
-            >
-              + Create Promotion
-            </button>
           </div>
-        </div>
-
-        {loading ? (
-          <div className="p-8 text-center text-gray-600">Loading promotions...</div>
-        ) : filteredPromotions.length === 0 ? (
-          <div className="p-8 text-center text-gray-600">
-            {searchQuery || statusFilter !== 'all' ? 'No promotions found matching your filters' : 'No promotions yet'}
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="p-8 text-center text-muted-foreground">Loading promotions...</div>
+          ) : filteredPromotions.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground">
+              {searchQuery || statusFilter !== 'all' ? 'No promotions found matching your filters' : 'No promotions yet'}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Promotion</th>
@@ -361,9 +368,9 @@ export default function Promotions() {
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[promo.status]}`}>
+                      <Badge variant={statusColors[promo.status] as any}>
                         {promo.status.replace('_', ' ').charAt(0).toUpperCase() + promo.status.replace('_', ' ').slice(1)}
-                      </span>
+                      </Badge>
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center justify-center gap-2">
@@ -440,63 +447,70 @@ export default function Promotions() {
             </table>
           </div>
         )}
+        </CardContent>
       </Card>
 
       {/* Quick Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
         <Card>
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                />
-              </svg>
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-1">Promotional Codes</h4>
+                <p className="text-xs text-gray-600">Create unique codes for customers to apply discounts</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">Promotional Codes</h4>
-              <p className="text-xs text-gray-600">Create unique codes for customers to apply discounts</p>
-            </div>
-          </div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-1">Flexible Discounts</h4>
+                <p className="text-xs text-gray-600">Percentage or fixed dollar amount discounts</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">Flexible Discounts</h4>
-              <p className="text-xs text-gray-600">Percentage or fixed dollar amount discounts</p>
-            </div>
-          </div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                />
-              </svg>
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-1">Approval Workflow</h4>
+                <p className="text-xs text-gray-600">Optional approval required before activation</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">Approval Workflow</h4>
-              <p className="text-xs text-gray-600">Optional approval required before activation</p>
-            </div>
-          </div>
+          </CardContent>
         </Card>
       </div>
 

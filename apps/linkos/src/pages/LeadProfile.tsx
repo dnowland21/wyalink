@@ -1,19 +1,22 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getLead, updateLead, type Lead, type LeadStatus } from '@wyalink/supabase-client'
-import { Card } from '@wyalink/ui'
+import { Card, CardContent } from '../components/ui/card'
+import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
+import { ChevronLeft, Mail, Phone, Zap, Loader2, AlertCircle } from 'lucide-react'
 import CallLogForm from '../components/CallLogForm'
 import EmailForm from '../components/EmailForm'
 import NoteForm from '../components/NoteForm'
 import ActivityTimeline from '../components/ActivityTimeline'
 import QuotesList from '../components/QuotesList'
 
-const statusColors: Record<LeadStatus, string> = {
-  new: 'bg-blue-100 text-blue-800',
-  contacted: 'bg-yellow-100 text-yellow-800',
-  qualified: 'bg-purple-100 text-purple-800',
-  converted: 'bg-green-100 text-green-800',
-  lost: 'bg-gray-100 text-gray-800',
+const statusVariants: Record<LeadStatus, 'info' | 'warning' | 'secondary' | 'success' | 'default'> = {
+  new: 'info',
+  contacted: 'warning',
+  qualified: 'secondary',
+  converted: 'success',
+  lost: 'default',
 }
 
 type ActivityTab = 'timeline' | 'call' | 'email' | 'note' | 'quotes'
@@ -69,8 +72,8 @@ export default function LeadProfile() {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading lead...</p>
+          <Loader2 className="w-16 h-16 text-primary-600 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading lead...</p>
         </div>
       </div>
     )
@@ -79,11 +82,17 @@ export default function LeadProfile() {
   if (error || !lead) {
     return (
       <div className="p-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error || 'Lead not found'}</p>
-        </div>
-        <Link to="/leads" className="text-primary-600 hover:text-primary-700 mt-4 inline-block">
-          ← Back to Leads
+        <Card>
+          <CardContent className="flex items-start gap-3 p-6">
+            <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-destructive font-medium">{error || 'Lead not found'}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Link to="/leads" className="text-primary-600 hover:text-primary-700 mt-4 inline-flex items-center gap-1">
+          <ChevronLeft className="w-4 h-4" />
+          Back to Leads
         </Link>
       </div>
     )
@@ -93,10 +102,8 @@ export default function LeadProfile() {
     <div>
       {/* Header with breadcrumb */}
       <div className="mb-6">
-        <Link to="/leads" className="text-sm text-gray-600 hover:text-primary-600 flex items-center gap-1 mb-2">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+        <Link to="/leads" className="text-sm text-muted-foreground hover:text-primary-600 inline-flex items-center gap-1 mb-2">
+          <ChevronLeft className="w-4 h-4" />
           Back to Leads
         </Link>
         <h1 className="text-3xl font-bold text-gray-900">Lead Profile</h1>
@@ -106,157 +113,123 @@ export default function LeadProfile() {
         {/* Left Column - Lead Details */}
         <div className="lg:col-span-1">
           <Card>
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center text-white font-semibold text-xl">
-                {lead.first_name?.[0] || lead.last_name?.[0] || lead.email[0].toUpperCase()}
-              </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[lead.status]}`}>
-                {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
-              </span>
-            </div>
-
-            <h2 className="text-xl font-bold text-gray-900 mb-1">
-              {lead.first_name || lead.last_name
-                ? `${lead.first_name || ''} ${lead.last_name || ''}`.trim()
-                : 'No Name'}
-            </h2>
-            {lead.company && <p className="text-sm text-gray-600 mb-4">{lead.company}</p>}
-
-            <div className="space-y-3 mb-6">
-              <div className="flex items-center gap-2 text-sm">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-                <span className="text-gray-900">{lead.email}</span>
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center text-white font-semibold text-xl">
+                  {lead.first_name?.[0] || lead.last_name?.[0] || lead.email[0].toUpperCase()}
+                </div>
+                <Badge variant={statusVariants[lead.status]}>
+                  {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+                </Badge>
               </div>
 
-              {lead.phone && (
+              <h2 className="text-xl font-bold text-gray-900 mb-1">
+                {lead.first_name || lead.last_name
+                  ? `${lead.first_name || ''} ${lead.last_name || ''}`.trim()
+                  : 'No Name'}
+              </h2>
+              {lead.company && <p className="text-sm text-muted-foreground mb-4">{lead.company}</p>}
+
+              <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-2 text-sm">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    />
-                  </svg>
-                  <span className="text-gray-900">{lead.phone}</span>
+                  <Mail className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-gray-900">{lead.email}</span>
+                </div>
+
+                {lead.phone && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Phone className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-gray-900">{lead.phone}</span>
+                  </div>
+                )}
+
+                {lead.source && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Zap className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">Source: {lead.source}</span>
+                  </div>
+                )}
+              </div>
+
+              {lead.notes && (
+                <div className="border-t pt-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Notes</h3>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{lead.notes}</p>
                 </div>
               )}
 
-              {lead.source && (
-                <div className="flex items-center gap-2 text-sm">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
-                  </svg>
-                  <span className="text-gray-600">Source: {lead.source}</span>
+              {/* Quick Status Change */}
+              <div className="border-t pt-4 mt-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">Change Status</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {(['new', 'contacted', 'qualified', 'converted', 'lost'] as LeadStatus[]).map((status) => (
+                    <Button
+                      key={status}
+                      onClick={() => handleStatusChange(status)}
+                      disabled={lead.status === status}
+                      variant={lead.status === status ? 'ghost' : 'outline'}
+                      size="sm"
+                      className="text-xs"
+                    >
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </Button>
+                  ))}
                 </div>
-              )}
-            </div>
-
-            {lead.notes && (
-              <div className="border-t pt-4">
-                <h3 className="text-sm font-semibold text-gray-900 mb-2">Notes</h3>
-                <p className="text-sm text-gray-600 whitespace-pre-wrap">{lead.notes}</p>
               </div>
-            )}
-
-            {/* Quick Status Change */}
-            <div className="border-t pt-4 mt-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">Change Status</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {(['new', 'contacted', 'qualified', 'converted', 'lost'] as LeadStatus[]).map((status) => (
-                  <button
-                    key={status}
-                    onClick={() => handleStatusChange(status)}
-                    disabled={lead.status === status}
-                    className={`px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                      lead.status === status
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </button>
-                ))}
-              </div>
-            </div>
+            </CardContent>
           </Card>
         </div>
 
         {/* Right Column - Activities */}
         <div className="lg:col-span-2">
           <Card>
-            {/* Activity Tabs */}
-            <div className="flex gap-2 mb-6 border-b pb-4">
-              <button
-                onClick={() => setActiveTab('timeline')}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  activeTab === 'timeline'
-                    ? 'bg-primary-800 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Timeline
-              </button>
-              <button
-                onClick={() => setActiveTab('call')}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  activeTab === 'call'
-                    ? 'bg-primary-800 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Log Call
-              </button>
-              <button
-                onClick={() => setActiveTab('email')}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  activeTab === 'email'
-                    ? 'bg-primary-800 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Send Email
-              </button>
-              <button
-                onClick={() => setActiveTab('note')}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  activeTab === 'note'
-                    ? 'bg-primary-800 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Add Note
-              </button>
-              <button
-                onClick={() => setActiveTab('quotes')}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  activeTab === 'quotes'
-                    ? 'bg-primary-800 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Quotes
-              </button>
-            </div>
+            <CardContent className="pt-6">
+              {/* Activity Tabs */}
+              <div className="flex gap-2 mb-6 border-b pb-4">
+                <Button
+                  onClick={() => setActiveTab('timeline')}
+                  variant={activeTab === 'timeline' ? 'default' : 'ghost'}
+                  size="sm"
+                >
+                  Timeline
+                </Button>
+                <Button
+                  onClick={() => setActiveTab('call')}
+                  variant={activeTab === 'call' ? 'default' : 'ghost'}
+                  size="sm"
+                >
+                  Log Call
+                </Button>
+                <Button
+                  onClick={() => setActiveTab('email')}
+                  variant={activeTab === 'email' ? 'default' : 'ghost'}
+                  size="sm"
+                >
+                  Send Email
+                </Button>
+                <Button
+                  onClick={() => setActiveTab('note')}
+                  variant={activeTab === 'note' ? 'default' : 'ghost'}
+                  size="sm"
+                >
+                  Add Note
+                </Button>
+                <Button
+                  onClick={() => setActiveTab('quotes')}
+                  variant={activeTab === 'quotes' ? 'default' : 'ghost'}
+                  size="sm"
+                >
+                  Quotes
+                </Button>
+              </div>
 
-            {/* Activity Content */}
-            {activeTab === 'timeline' && <ActivityTimeline leadId={lead.id} refreshKey={refreshKey} />}
-            {activeTab === 'call' && <CallLogForm leadId={lead.id} onSuccess={handleActivityLogged} />}
-            {activeTab === 'email' && <EmailForm leadId={lead.id} leadEmail={lead.email} onSuccess={handleActivityLogged} />}
-            {activeTab === 'note' && <NoteForm leadId={lead.id} onSuccess={handleActivityLogged} />}
-            {activeTab === 'quotes' && <QuotesList leadId={lead.id} />}
+              {/* Activity Content */}
+              {activeTab === 'timeline' && <ActivityTimeline leadId={lead.id} refreshKey={refreshKey} />}
+              {activeTab === 'call' && <CallLogForm leadId={lead.id} onSuccess={handleActivityLogged} />}
+              {activeTab === 'email' && <EmailForm leadId={lead.id} leadEmail={lead.email} onSuccess={handleActivityLogged} />}
+              {activeTab === 'note' && <NoteForm leadId={lead.id} onSuccess={handleActivityLogged} />}
+              {activeTab === 'quotes' && <QuotesList leadId={lead.id} />}
+            </CardContent>
           </Card>
         </div>
       </div>

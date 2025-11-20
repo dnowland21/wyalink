@@ -5,7 +5,9 @@ import {
   deleteVendor,
   type Vendor,
 } from '@wyalink/supabase-client'
-import { Card } from '@wyalink/ui'
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card'
+import { Button } from '../components/ui/button'
+import { Edit, Trash2, Mail, Phone } from 'lucide-react'
 import VendorModal from '../components/VendorModal'
 
 export default function VendorDetail() {
@@ -76,7 +78,7 @@ export default function VendorDetail() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading vendor...</p>
+          <p className="text-muted-foreground">Loading vendor...</p>
         </div>
       </div>
     )
@@ -99,7 +101,7 @@ export default function VendorDetail() {
     <div>
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
           <Link to="/vendors" className="hover:text-primary-600">
             Vendors
           </Link>
@@ -111,24 +113,27 @@ export default function VendorDetail() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{vendor.company_name}</h1>
             {vendor.first_name && vendor.last_name && (
-              <p className="text-gray-600 mt-1">
+              <p className="text-muted-foreground mt-1">
                 Contact: {vendor.first_name} {vendor.last_name}
               </p>
             )}
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
               onClick={() => setIsEditModalOpen(true)}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              variant="outline"
             >
+              <Edit className="h-4 w-4 mr-2" />
               Edit Vendor
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleDelete}
-              className="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+              variant="outline"
+              className="border-red-300 text-red-700 hover:bg-red-50"
             >
+              <Trash2 className="h-4 w-4 mr-2" />
               Delete
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -139,114 +144,134 @@ export default function VendorDetail() {
         <div className="lg:col-span-2 space-y-6">
           {/* Company Information */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Company Information</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Company Name</label>
-                <p className="text-sm text-gray-900">{vendor.company_name}</p>
-              </div>
-              {(vendor.first_name || vendor.last_name) && (
-                <div className="grid grid-cols-2 gap-4">
-                  {vendor.first_name && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">First Name</label>
-                      <p className="text-sm text-gray-900">{vendor.first_name}</p>
-                    </div>
-                  )}
-                  {vendor.last_name && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">Last Name</label>
-                      <p className="text-sm text-gray-900">{vendor.last_name}</p>
-                    </div>
-                  )}
+            <CardHeader>
+              <CardTitle>Company Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Company Name</label>
+                  <p className="text-sm text-gray-900">{vendor.company_name}</p>
                 </div>
-              )}
-            </div>
+                {(vendor.first_name || vendor.last_name) && (
+                  <div className="grid grid-cols-2 gap-4">
+                    {vendor.first_name && (
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">First Name</label>
+                        <p className="text-sm text-gray-900">{vendor.first_name}</p>
+                      </div>
+                    )}
+                    {vendor.last_name && (
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">Last Name</label>
+                        <p className="text-sm text-gray-900">{vendor.last_name}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </CardContent>
           </Card>
 
           {/* Contact Information */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
-            <div className="space-y-3">
-              {vendor.email && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
-                  <a href={`mailto:${vendor.email}`} className="text-sm text-primary-600 hover:text-primary-700">
-                    {vendor.email}
-                  </a>
-                </div>
-              )}
-              {vendor.phone && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Phone</label>
-                  <a href={`tel:${vendor.phone}`} className="text-sm text-primary-600 hover:text-primary-700">
-                    {vendor.phone}
-                  </a>
-                </div>
-              )}
-            </div>
+            <CardHeader>
+              <CardTitle>Contact Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {vendor.email && (
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">Email</label>
+                    <a href={`mailto:${vendor.email}`} className="text-sm text-primary-600 hover:text-primary-700">
+                      {vendor.email}
+                    </a>
+                  </div>
+                )}
+                {vendor.phone && (
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">Phone</label>
+                    <a href={`tel:${vendor.phone}`} className="text-sm text-primary-600 hover:text-primary-700">
+                      {vendor.phone}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </CardContent>
           </Card>
 
           {/* Billing Address */}
           {vendor.billing_address_line1 && (
             <Card>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Billing Address</h3>
-              <div className="space-y-1">
-                <p className="text-sm text-gray-900">{vendor.billing_address_line1}</p>
-                {vendor.billing_address_line2 && (
-                  <p className="text-sm text-gray-900">{vendor.billing_address_line2}</p>
-                )}
-                {(vendor.billing_city || vendor.billing_state || vendor.billing_zip) && (
-                  <p className="text-sm text-gray-900">
-                    {[vendor.billing_city, vendor.billing_state, vendor.billing_zip].filter(Boolean).join(', ')}
-                  </p>
-                )}
-                {vendor.billing_country && (
-                  <p className="text-sm text-gray-900">{vendor.billing_country}</p>
-                )}
-              </div>
+              <CardHeader>
+                <CardTitle>Billing Address</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-900">{vendor.billing_address_line1}</p>
+                  {vendor.billing_address_line2 && (
+                    <p className="text-sm text-gray-900">{vendor.billing_address_line2}</p>
+                  )}
+                  {(vendor.billing_city || vendor.billing_state || vendor.billing_zip) && (
+                    <p className="text-sm text-gray-900">
+                      {[vendor.billing_city, vendor.billing_state, vendor.billing_zip].filter(Boolean).join(', ')}
+                    </p>
+                  )}
+                  {vendor.billing_country && (
+                    <p className="text-sm text-gray-900">{vendor.billing_country}</p>
+                  )}
+                </div>
+              </CardContent>
             </Card>
           )}
 
           {/* Shipping Address */}
           {vendor.shipping_address_line1 && (
             <Card>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Shipping Address</h3>
-              <div className="space-y-1">
-                <p className="text-sm text-gray-900">{vendor.shipping_address_line1}</p>
-                {vendor.shipping_address_line2 && (
-                  <p className="text-sm text-gray-900">{vendor.shipping_address_line2}</p>
-                )}
-                {(vendor.shipping_city || vendor.shipping_state || vendor.shipping_zip) && (
-                  <p className="text-sm text-gray-900">
-                    {[vendor.shipping_city, vendor.shipping_state, vendor.shipping_zip].filter(Boolean).join(', ')}
-                  </p>
-                )}
-                {vendor.shipping_country && (
-                  <p className="text-sm text-gray-900">{vendor.shipping_country}</p>
-                )}
-              </div>
+              <CardHeader>
+                <CardTitle>Shipping Address</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-900">{vendor.shipping_address_line1}</p>
+                  {vendor.shipping_address_line2 && (
+                    <p className="text-sm text-gray-900">{vendor.shipping_address_line2}</p>
+                  )}
+                  {(vendor.shipping_city || vendor.shipping_state || vendor.shipping_zip) && (
+                    <p className="text-sm text-gray-900">
+                      {[vendor.shipping_city, vendor.shipping_state, vendor.shipping_zip].filter(Boolean).join(', ')}
+                    </p>
+                  )}
+                  {vendor.shipping_country && (
+                    <p className="text-sm text-gray-900">{vendor.shipping_country}</p>
+                  )}
+                </div>
+              </CardContent>
             </Card>
           )}
 
           {/* Terms & Notes */}
           {(vendor.terms || vendor.notes) && (
             <Card>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Additional Information</h3>
-              <div className="space-y-3">
-                {vendor.terms && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Payment Terms</label>
-                    <p className="text-sm text-gray-900">{vendor.terms}</p>
-                  </div>
-                )}
-                {vendor.notes && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Notes</label>
-                    <p className="text-sm text-gray-900 whitespace-pre-wrap">{vendor.notes}</p>
-                  </div>
-                )}
-              </div>
+              <CardHeader>
+                <CardTitle>Additional Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {vendor.terms && (
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">Payment Terms</label>
+                      <p className="text-sm text-gray-900">{vendor.terms}</p>
+                    </div>
+                  )}
+                  {vendor.notes && (
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">Notes</label>
+                      <p className="text-sm text-gray-900 whitespace-pre-wrap">{vendor.notes}</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
             </Card>
           )}
         </div>
@@ -255,40 +280,55 @@ export default function VendorDetail() {
         <div className="space-y-6">
           {/* Quick Contact */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Contact</h3>
-            <div className="space-y-3">
-              {vendor.email && (
-                <a
-                  href={`mailto:${vendor.email}`}
-                  className="block w-full px-4 py-2 bg-primary-800 text-white text-center rounded-lg hover:bg-primary-700 transition-colors"
-                >
-                  Send Email
-                </a>
-              )}
-              {vendor.phone && (
-                <a
-                  href={`tel:${vendor.phone}`}
-                  className="block w-full px-4 py-2 border border-gray-300 text-gray-700 text-center rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Call Vendor
-                </a>
-              )}
-            </div>
+            <CardHeader>
+              <CardTitle>Quick Contact</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {vendor.email && (
+                  <Button
+                    asChild
+                    className="w-full"
+                  >
+                    <a href={`mailto:${vendor.email}`}>
+                      <Mail className="h-4 w-4 mr-2" />
+                      Send Email
+                    </a>
+                  </Button>
+                )}
+                {vendor.phone && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <a href={`tel:${vendor.phone}`}>
+                      <Phone className="h-4 w-4 mr-2" />
+                      Call Vendor
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </CardContent>
           </Card>
 
           {/* Metadata */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Metadata</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Created</label>
-                <p className="text-sm text-gray-900">{formatDate(vendor.created_at)}</p>
+            <CardHeader>
+              <CardTitle>Metadata</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Created</label>
+                  <p className="text-sm text-gray-900">{formatDate(vendor.created_at)}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Last Updated</label>
+                  <p className="text-sm text-gray-900">{formatDate(vendor.updated_at)}</p>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Last Updated</label>
-                <p className="text-sm text-gray-900">{formatDate(vendor.updated_at)}</p>
-              </div>
-            </div>
+            </CardContent>
           </Card>
         </div>
       </div>

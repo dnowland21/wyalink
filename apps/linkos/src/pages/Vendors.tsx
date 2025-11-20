@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { getVendors, deleteVendor, type Vendor } from '@wyalink/supabase-client'
-import { Card } from '@wyalink/ui'
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Search, Plus } from 'lucide-react'
 import VendorModal from '../components/VendorModal'
 
 export default function Vendors() {
@@ -143,76 +146,75 @@ export default function Vendors() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <Card>
-          <div className="text-sm text-gray-600">Total Vendors</div>
-          <div className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Total Vendors</div>
+            <div className="text-2xl font-bold mt-1">{stats.total}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-sm text-gray-600">Active Relationships</div>
-          <div className="text-2xl font-bold text-green-600 mt-1">{stats.total}</div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Active Relationships</div>
+            <div className="text-2xl font-bold text-success mt-1">{stats.total}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-sm text-gray-600">Countries</div>
-          <div className="text-2xl font-bold text-blue-600 mt-1">
-            {new Set(vendors.map(v => v.billing_country).filter(Boolean)).size}
-          </div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">Countries</div>
+            <div className="text-2xl font-bold text-info mt-1">
+              {new Set(vendors.map(v => v.billing_country).filter(Boolean)).size}
+            </div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="text-sm text-gray-600">US States</div>
-          <div className="text-2xl font-bold text-purple-600 mt-1">
-            {new Set(vendors.map(v => v.billing_state).filter(Boolean)).size}
-          </div>
+          <CardContent className="p-6">
+            <div className="text-sm text-muted-foreground">US States</div>
+            <div className="text-2xl font-bold text-secondary mt-1">
+              {new Set(vendors.map(v => v.billing_state).filter(Boolean)).size}
+            </div>
+          </CardContent>
         </Card>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <p className="text-sm text-red-800">{error}</p>
+        <div className="bg-error-50 border border-error-200 rounded-lg p-4 mb-6">
+          <p className="text-sm text-error-800">{error}</p>
         </div>
       )}
 
       {/* Vendors Table */}
       <Card>
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">All Vendors</h3>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">All Vendors</CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  type="text"
+                  placeholder="Search vendors..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-64 pl-9"
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Search vendors..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
+              <Button onClick={handleOpenCreateModal}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Vendor
+              </Button>
             </div>
-            <button
-              onClick={handleOpenCreateModal}
-              className="px-4 py-2 bg-primary-800 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
-            >
-              + Add Vendor
-            </button>
           </div>
-        </div>
-
-        {loading ? (
-          <div className="p-8 text-center text-gray-600">Loading vendors...</div>
-        ) : filteredVendors.length === 0 ? (
-          <div className="p-8 text-center text-gray-600">
-            {searchQuery ? 'No vendors found matching your search' : 'No vendors yet'}
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="p-8 text-center text-muted-foreground">Loading vendors...</div>
+          ) : filteredVendors.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground">
+              {searchQuery ? 'No vendors found matching your search' : 'No vendors yet'}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Company</th>
@@ -253,17 +255,17 @@ export default function Vendors() {
                     <td className="py-4 px-4">
                       <div>
                         {vendor.email && (
-                          <a href={`mailto:${vendor.email}`} className="text-sm text-primary-600 hover:text-primary-700">
+                          <a href={`mailto:${vendor.email}`} className="text-sm text-primary hover:text-primary/80">
                             {vendor.email}
                           </a>
                         )}
                         {vendor.phone && (
-                          <a href={`tel:${vendor.phone}`} className="text-sm text-gray-700 hover:text-gray-900 block mt-1">
+                          <a href={`tel:${vendor.phone}`} className="text-sm text-foreground hover:text-foreground/80 block mt-1">
                             {vendor.phone}
                           </a>
                         )}
                         {!vendor.email && !vendor.phone && (
-                          <span className="text-sm text-gray-400">-</span>
+                          <span className="text-sm text-muted-foreground">-</span>
                         )}
                       </div>
                     </td>
@@ -331,63 +333,70 @@ export default function Vendors() {
             </table>
           </div>
         )}
+        </CardContent>
       </Card>
 
       {/* Quick Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
         <Card>
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                />
-              </svg>
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-1">Supplier Management</h4>
+                <p className="text-xs text-gray-600">Track devices, SIM cards, and equipment suppliers</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">Supplier Management</h4>
-              <p className="text-xs text-gray-600">Track devices, SIM cards, and equipment suppliers</p>
-            </div>
-          </div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-1">Contract Terms</h4>
+                <p className="text-xs text-gray-600">Store payment terms and agreement details</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">Contract Terms</h4>
-              <p className="text-xs text-gray-600">Store payment terms and agreement details</p>
-            </div>
-          </div>
+          </CardContent>
         </Card>
         <Card>
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
-              </svg>
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-1">Dual Addresses</h4>
+                <p className="text-xs text-gray-600">Separate billing and shipping address tracking</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">Dual Addresses</h4>
-              <p className="text-xs text-gray-600">Separate billing and shipping address tracking</p>
-            </div>
-          </div>
+          </CardContent>
         </Card>
       </div>
 
